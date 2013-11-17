@@ -235,20 +235,24 @@ public class ExploreArticleService extends WMService{
 
 
 		if (prmImages.getValue(request)) {
-				URL freebaseRequest = new URL("http://www.freebase.com/api/service/mqlread?query={\"query\":{\"key\":[{\"namespace\":\"/wikipedia/en_id\",\"value\":\"" + art.getId() + "\"}], \"type\":\"/common/topic\", \"article\":[{\"id\":null}], \"image\":[{\"id\":null}]}}") ;
+				URL freebaseRequest = new URL("https://www.googleapis.com/freebase/v1/mqlread?query={\"query\":{\"key\":[{\"namespace\":\"/wikipedia/en_id\",\"value\":\"" + art.getId() + "\"}], \"type\":\"/common/topic\", \"article\":[{\"id\":null}], \"image\":[{\"id\":null}]}}") ;
 	
-				String freebaseResponse = getWMHub().getRetriever().getWebContent(freebaseRequest) ;
-	
-				freebaseResponse = freebaseResponse.replaceAll("\\s", "") ;
-	
-				Matcher m = fb_imagePattern.matcher(freebaseResponse) ;
-	
-				if (m.find()) {
-					Matcher n = fb_idPattern.matcher(m.group(1)) ;
-					while (n.find()) {
-						String url = "http://www.freebase.com/api/trans/image_thumb" + n.group(1).replace("\\/", "/") + "?maxwidth=" + prmImageWidth.getValue(request) + "&maxheight=" + prmImageHeight.getValue(request) ;
-						msg.addImage(new Image(url)) ;
+				try {
+					String freebaseResponse = getWMHub().getRetriever().getWebContent(freebaseRequest) ;
+		
+					freebaseResponse = freebaseResponse.replaceAll("\\s", "") ;
+		
+					Matcher m = fb_imagePattern.matcher(freebaseResponse) ;
+		
+					if (m.find()) {
+						Matcher n = fb_idPattern.matcher(m.group(1)) ;
+						while (n.find()) {
+							String url = "https://www.googleapis.com/freebase/v1/trans/image_thumb" + n.group(1).replace("\\/", "/") + "?maxwidth=" + prmImageWidth.getValue(request) + "&maxheight=" + prmImageHeight.getValue(request) ;
+							msg.addImage(new Image(url)) ;
+						}
 					}
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
 		}
 

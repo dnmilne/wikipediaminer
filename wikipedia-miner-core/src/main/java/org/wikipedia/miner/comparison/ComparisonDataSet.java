@@ -70,10 +70,12 @@ public class ComparisonDataSet {
 		
 		}
 		
+		input.close() ;
+		
 		System.out.println("Article pairs: " + articlePairs) ;
 		System.out.println("Term pairs: " + termPairs) ;
 	}
-
+	
 	public ComparisonDataSet[][] getFolds() {
 
 		ComparisonDataSet[][] folds = new ComparisonDataSet[10][2] ;

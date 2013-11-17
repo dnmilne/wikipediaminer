@@ -72,7 +72,7 @@ function wm_addDefinitionTooltipsToAllLinks(container, className) {
 					content: {
 						text: "<div class='ui-tooltip-loading'></div>",
 						ajax: {
-							url: wm_host + "/services/exploreArticle", // URL to the local file
+							url: wm_host + "service/exploreArticle", // URL to the local file
 							type: 'GET', // POST or GET
 							data: {
 								id: details.id,

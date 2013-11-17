@@ -36,14 +36,14 @@
 
       </description>
       <servlet-class>
-        org.wikipedia.miner.service.ProgressService
+        org.wikipedia.miner.web.service.ProgressService
       </servlet-class>
       <load-on-startup>1</load-on-startup>
     </servlet>
     
     <servlet-mapping>
       <servlet-name>getProgress</servlet-name>
-      <url-pattern>/services/getProgress</url-pattern>
+      <url-pattern>/service/getProgress</url-pattern>
     </servlet-mapping>
 
 
@@ -54,14 +54,14 @@
 
       </description>
       <servlet-class>
-        org.wikipedia.miner.service.SearchService
+        org.wikipedia.miner.web.service.SearchService
       </servlet-class>
       <load-on-startup>1</load-on-startup>
     </servlet>
     
     <servlet-mapping>
       <servlet-name>search</servlet-name>
-      <url-pattern>/services/search</url-pattern>
+      <url-pattern>/service/search</url-pattern>
     </servlet-mapping>
 
 
@@ -71,14 +71,14 @@
 
       </description>
       <servlet-class>
-        org.wikipedia.miner.service.ExploreArticleService
+        org.wikipedia.miner.web.service.ExploreArticleService
       </servlet-class>
       <load-on-startup>1</load-on-startup>
     </servlet>
     
     <servlet-mapping>
       <servlet-name>exploreArticle</servlet-name>
-      <url-pattern>/services/exploreArticle</url-pattern>
+      <url-pattern>/service/exploreArticle</url-pattern>
     </servlet-mapping>
 
 
@@ -88,14 +88,14 @@
 
       </description>
       <servlet-class>
-        org.wikipedia.miner.service.ExploreCategoryService
+        org.wikipedia.miner.web.service.ExploreCategoryService
       </servlet-class>
       <load-on-startup>1</load-on-startup>
     </servlet>
     
     <servlet-mapping>
       <servlet-name>exploreCategory</servlet-name>
-      <url-pattern>/services/exploreCategory</url-pattern>
+      <url-pattern>/service/exploreCategory</url-pattern>
     </servlet-mapping>
 
     <servlet>
@@ -104,14 +104,14 @@
 
       </description>
       <servlet-class>
-        org.wikipedia.miner.service.CompareService
+        org.wikipedia.miner.web.service.CompareService
       </servlet-class>
       <load-on-startup>1</load-on-startup>
     </servlet>
     
     <servlet-mapping>
       <servlet-name>compare</servlet-name>
-      <url-pattern>/services/compare</url-pattern>
+      <url-pattern>/service/compare</url-pattern>
     </servlet-mapping>
 
 
@@ -122,14 +122,14 @@
 
       </description>
       <servlet-class>
-        org.wikipedia.miner.service.WikifyService
+        org.wikipedia.miner.web.service.WikifyService
       </servlet-class>
       <load-on-startup>1</load-on-startup>
     </servlet>
     
     <servlet-mapping>
       <servlet-name>wikify</servlet-name>
-      <url-pattern>/services/wikify</url-pattern>
+      <url-pattern>/service/wikify</url-pattern>
     </servlet-mapping>
 
 
@@ -140,14 +140,14 @@
 
       </description>
       <servlet-class>
-        org.wikipedia.miner.service.SuggestService
+        org.wikipedia.miner.web.service.SuggestService
       </servlet-class>
       <load-on-startup>1</load-on-startup>
     </servlet>
     
     <servlet-mapping>
       <servlet-name>suggest</servlet-name>
-      <url-pattern>/services/suggest</url-pattern>
+      <url-pattern>/service/suggest</url-pattern>
     </servlet-mapping>
 
     <servlet>
@@ -156,14 +156,14 @@
 
       </description>
       <servlet-class>
-        org.wikipedia.miner.service.CorrectService
+        org.wikipedia.miner.web.service.CorrectService
       </servlet-class>
       <load-on-startup>1</load-on-startup>
     </servlet>
     
     <servlet-mapping>
       <servlet-name>correct</servlet-name>
-      <url-pattern>/services/correct</url-pattern>
+      <url-pattern>/service/correct</url-pattern>
     </servlet-mapping>
 
     
@@ -173,14 +173,14 @@
 
       </description>
       <servlet-class>
-        org.wikipedia.miner.service.StatsService
+        org.wikipedia.miner.web.service.StatsService
       </servlet-class>
       <load-on-startup>1</load-on-startup>
     </servlet>
     
     <servlet-mapping>
       <servlet-name>getStats</servlet-name>
-      <url-pattern>/services/getStats</url-pattern>
+      <url-pattern>/service/getStats</url-pattern>
     </servlet-mapping>
 
 
@@ -190,14 +190,14 @@
 
       </description>
       <servlet-class>
-        org.xjsf.UsageService
+        org.dmilne.xjsf.UsageService
       </servlet-class>
       <load-on-startup>1</load-on-startup>
     </servlet>
     
     <servlet-mapping>
       <servlet-name>getUsage</servlet-name>
-      <url-pattern>/services/getUsage</url-pattern>
+      <url-pattern>/service/getUsage</url-pattern>
     </servlet-mapping>
 
 
@@ -207,14 +207,14 @@
 
       </description>
       <servlet-class>
-        org.wikipedia.miner.service.ListWikipediasService
+        org.wikipedia.miner.web.service.ListWikipediasService
       </servlet-class>
       <load-on-startup>1</load-on-startup>
     </servlet>
     
     <servlet-mapping>
       <servlet-name>listWikipedias</servlet-name>
-      <url-pattern>/services/listWikipedias</url-pattern>
+      <url-pattern>/service/listWikipedias</url-pattern>
     </servlet-mapping>
 
 
@@ -224,20 +224,20 @@
 
       </description>
       <servlet-class>
-        org.xjsf.ListServicesService
+        org.dmilne.xjsf.ListServicesService
       </servlet-class>
       <load-on-startup>1</load-on-startup>
     </servlet>
     
     <servlet-mapping>
       <servlet-name>listServices</servlet-name>
-      <url-pattern>/services/listServices</url-pattern>
+      <url-pattern>/service/listServices</url-pattern>
     </servlet-mapping>
 
 
   <filter>
     <filter-name>CharsetFilter</filter-name>
-    <filter-class>org.wikipedia.miner.service.CharsetFilter</filter-class>
+    <filter-class>org.wikipedia.miner.web.util.CharsetFilter</filter-class>
       <init-param>
         <param-name>requestEncoding</param-name>
         <param-value>UTF-8</param-value>

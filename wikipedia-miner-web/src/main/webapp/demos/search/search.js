@@ -71,7 +71,7 @@ $(document).ready(function() {
 function checkProgress() {
 	
 	$.getJSON(
-		"../../services/getProgress",
+		"../../service/getProgress",
 		{responseFormat:'json'},
 		function(data) {
 			var progress = data.progress ;
@@ -116,7 +116,7 @@ function ready() {
 		
 		
 		$.get(
-			"../../services/exploreArticle", 
+			"../../service/exploreArticle", 
 			{
 				id: artId,
 				definition: true,
@@ -136,6 +136,9 @@ function ready() {
 				responseFormat:'json'
 			},
 			function(data){
+
+				console.log(data) ;
+
 				processArticleResponse(data) ;
 			}
 		);
@@ -149,7 +152,7 @@ function ready() {
 		$('#loading').show() ;
 		
 		$.get(
-			"../../services/exploreCategory", 
+			"../../service/exploreCategory", 
 			{
 				id: catId,
 				parentCategories:true,
@@ -175,7 +178,7 @@ function ready() {
 		$('#loading').show() ;
 		
 		$.get(
-			"../../services/search", 
+			"../../service/search", 
 			{
 				query: query,
 				responseFormat:'json'
@@ -223,7 +226,7 @@ function processSearchResponse(data) {
 			senseBox.append("<p class='definition'><img src='../images/loading.gif'></img></p>") ;
 			
 			$.get(
-				"../../services/exploreArticle", 
+				"../../service/exploreArticle", 
 				{
 					id: sense.id, 
 					definition:true,
@@ -252,7 +255,7 @@ function processSearchResponse(data) {
 		$('#loading').show() ;
 		
 		$.get(
-			"../../services/exploreArticle", 
+			"../../service/exploreArticle", 
 			{
 				id: senses[0].id,
 				definition: true,
@@ -289,6 +292,10 @@ function processSearchResponse(data) {
 
 
 function processArticleResponse(data) {
+
+	console.log("Handling article response") ;
+	console.log(data) ;
+
 	
 	$('#loading').hide() ;
 	$('#articleDetails').show() ;

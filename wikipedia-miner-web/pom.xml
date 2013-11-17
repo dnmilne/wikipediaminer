@@ -44,5 +44,16 @@
 	</dependencies>
 	<build>
 		<finalName>wikipedia-miner-web</finalName>
+		
+		<plugins>
+			<plugin>
+				<groupId>org.mortbay.jetty</groupId>
+				<artifactId>jetty-maven-plugin</artifactId>
+				<version>8.1.11.v20130520</version>
+				<configuration>
+					<useTestClasspath>true</useTestClasspath>
+				</configuration>
+			</plugin>
+		</plugins>
 	</build>
 </project>

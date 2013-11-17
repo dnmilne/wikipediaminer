@@ -37,7 +37,7 @@ $(document).ready(function() {
 
 function requestServiceList() {
 	$.get(
-		"listServices", 
+		"../service/listServices", 
 		{responseFormat:'JSON'},
 		function(data){
 			processServiceListResponse(data);
@@ -86,7 +86,7 @@ function processServiceListResponse(data) {
 
 function requestServiceDetails(serviceName) {
 	$.get(
-		serviceName, 
+		"../service/" + serviceName, 
 		{
 			help:true,
 			responseFormat:'JSON'
@@ -398,7 +398,7 @@ function constructExampleBox(data, serviceName) {
 		index++ ;
 	});
 	
-	var cmdTry = $("<a class='try' target='_blank' href='" + data.url + "'>try it!</a>") ;
+	var cmdTry = $("<a class='try' target='_blank' href='../service/" + data.url + "'>try it!</a>") ;
 	divExampleContent.append(cmdTry) ;
 	
 	return divExample ;
