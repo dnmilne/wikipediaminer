@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" "http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<web-app>
+
+    <display-name>WikipediaMiner Services</display-name>
+    <description>
+
+    </description>
+
+    <context-param>
+      <param-name>webmaster</param-name>
+      <param-value></param-value>
+      <description>
+        The EMAIL address of the administrator to whom questions
+        and comments about this application should be addressed.
+      </description>
+    </context-param>
+
+    <context-param>
+      <param-name>hubConfigFile</param-name>
+      <param-value></param-value>
+      <description>
+        An XML file describing the wikipedia dumps that are available via these web services,
+	and how they should be configured.
+      </description>
+    </context-param>  
+
+
+
+
+    <servlet>
+      <servlet-name>getProgress</servlet-name>
+      <description>
+
+      </description>
+      <servlet-class>
+        org.wikipedia.miner.service.ProgressService
+      </servlet-class>
+      <load-on-startup>1</load-on-startup>
+    </servlet>
+    
+    <servlet-mapping>
+      <servlet-name>getProgress</servlet-name>
+      <url-pattern>/services/getProgress</url-pattern>
+    </servlet-mapping>
+
+
+
+    <servlet>
+      <servlet-name>search</servlet-name>
+      <description>
+
+      </description>
+      <servlet-class>
+        org.wikipedia.miner.service.SearchService
+      </servlet-class>
+      <load-on-startup>1</load-on-startup>
+    </servlet>
+    
+    <servlet-mapping>
+      <servlet-name>search</servlet-name>
+      <url-pattern>/services/search</url-pattern>
+    </servlet-mapping>
+
+
+    <servlet>
+      <servlet-name>exploreArticle</servlet-name>
+      <description>
+
+      </description>
+      <servlet-class>
+        org.wikipedia.miner.service.ExploreArticleService
+      </servlet-class>
+      <load-on-startup>1</load-on-startup>
+    </servlet>
+    
+    <servlet-mapping>
+      <servlet-name>exploreArticle</servlet-name>
+      <url-pattern>/services/exploreArticle</url-pattern>
+    </servlet-mapping>
+
+
+    <servlet>
+      <servlet-name>exploreCategory</servlet-name>
+      <description>
+
+      </description>
+      <servlet-class>
+        org.wikipedia.miner.service.ExploreCategoryService
+      </servlet-class>
+      <load-on-startup>1</load-on-startup>
+    </servlet>
+    
+    <servlet-mapping>
+      <servlet-name>exploreCategory</servlet-name>
+      <url-pattern>/services/exploreCategory</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+      <servlet-name>compare</servlet-name>
+      <description>
+
+      </description>
+      <servlet-class>
+        org.wikipedia.miner.service.CompareService
+      </servlet-class>
+      <load-on-startup>1</load-on-startup>
+    </servlet>
+    
+    <servlet-mapping>
+      <servlet-name>compare</servlet-name>
+      <url-pattern>/services/compare</url-pattern>
+    </servlet-mapping>
+
+
+
+    <servlet>
+      <servlet-name>wikify</servlet-name>
+      <description>
+
+      </description>
+      <servlet-class>
+        org.wikipedia.miner.service.WikifyService
+      </servlet-class>
+      <load-on-startup>1</load-on-startup>
+    </servlet>
+    
+    <servlet-mapping>
+      <servlet-name>wikify</servlet-name>
+      <url-pattern>/services/wikify</url-pattern>
+    </servlet-mapping>
+
+
+
+    <servlet>
+      <servlet-name>suggest</servlet-name>
+      <description>
+
+      </description>
+      <servlet-class>
+        org.wikipedia.miner.service.SuggestService
+      </servlet-class>
+      <load-on-startup>1</load-on-startup>
+    </servlet>
+    
+    <servlet-mapping>
+      <servlet-name>suggest</servlet-name>
+      <url-pattern>/services/suggest</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+      <servlet-name>correct</servlet-name>
+      <description>
+
+      </description>
+      <servlet-class>
+        org.wikipedia.miner.service.CorrectService
+      </servlet-class>
+      <load-on-startup>1</load-on-startup>
+    </servlet>
+    
+    <servlet-mapping>
+      <servlet-name>correct</servlet-name>
+      <url-pattern>/services/correct</url-pattern>
+    </servlet-mapping>
+
+    
+    <servlet>
+      <servlet-name>getStats</servlet-name>
+      <description>
+
+      </description>
+      <servlet-class>
+        org.wikipedia.miner.service.StatsService
+      </servlet-class>
+      <load-on-startup>1</load-on-startup>
+    </servlet>
+    
+    <servlet-mapping>
+      <servlet-name>getStats</servlet-name>
+      <url-pattern>/services/getStats</url-pattern>
+    </servlet-mapping>
+
+
+    <servlet>
+      <servlet-name>getUsage</servlet-name>
+      <description>
+
+      </description>
+      <servlet-class>
+        org.xjsf.UsageService
+      </servlet-class>
+      <load-on-startup>1</load-on-startup>
+    </servlet>
+    
+    <servlet-mapping>
+      <servlet-name>getUsage</servlet-name>
+      <url-pattern>/services/getUsage</url-pattern>
+    </servlet-mapping>
+
+
+    <servlet>
+      <servlet-name>listWikipedias</servlet-name>
+      <description>
+
+      </description>
+      <servlet-class>
+        org.wikipedia.miner.service.ListWikipediasService
+      </servlet-class>
+      <load-on-startup>1</load-on-startup>
+    </servlet>
+    
+    <servlet-mapping>
+      <servlet-name>listWikipedias</servlet-name>
+      <url-pattern>/services/listWikipedias</url-pattern>
+    </servlet-mapping>
+
+
+    <servlet>
+      <servlet-name>listServices</servlet-name>
+      <description>
+
+      </description>
+      <servlet-class>
+        org.xjsf.ListServicesService
+      </servlet-class>
+      <load-on-startup>1</load-on-startup>
+    </servlet>
+    
+    <servlet-mapping>
+      <servlet-name>listServices</servlet-name>
+      <url-pattern>/services/listServices</url-pattern>
+    </servlet-mapping>
+
+
+  <filter>
+    <filter-name>CharsetFilter</filter-name>
+    <filter-class>org.wikipedia.miner.service.CharsetFilter</filter-class>
+      <init-param>
+        <param-name>requestEncoding</param-name>
+        <param-value>UTF-8</param-value>
+      </init-param>
+  </filter>
+
+  <filter-mapping>
+    <filter-name>CharsetFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+
+
+    <session-config>
+      <session-timeout>30</session-timeout>    <!-- 30 minutes -->
+    </session-config>
+    
+    
+</web-app>
