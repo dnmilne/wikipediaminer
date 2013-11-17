@@ -9,7 +9,7 @@
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 
-	
+
 	<artifactId>wikipedia-miner-core</artifactId>
 
 	<name>wikipedia-miner-core</name>
@@ -69,4 +69,22 @@
 		</dependency>
 
 	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifest>
+							<mainClass>org.wikipedia.miner.util.EnvironmentBuilder</mainClass>
+						</manifest>
+					</archive>
+					<descriptorRefs>
+						<descriptorRef>jar-with-dependencies</descriptorRef>
+					</descriptorRefs>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>

@@ -1,16 +1,16 @@
-<!-- This configuation file defines properties for a service hub -->
+<!-- This configuration file defines properties for a service hub -->
 
 <wikipediaHubConfiguration>
 
-    <!-- Options requred to allow retrieval of web content via proxy -->
+    <!-- Options required to allow retrieval of web content via proxy (just leave blank if not needed) -->
     <proxy host="" port="" user="" password=""/>
 
     <!-- 
-	A version of wikipedia that will be made available via the service hub. 
-	You may specify multiple wikipedias, in which case one should be specified as the default
+	A version of Wikipedia that will be made available via the service hub. 
+	You may specify multiple Wikipedias, in which case one should be specified as the default
     -->
     <wikipedia name="" description="" default="true">
-	path/to/conf/file
+		path/to/conf/file
     </wikipedia>
 
 </wikipediaHubConfiguration> 
