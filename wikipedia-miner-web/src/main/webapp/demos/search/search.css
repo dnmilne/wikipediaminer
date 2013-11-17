@@ -1,0 +1,97 @@
+.majorSearch {	
+	
+}
+
+.majorSearch .search-text {
+	
+	padding: 5px ;
+	
+	font-size: 20px ;
+	width: 200px ;
+	margin-right: 5px ;
+}
+
+.minorSearch {
+	margin-top: 20px ;
+	text-align: right ;
+}
+
+.minorSearch .search-text {
+	width: 150px ;
+	height: 26px ;
+	font-size: 16px ;
+	padding: 0px 5px ;
+}
+
+.minorSearch .search-button {
+	height: 28px ;
+	font-size: 14px ;	
+}
+
+
+#loading {
+	background-image: url('../../images/loading.gif') ;
+	background-repeat: no-repeat ;
+	background-position:center ;
+	
+	padding-top: 0px ;
+	height: 200px ;
+}
+
+
+#senses {
+	padding-left: 0px ;
+	margin-left: 0px ;
+}
+
+.senseBox {
+	padding-left: 0px ;
+	margin-left: 0px ;
+	margin-bottom: 20px ;
+}
+
+
+.senseBox .title{
+	font-size: 18px ;
+	margin-left: 20px ;
+}
+
+.senseBox .bar {
+	
+	display: inline-block ;
+	
+	width: 50px ;
+	height: 12px ;
+	border: 1px solid #d5a422 ;
+}
+
+.senseBox .bar div {
+	
+	display: block ;
+	float: left ;
+	height: 12px ;
+	background-color: #d5a422 ;
+	
+}
+
+.senseBox .definition {
+	margin-left: 20px ;
+	
+}
+
+#translations em {
+	font-weight:normal ;
+	color: #555555 ;
+}
+
+
+#error, #loading, #senseDetails, #articleDetails, #categoryDetails {
+	display: none ;
+}
+
+
+#noLabels, #noTranslations, #noCategories, #noLinksIn, #noLinksOut, #noParentCats, #noChildCats, #noChildArts {
+	display: none ;
+}
+
+

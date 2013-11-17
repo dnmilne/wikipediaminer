@@ -1,0 +1,150 @@
+			#serviceList {
+				margin-left: 20px ;
+			}
+			
+			#serviceList td {
+				padding-bottom: 5px;
+			}
+			
+			.serviceName {
+				text-align: right ;
+				font-size: 1.2em ;
+				padding-right: 10px ;
+			}
+		
+		
+			.paramGroup {
+				border-width: 1px ;
+				margin: 10px ;
+				padding: 10px ;
+			}
+			
+			.paramGroup .title {
+				cursor: pointer ;
+			}
+			
+			.paramGroup .title:hover {
+				color: #d5a422 ;
+			}
+			
+			.paramGroup .title span {
+				font-size: 130% ;
+				padding-left: 10px ;
+			}
+			
+			.paramGroup .content {
+
+			}
+			
+			.paramGroup p {
+				margin-left: 10px ;
+			}
+			
+			.param {
+				margin-left: 10px ;
+				margin-right: 10px;
+				margin-top: 5px ;
+				padding: 10px ;
+			}
+			
+			.param p {
+				margin-left: 0px ;
+			}
+			
+			.param .title {
+				cursor: pointer ;
+			}
+			
+			.param .title:hover {
+				color: #d5a422 ;
+			}
+			
+			.param .title span {
+				font-size: 120% ;
+				padding-left: 10px ;
+			}
+			
+			.param .content {
+				display: none ;
+				margin-left: 25px ;
+			}
+			
+			.param td {
+				vertical-align:middle ;
+				padding-top: 6px ;
+			}
+			
+			.param .datatype, .param .value {
+				color: #d5a422;
+				margin-right:10px ;
+				cursor: help;
+			}
+			
+			.param .header {
+				text-align: right ;
+				font-weight: bold ;
+				padding-right: 10px ;
+			}
+
+			.example {
+				margin-left: 10px ;
+				margin-top: 5px ;
+				margin-right: 10px ;
+				padding: 10px ;
+				
+				position: relative;
+			}
+			
+			.example a {
+				color: #d5a422;
+			}
+			
+			
+			.example .title {
+				cursor: pointer ;
+			}
+			
+			.example .title:hover {
+				color: #d5a422 ;
+			}
+			
+			.example .title span {
+				font-size: 110% ;
+				padding-left: 10px ;
+			}
+			
+			.example .content {
+				display: none ;
+				padding-left: 20px ;
+				
+			}
+			
+			.example .params {
+				color: rgb(50,50,50) ;
+				font-family: "Courier New", Courier, monospace; 
+				padding-left: 10px ;
+			}
+			
+			.example .params .param {
+
+				padding: 0px ;
+				margin: 0px ;
+				
+				margin-left: 30px;
+				text-indent: -20px;
+			}
+			
+			.example .try {
+				
+				position: absolute ;
+				bottom: 20px ;
+				right: 20px ;
+				
+				font-size: 110% ;
+				
+				padding-right: 20px ;
+				background-image: url(../images/external.gif) ;
+				background-repeat: no-repeat;
+				background-position: right -2px ;
+			}
+			

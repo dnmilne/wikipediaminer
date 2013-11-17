@@ -1,0 +1,85 @@
+.inputBox, .outputBox {
+    border: 1px solid rgb(100,100,100) ;
+    padding: 5px ;
+    background-color: white ;
+    
+    width: 536px ;
+    height: 200px ;
+    overflow:auto;  
+    
+}
+
+#showOptions {
+    padding-right: 15px ;
+    color: #d5a422 ;
+    cursor: pointer ;
+}
+
+#hideOptions {
+    padding-right: 15px ;
+
+    color: #d5a422 ;
+    cursor: pointer ;
+}
+
+#options {
+    padding: 5px; 
+    border: 1px solid #888888 ;
+}
+
+#options fieldset {
+    border: none ;
+    
+    padding-bottom: 10px ;
+}
+
+#options legend {
+    font-weight: bold;
+    color: black ;
+}
+
+#options input {
+    margin-left: 20px ;
+}
+
+#tabs {
+	display: none ;
+}
+
+#renderedHtml a, #wikiMarkup a {
+	color: #d5a422 ;
+}
+
+#renderedHtml {
+	font-size: 16px ;
+}
+
+#rawHtml, #wikiMarkup, #txtSource {
+    font-family: monospace ;
+    font-size: 14px ;
+    text-align: left ;
+    overflow-x: auto ;
+    white-space: pre-line ;
+}
+
+#rawHtml {
+	word-break: break-all;
+}
+
+#loading {
+	background-image: url('../../images/loading.gif') ;
+	background-repeat: no-repeat ;
+	background-position:center ;
+	
+	padding-top: 0px ;
+	height: 200px ;
+}
+
+#results {
+	display: none ;
+}
+
+.explanation {
+	font-size: 15px ;
+	color: #444444 ;
+}

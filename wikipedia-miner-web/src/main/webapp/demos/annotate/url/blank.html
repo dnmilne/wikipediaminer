@@ -1,0 +1,91 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"> 
+<html> 
+	<head> 
+		
+		<script type="text/javascript" src="../../../js/jquery-1.5.1.min.js"></script>
+		<script type="text/javascript" src="../../../js/jquery-ui-1.8.14.custom.min.js"></script>
+		<script type="text/javascript" src="../../../js/jquery.qtip.min.js"></script>
+		<script type="text/javascript" src="../../../js/tooltips.js"></script>
+		
+		<script type="text/javascript" src="../../../js/util.js"></script> 
+		
+		<link type="text/css" href="../../../css/jquery-ui/jquery-ui-1.8.14.custom.css" rel="stylesheet" />
+		<link type="text/css" href="../../../css/jquery.qtip.min.css" rel="stylesheet" />
+		<link type="text/css" href="../../../css/tooltips.css" rel="stylesheet" />
+		<link rel="stylesheet" href="../../../css/wm.css" type="text/css"> 
+		
+		
+		<style>
+		
+			body {
+				text-align: center ;
+			}
+		
+			#header {
+				margin-top: 75px ; 
+				margin-bottom: 50px ;
+				font-size:larger ;
+			}
+			
+			#bookmarkBox {
+				width: 500px ; 
+				margin-top:50px ; 
+				margin-left: auto ; 
+				margin-right: auto ;  
+				text-align: center ; 
+				display:none
+			}
+			
+			
+		</style>
+		
+		<script>
+			
+			$(document).ready(function() {	
+				
+				wm_setHost("../../../") ;
+				
+				wm_addDefinitionTooltipsToAllLinks() ;	
+				
+				var bookmarkUrl = window.location.href ;
+				bookmarkUrl = bookmarkUrl.replace("blank.html", "") ;
+				
+				bookmarkUrl = "javascript:void(document.location='" + bookmarkUrl + "?source='+escape(document.location))" ;
+			    
+			    $("#bookmarkLink").attr("href", bookmarkUrl) ;
+			    $('#bookmarkBox').show() ;
+			    
+			}) ;
+			
+		</script>
+		
+		
+		
+	</head> 
+	<body> 
+	
+		<p id='header' > 
+			Welcome to the Wikipedia Miner <em>annotate</em> demo. 
+		</p> 
+		
+		<p>
+			Enter a URL above. Wikipedia Miner will analyse its content, and add <a href='http://en.wikipedia.org/wiki/Hyperlink' pageId='49547'>links</a> to the most relevant <a href='http://en.wikipedia.org/wiki/Wikipedia' pageId='5043734'>Wikipedia</a> articles.
+		</p>
+		
+		<p> 
+			If you want to annotate a snippet of text (rather than an entire page) then go <a href="../" target="_top">here</a>.
+		</p>
+		
+		<div id='bookmarkBox' class="ui-state-highlight ui-corner-all note"> 
+			<p> 
+			Do you want to annotate pages with the click of a button?
+			</p> 
+			<p> 
+				Just drag this <a id='bookmarkLink' target="_top">wikipediaminer annotator</a> 
+				link into your bookmarks.
+			</p>					
+		</div> 
+		</div> 
+	</body> 
+</html> 

@@ -1,0 +1,98 @@
+<html> 
+	<head> 
+		<title>WikipediaMiner | topic detection demo</title> 
+		
+		<script type="text/javascript" src="../../../js/jquery-1.5.1.min.js"></script> 
+		<script type="text/javascript" src="../../../js/jquery-ui-1.8.14.custom.min.js"></script>
+		<script type="text/javascript" src="../../../js/jquery.qtip-1.0.0-rc3.min.js"></script>
+		<script type="text/javascript" src="../../../js/tooltips.js"></script> 
+		<script type="text/javascript" src="linkColor.js"></script> 
+		
+		<script type="text/javascript" src="../../../js/jgoogleanalytics.js"></script> 
+		<script type="text/javascript" src="../../../js/util.js"></script> 
+		<script type="text/javascript" src="../../../js/analyticsKey.js"></script> 
+		
+		<link rel="icon" href="../../../images/icon.png" type="image/png" />
+		
+		<script>
+			
+			$(document).ready(function() {					
+
+				var source = "" ;
+				var density = 0.5 ;
+				var color = 0.5 ;
+			
+				if (urlParams["source"] != undefined)
+					source = urlParams["source"] ;
+				
+				if (urlParams["linkDensity"] != undefined)
+					density = Number(urlParams["linkDensity"]) ;
+					
+				if (urlParams["linkColor"] != undefined)
+					color = Number(urlParams["linkColor"]) ;
+					
+				
+				var controlUrl = 'controls.html?' + $.param({
+					source: source,
+					linkDensity: density,
+					linkColor: color
+				}) ;
+				parent.controls.location.href = controlUrl;
+				
+				var linkColor = getColor(color) ;
+
+				
+				if (source != "") {
+					var resultUrl = '../../../services/wikify?' + $.param({
+						source: source,
+						tooltips: true,
+						minProbability: (1-density),
+						linkStyle: "color:" + linkColor,
+						sourceMode: "URL",
+						responseFormat: "DIRECT"
+					}) ;
+					
+					parent.results.location.href = resultUrl ;
+				}
+				
+				/*
+				if (source != "") {
+					
+					parent.results.location.href = "loading.html" ;
+					
+					$.get("../../../services/wikify", 
+						{
+							source: source,
+							tooltips: true,
+							minProbability: (1-density),
+							linkStyle: "color:" + linkColor,
+							sourceMode: "URL",
+							responseFormat: "DIRECT"
+							
+			       		}, 
+			       		function(response){							
+							parent.results.document.write(response) ;
+							$(parent.results).load(function() {
+								alert("Adding tooltips") ;
+								wm_addDefinitionTooltipsToAllLinks() ;
+							})
+							//hacky, but delay this for 1 second
+							//$.delay(1000).parent.results.$.ready() ;
+							//
+						}
+					);
+				}*/
+				
+				
+				
+			
+			}) ;
+			
+			
+		</script>
+	</head> 
+	<frameset rows="50px,*" frameborder="no"> 
+		<frame name='controls' src="controls.html" scrolling="no" noresize/> 
+		<frame name='results' src="blank.html" marginwidth=0 marginheight=0 noresize /> 
+	</frameset> 
+</html> 

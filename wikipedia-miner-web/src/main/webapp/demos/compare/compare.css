@@ -1,0 +1,102 @@
+#term1, #term2 {
+	
+	padding: 5px ;
+	
+	font-size: 20px ;
+	width: 150px ;
+	margin-right: 5px ;
+	
+}
+
+#hint {
+	color: rgb(150,150,150) ;
+}
+
+
+#relationWeight {
+	font-size: 25px ;
+	font-weight: bold ;
+}
+
+#cmdCompare {
+	font-size: 20px ;
+	padding: 5px ;
+	display: none ;
+}
+
+#relation{
+	margin-right: 5px ;
+	line-height: 28px ;
+}
+
+#details {
+	display: none ;
+}
+
+#error{
+	display: none ;
+	
+}
+
+#loadingSpacer {
+	height: 200px ;
+}
+
+#byTerm1, #byTerm2 {
+	font-weight: bold ;
+}
+
+
+#senses {
+	width: 100% ;
+}
+
+#alternatives1, #alternatives2 {
+	padding: 0px 20px ;
+	font-size: small ;
+} 
+
+
+#senses td {
+	text-align: center ;
+	vertical-align: top ;
+	padding: 5px ;
+	width: 50% ;
+}
+
+#sense1, #sense2 {
+	
+	font-size: 20px ;
+}
+
+#noSenses, #noConnections, #noSnippets {
+	display: none ;
+}
+
+#snippets {
+	margin-left: 0px ;
+	padding-left: 0px ;
+}
+
+.snippet {
+	margin: 10px 0px ;
+	
+	padding: 0px 10px ;
+	
+	border: 1px solid #999999 ;
+}
+
+.snippet p {
+	padding: 0px ;
+}
+
+.snippet .source {
+	text-align: right ;
+	padding-top: 0px ;
+	margin-top: 0px ;
+}
+
+
+br {
+	clear: both ;
+}

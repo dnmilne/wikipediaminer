@@ -1,0 +1,59 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		
+		<title>wikipediaminer - annotate url demo</title>
+		<link rel="stylesheet" href="../../../css/wm.css" type="text/css">
+		<link rel="stylesheet" href="controls.css" type="text/css">
+		<link rel="stylesheet" href="../../../css/tooltips.css" type="text/css">
+		<link rel="stylesheet" href="../../../css/tagcloud.css" type="text/css">
+		<link type="text/css" href="../../../css/jquery-ui/jquery-ui-1.8.14.custom.css" rel="stylesheet" />
+		
+		
+		<script type="text/javascript" src="../../../js/jquery-1.5.1.min.js"></script> 
+		<script type="text/javascript" src="../../../js/jquery-ui-1.8.14.custom.min.js"></script>
+		<script type="text/javascript" src="../../../js/jquery.qtip-1.0.0-rc3.min.js"></script>
+		<script type="text/javascript" src="../../../js/tooltips.js"></script> 
+		<script type="text/javascript" src="../../../js/tagcloud.js"></script> 
+		<script type="text/javascript" src="../../../js/util.js"></script> 
+		<script type="text/javascript" src="linkColor.js"></script> 
+		<script type="text/javascript" src="controls.js"></script> 
+		
+		
+		 
+	</head>
+	<body>
+		
+		<form action="./" target="_top">
+			<div id="main">
+				
+				<div id='nav'>
+					<a target='_top' href="../../">demos</a>/annotate	
+				</div>
+			
+				<div id='sourceLabel'>URL</div>
+				<input type='text' id='txtSource' name='source'></input>
+				
+				<div id='options'>
+					<span id='colorLabel'>link color</span>
+					<div id='colorSlider'></div>
+					<input id='txtColor' name='linkColor' type='hidden'></input>
+					
+					<span id='densityLabel'>link density</span>
+					<div id='densitySlider'></div>
+					<input id='txtDensity' name='linkDensity' type='hidden' ></input>
+					 
+					<input id="cmdAnnotate" type="submit" value="Annotate"></input>
+				
+				</div>
+			
+			</div>
+			
+		</form>
+		
+		
+		
+	</body>
+</html>

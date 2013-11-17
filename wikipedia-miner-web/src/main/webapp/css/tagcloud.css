@@ -1,0 +1,12 @@
+.tagcloud { 
+	margin:0; padding:0; 
+	overflow: auto ;
+} 
+
+.tagcloud li {  
+  list-style-type:none; 
+  float:left; 
+  padding:10px; 
+  height:20px;  
+  line-height: 20px ;
+} 

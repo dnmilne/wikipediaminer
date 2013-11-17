@@ -1,0 +1,89 @@
+body{
+
+	
+	font-size: 14px ;
+}
+
+#main {
+	background-image: url('images/background.gif') ;
+	background-repeat: no-repeat ;
+	background-position: 0px 0px ;
+	
+	height: 49px ;
+	border-bottom: 1px solid black ;
+}
+
+#nav {
+	position: absolute ;
+	
+	top: 27px ;
+	left: 89px ;
+	
+	width: 165px ;
+
+	font-size: 16px ;
+	text-align: center ;
+}
+
+#options {
+	float: right ;
+}
+
+#colorLabel, #colorSlider, #densityLabel, #densitySlider, #cmdAnnotate {
+	float: left ;
+}
+
+#colorLabel, #densityLabel {
+	margin-right: 10px ;
+	width: 50px ;
+	text-align: right ;
+
+	margin-top: 9px ;
+}
+
+#colorSlider, #densitySlider {
+	margin-right: 15px ;
+}
+
+#colorSlider {
+	width: 100px ;
+	background-image: url("images/colorSlider.gif") ;
+	background-repeat: repeat-y ;
+}
+	
+#colorSlider .ui-slider-handle{
+	background-image: url("images/colorSlider.gif") ;
+	background-repeat: repeat-y ;
+	background-position: -40px 0px ;
+}
+
+#densitySlider {
+	width: 100px ;
+}
+
+#colorSlider, #densitySlider {
+	margin-top: 17px ;	
+}
+
+#cmdAnnotate {
+	margin: 7px ;
+}
+
+#sourceLabel {
+	position: absolute;
+	left: 275px ;
+	top: 17px ;
+}
+
+#txtSource {
+	position: absolute ;
+	left: 310px ;
+	top: 10px ;
+	
+	padding: 3px ;
+	
+	font-size: 16px ;
+	width: 200px ;
+}
+
+

@@ -1,0 +1,227 @@
+body {
+	background-color: white;
+	
+	margin: 1em ; /* to avoid margins */
+	
+	font: x-small sans-serif;
+	text-align: justify ;
+	font-size: 14px;
+} 
+
+em {
+font-style: normal ;
+font-weight: bold ;
+}
+
+p {
+	margin: .4em 0em .5em 0em;
+	line-height: 1.5em;
+}
+
+.centered {
+	text-align: center ;
+	text-align: center; /* to correct the centering IE bug*/
+
+}	
+
+a {
+  cursor: pointer ;
+	text-decoration: none;
+	color: #002bb8;
+	background: none;
+}
+
+a:visited {
+	color: #5a3696;
+}
+a:active {
+	color: #faa700;
+}
+a:hover {
+	text-decoration: underline;
+}
+
+
+h1, h2, h3 {
+	font-family: Trebuchet MS, sans-serif;
+	color: black;
+	font-weight: normal;
+	border: none ;
+}
+
+h1 {
+	margin: 0;
+	margin-top: 1em;
+	padding-bottom: .17em;
+	border-bottom: 1px solid rgb(15,50,100);
+	margin-bottom: 0.5em ;
+	font-size: 170%; 
+}
+
+h2 { 
+	font-size: 150%; 
+	margin-bottom: 5px ;
+}
+
+h3 {
+	font-size: 120%;
+	margin-left: 1em ;
+}
+
+ul {
+	line-height: 1.5em;
+	list-style-type: none;
+	margin: 0.3em 2em 0em 2em ;
+	padding: 0px;
+	text-align: left ;
+}
+
+li {
+	margin-bottom: .5em ;
+}
+
+.horizontal li {
+	display: block;
+	float: left ;
+	list-style-type: none;
+	padding-right: 2em;
+}
+
+.break {
+	clear: both ;
+}
+
+table, td, tr {
+	padding:0px ;
+	margin:0px ;
+	border-width: 0px ;
+	border-collapse: collapse ;
+}
+
+
+
+/* loading.................................................. */
+
+p{
+	color: black ;
+}
+
+.note {
+	margin-top: 50px ;
+	border: 1px solid rgb(200,200,200) ;
+	background-color: rgb(250,250,250) ;
+	padding: 10px ;
+}
+
+.note .small {
+	font-size: 0.95em ;
+	color: rgb(50,50,50) ;
+}
+
+.warning {
+	margin-top: 10px ;
+	border: none ;
+	font-size: 0.95em ;
+	color: rgb(50,50,50) ;
+	padding:5px 10px;
+}
+
+
+/* searching and browsing..............................................*/
+
+.sense {
+	margin-top: 15px ;
+}
+
+.box input, .box select {
+	width: 150px ;
+}
+
+.bar_outer {
+	margin-left:10px ;
+	margin-top: 2px ;
+	width: 50px ;
+	height: 10px ;
+		
+	border: 1px solid #687898 ;
+	background-color: #f3f4f7 ;
+	
+	position: relative ;
+	top:0px ; 
+}
+
+.bar_inner {
+	height: 10px ;
+	width: 0px ;
+	
+	background-color: #687898 ;
+}
+
+.explanation {
+	color: 	#4E4848 ;
+	padding-left: 1em ;
+}
+
+.teaser {
+	color: #4E4848 ;
+	padding-left: 1em ;
+}
+
+.parameter {
+	margin-bottom: 20px ;
+}
+
+.more {
+	clear: both ;
+	text-align: right ;
+}
+
+.box {
+	text-align: center;
+	position: relative ;
+	border: 1px solid #687898 ;
+	background-color: #f3f4f7 ;
+	padding: 10px 0px ;
+	margin: 0px 20px ;
+	margin-top: 20px ;
+}
+
+.box div {
+	position: absolute;
+	width: 9px ;
+	height: 9px ;
+	padding:0px ;
+	margin: 0px ;
+	border: none ;
+}
+
+.box .tl {
+	top: -1px ;
+	left: -1px ;
+	background-image: url("../images/box_tl.gif") ;
+}
+
+.box .tr {
+	top: -1px ;
+	right: -1px ;
+	background-image: url("../images/box_tr.gif") ;
+}
+
+.box .bl {
+	bottom: -1px ;
+	left: -1px ;
+	background-image: url("../images/box_bl.gif") ;
+}
+
+.box .br {
+	bottom: -1px ;
+	right: -1px ;
+	background-image: url("../images/box_br.gif") ;
+}
+
+
+
+
+
+
+

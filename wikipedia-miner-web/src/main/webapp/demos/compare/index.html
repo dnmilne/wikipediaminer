@@ -1,0 +1,183 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+	<head>
+		<title>wikipediaminer - compare demo</title>
+		<link rel="stylesheet" href="../../css/wm.css" type="text/css">
+		<link rel="stylesheet" href="compare.css" type="text/css">
+		<link rel="stylesheet" href="../demos.css" type="text/css">
+		<link rel="stylesheet" href="../../css/jquery.qtip.min.css" type="text/css">
+		<link rel="stylesheet" href="../../css/tooltips.css" type="text/css">
+		<link rel="stylesheet" href="../../css/tagcloud.css" type="text/css">
+		<link type="text/css" href="../../css/jquery-ui/jquery-ui-1.8.14.custom.css" rel="stylesheet" />
+		
+		
+		<script type="text/javascript" src="../../js/jquery-1.5.1.min.js"></script> 
+		<script type="text/javascript" src="../../js/jquery-ui-1.8.14.custom.min.js"></script>
+		<script type="text/javascript" src="../../js/jquery.qtip.min.js"></script>
+		<script type="text/javascript" src="../../js/tooltips.js"></script> 
+		<script type="text/javascript" src="../../js/tagcloud.js"></script> 
+		
+		<script type="text/javascript" src="../../js/jgoogleanalytics.js"></script>
+		<script type="text/javascript" src="../../js/util.js"></script> 
+		<script type="text/javascript" src="../../js/analyticsKey.js"></script>
+		<script type="text/javascript" src="compare.js"></script> 
+		
+		<link rel="icon" href="../../images/icon.png" type="image/png" />
+	</head>
+	<body>
+		
+		<div id='outer'>
+			<div id='logo'></div>
+			<div id='title'></div>
+			
+			<div id='navigation'>
+				<a href='../../index.html'>home</a>
+				<em>demos</em>
+				<a href='../../services'>services</a>
+				<a href='../../help'>help</a>
+				
+				<div class='corner l'></div>
+				<div class='corner r'></div>
+			</div>
+			
+			<div id='inner'>
+				
+				<div id='subnav'>
+					<div class='corner t'> <div class='corner'></div></div>
+					<ul>
+						<li>
+							<a href='..'>introduction</a>
+						</li>
+						<li class='header'>
+							the demos
+						</li>
+						<li>
+							<a href='../search'>search</a>
+						</li>
+						<li>
+							<em>compare</em>
+						</li>
+						<li>
+							<a href='../annotate'>annotate</a>
+						</li>
+					</ul>
+					<div class='corner b'> <div class='corner'></div></div>
+				</div>
+				
+				<div id='inner2'>
+					
+					<div id='instructions'>
+					<p>
+						This page demonstrates how the toolkit can reason&mdash;in a rough fashion&mdash;about what words mean and how they relate to each other. 
+					</p>
+					<p>
+						Try entering a pair of terms to get started.
+					</p>
+					</div>
+					
+					
+					<div id='initializing'>
+						
+						<p>Sorry, the toolkit needs a little while to ready itself.</p>
+						
+						<div id='progress'></div>
+						
+						<div class='ui-state-highlight ui-corner-all note'>
+							
+							<div class='ui-icon ui-icon-info'></div>
+								
+							<p>
+								Don't worry, you won't have to wait through this delay every time you want to use one of these demos; 
+								it only occurs when the server has been restarted.
+							</p>
+						</div>
+
+					</div>
+					<div id='ready'>
+						<form method='get'>
+							<input type='text' id='term1' name='term1' class='ui-widget ui-corner-all'> </input>
+							
+							<span id='relation'>
+								is
+								<span id='relationWeight'>
+									<img src="../../images/loading.gif"></img>
+								</span>
+								 to
+							</span>
+							
+							<input type='text' id='term2' name='term2' class='ui-widget ui-corner-all'></input>
+							
+							<input type='submit' id='cmdCompare' class='ui-widget ui-corner-all' value='Compare'></input>
+							
+						</form>
+						
+						
+						<div id='loadingSpacer'></div>
+						
+						<div id='error'>
+							<h2>Sorry!</h2>
+							
+							I have no idea what <em id='unkownTerm'>blah</em> means.
+						</div>
+					
+						<div id='details'>
+							
+							<h2>Disambiguated topics <span id='disambiguationHelp' class='help'>?</span></h2>
+							
+							<p id='noSenses'>
+								No plausable senses could be found for these terms
+							</p>
+							
+							<table id='senses'>
+								<tr>
+									<td>By <span id='byTerm1'>Blah</span> we assume you mean</td>
+									<td>By <span id='byTerm2'>Blah</span> we assume you mean</td>
+								</tr>
+								
+								<tr>
+									<td id='sense1'></td>
+									<td id='sense2'></td>
+								</tr>
+								<tr>
+									<td id='alternatives1'></td>
+									<td id='alternatives2'></td>
+								</tr>
+							</table>
+							
+							<h2>Connective topics <span id='connectionHelp' class='help'>?</span></h2>				
+			
+							<p id='noConnections'>
+								No connections could be found between these terms
+							</p>
+			
+							<ul id='connections' class='tagcloud'>
+								
+							</ul>
+							
+							<br/>
+			
+							<h2>Explanatory snippets <span id='snippetHelp' class='help'>?</span></h2>
+							
+							<p id='noSnippets'>
+								No snippets could be found to explain this relation
+							</p>
+							
+							<ul id='snippets'>
+								
+							</ul>
+						</div>	
+					</div>
+				</div>
+			</div>
+			
+			<div id='footer'>
+				Hosted by <a href='http://sourceforge.net/projects/wikipedia-miner/'>SourceForge</a> and the <a href='http://www.scms.waikato.ac.nz/'>University of Waikato</a>
+				
+				<div class='corner l'></div>
+				<div class='corner r'></div>
+			</div>
+		</div>
+		
+	</body>
+</html>

@@ -1,0 +1,55 @@
+.ui-tooltip-wm .ui-tooltip-titlebar,
+.ui-tooltip-wm .ui-tooltip-content{
+	border-color: #000001;
+	border-width: 2px ;
+	background-color: #373737 ;
+	
+	color: white;
+	
+	font-family: 'Trebuchet MS', Arial, Helvetica, Sans-Serif ;
+	font-size: 15px ;
+}
+
+.ui-tooltip-wm .ui-state-default .ui-tooltip-icon{
+	background-position: -2px 0;
+}
+
+
+.ui-tooltip-wm-definition .ui-tooltip-titlebar,
+.ui-tooltip-wm-definition .ui-tooltip-content{
+	border-color: #373738;
+	border-width: 1px ;
+	border-style: solid ;
+	
+	color: #373737;
+	background-color: white ;
+	
+	font-family: 'Trebuchet MS', Arial, Helvetica, Sans-Serif ;
+	font-size: 15px ;
+	line-height: 20px ;
+}
+
+.ui-tooltip-wm-definition .ui-tooltip-content .ui-tooltip-wm-extraInfo {
+	
+	margin: 0px ;
+	padding: 0px ;
+	padding-top: 5px ;
+}
+
+.ui-tooltip-wm-definition .ui-tooltip-content .ui-tooltip-wm-icon {
+	float:right;
+	border:1px solid black;
+	margin: 0px ;
+	margin-left:10px;
+}
+
+.ui-tooltip-wm-definition .ui-state-default .ui-tooltip-icon{
+	background-position: -2px 0;
+}
+
+.ui-tooltip-wm-definition .ui-tooltip-loading {
+	background-image: url('../images/loading.gif') ;
+	background-repeat:no-repeat; 
+	background-position: center center ;
+	padding:20px;
+}
