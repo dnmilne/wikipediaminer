@@ -9,6 +9,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.* ;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.fs.permission.FsAction;
@@ -18,7 +19,6 @@ import org.apache.hadoop.record.CsvRecordOutput;
 import org.apache.hadoop.util.GenericOptionsParser;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.*;
-
 import org.wikipedia.miner.db.struct.*;
 import org.wikipedia.miner.extract.steps.*;
 import org.wikipedia.miner.extract.util.LanguageConfiguration;
@@ -42,7 +42,6 @@ import org.wikipedia.miner.util.ProgressTracker;
 public class DumpExtractor {
 
 	private Configuration conf ;
-	private FileSystem dfs ;
 
 	private String[] args ;
 
@@ -50,7 +49,7 @@ public class DumpExtractor {
 	private Path langFile ;
 	private String lang ;
 	private Path sentenceModel ;
-	private Path outputDir  ;
+	private Path workingDir  ;
 	private Path finalDir ;
 
 	private LanguageConfiguration lc ;
@@ -62,7 +61,7 @@ public class DumpExtractor {
 
 
 	public static final String KEY_INPUT_FILE = "wm.inputDir" ;
-	public static final String KEY_OUTPUT_DIR = "wm.outputDir" ;
+	public static final String KEY_OUTPUT_DIR = "wm.workingDir" ;
 	public static final String KEY_LANG_FILE = "wm.langFile" ;
 	public static final String KEY_LANG_CODE = "wm.langCode" ;
 	public static final String KEY_SENTENCE_MODEL = "wm.sentenceModel" ;
@@ -82,7 +81,10 @@ public class DumpExtractor {
 
 		GenericOptionsParser gop = new GenericOptionsParser(args) ;
 		conf = gop.getConfiguration() ;
-		dfs = FileSystem.get(conf);
+		
+		
+		
+		//outputFileSystem = FileSystem.get(conf);
 		this.args = gop.getRemainingArgs() ;
 
 		configure() ;
@@ -107,7 +109,7 @@ public class DumpExtractor {
 		conf.set(KEY_SENTENCE_MODEL, args[3]) ;
 		conf.set(KEY_OUTPUT_DIR, args[4]) ;
 
-		conf.set("mapred.child.java.opts", "-Xmx3G") ;
+		conf.set("mapred.child.java.opts", "-Xmx6G") ;
 
 		//force one reducer. These don't take very long, and multiple reducers would make finalise file functions more complicated.  
 		conf.setNumReduceTasks(1) ;
@@ -119,73 +121,104 @@ public class DumpExtractor {
 
 
 
+	private FileSystem getFileSystem(Path path) throws IOException {
+		return path.getFileSystem(conf) ;
+	}
 
 
+	private Path getPath(String pathStr) {
+		return new Path(pathStr) ;
+	}
 
 
-
-
-
-
-
+	private FileStatus getFileStatus(Path path) throws IOException {
+		FileSystem fs = path.getFileSystem(conf);
+		return fs.getFileStatus(path) ;
+	}
+	
+	
+	
+	
+	
 
 
 	private void configure() throws Exception {
 
-		if (args.length != 5) 
-			throw new IllegalArgumentException("Please specify a xml dump of wikipedia, a language.xml config file, a language code, an openNLP sentence detection model, and a writable output directory") ;
+		if (args.length != 6) 
+			throw new IllegalArgumentException("Please specify a xml dump of wikipedia, a language.xml config file, a language code, an openNLP sentence detection model, an hdfs writable working directory, and an output directory") ;
 
+		System.out.println("Args:" + StringUtils.join(args, "|"));
+		
 		//check input file
-		inputFile = new Path(args[0]) ;
-		FileStatus fs = dfs.getFileStatus(inputFile) ;
+		inputFile = getPath(args[0]); 
+		FileStatus fs = getFileStatus(inputFile) ;
 		if (fs.isDir() || !fs.getPermission().getUserAction().implies(FsAction.READ)) 
 			throw new IOException("'" +inputFile + " is not readable or does not exist") ;
 
 
 		//check lang file and language
-		langFile = new Path(args[1]) ;
+		langFile = getPath(args[1]) ;
 		lang = args[2] ;
-		lc = new LanguageConfiguration(dfs, lang, langFile) ;
+		lc = new LanguageConfiguration(langFile.getFileSystem(conf), lang, langFile) ;
 		if (lc == null)
 			throw new IOException("Could not load language configuration for '" + lang + "' from '" + langFile + "'") ;
 
 		sentenceModel = new Path(args[3]) ;
-		fs = dfs.getFileStatus(sentenceModel) ;
+		fs = getFileStatus(sentenceModel) ;
 		if (fs.isDir() || !fs.getPermission().getUserAction().implies(FsAction.READ)) 
 			throw new IOException("'" + sentenceModel + " is not readable or does not exist") ;
 
 		//check output directory
-		outputDir = new Path(args[4]) ;
-		fs = dfs.getFileStatus(outputDir) ; 
+		workingDir = new Path(args[4]) ;
+		
+		
+		//TODO: this should be dependent on an "overwrite" flag
+		if (getFileSystem(workingDir).exists(workingDir))
+			getFileSystem(workingDir).delete(workingDir, true) ;
+		
+		getFileSystem(workingDir).mkdirs(workingDir) ;
+		
+		fs = getFileStatus(workingDir) ;
 		if (!fs.isDir() || !fs.getPermission().getUserAction().implies(FsAction.WRITE)) 
-			throw new IOException("'" +outputDir + " is not a writable directory") ;
+			throw new IOException("'" +workingDir + " is not a writable directory") ;
 
 		//set up directory where final data will be placed
-		finalDir = new Path(outputDir + "/final") ;
+		finalDir = new Path(args[5]) ;
+		
 
-		dfs.mkdirs(finalDir) ;
+		if (getFileSystem(finalDir).exists(finalDir))
+			getFileSystem(finalDir).delete(finalDir, true) ;
+		
+		getFileSystem(finalDir).mkdirs(finalDir) ;
+		
+		fs = getFileStatus(finalDir) ;
+		if (!fs.isDir() || !fs.getPermission().getUserAction().implies(FsAction.WRITE)) 
+			throw new IOException("'" +workingDir + " is not a writable directory") ;
+
 	}
 
 	private void configureLogging() throws IOException {
-
-		Path logDir = new Path(outputDir + "/logs") ;
-		dfs.mkdirs(logDir) ;
+		
+		FileSystem fs = getFileSystem(workingDir) ;
+		
+		Path logDir = new Path(workingDir + "/logs") ;
+		fs.mkdirs(logDir) ;
 
 		Logger logger ; 
 
 		logger = Logger.getLogger(DumpExtractor.LOG_ORPHANED_PAGES) ;
 		logger.setAdditivity(false);
-		logger.addAppender(new WriterAppender(new PatternLayout("%-5p: %m%n"), new OutputStreamWriter(dfs.create(new Path(logDir + "/" + DumpExtractor.LOG_ORPHANED_PAGES + ".log"))))) ;
+		logger.addAppender(new WriterAppender(new PatternLayout("%-5p: %m%n"), new OutputStreamWriter(fs.create(new Path(logDir + "/" + DumpExtractor.LOG_ORPHANED_PAGES + ".log"))))) ;
 
 		logger = Logger.getLogger(DumpExtractor.LOG_WEIRD_LABEL_COUNT) ;
 		logger.setAdditivity(false);
-		logger.addAppender(new WriterAppender(new PatternLayout("%-5p: %m%n"), new OutputStreamWriter(dfs.create(new Path(logDir + "/" + DumpExtractor.LOG_WEIRD_LABEL_COUNT + ".log"))))) ;
+		logger.addAppender(new WriterAppender(new PatternLayout("%-5p: %m%n"), new OutputStreamWriter(fs.create(new Path(logDir + "/" + DumpExtractor.LOG_WEIRD_LABEL_COUNT + ".log"))))) ;
 
 	}
 
 	private int run() throws Exception {
 
-
+		FileSystem fs = getFileSystem(workingDir) ;
 
 		Logger.getLogger(DumpExtractor.class).info("Extracting site info") ;
 		extractSiteInfo() ;
@@ -207,7 +240,7 @@ public class DumpExtractor {
 
 			ExtractionStep currStep = ExtractionStep.page ;
 			Logger.getLogger(DumpExtractor.class).info("Starting " + currStep + " step") ;
-			dfs.delete(new Path(outputDir + "/" + getDirectoryName(currStep)), true) ;
+			fs.delete(new Path(workingDir + "/" + getDirectoryName(currStep)), true) ;
 
 			long startTime = System.currentTimeMillis() ;
 
@@ -236,7 +269,7 @@ public class DumpExtractor {
 		if (lastCompletedStep.compareTo(ExtractionStep.redirect) < 0) {
 			ExtractionStep currStep = ExtractionStep.redirect ;
 			Logger.getLogger(DumpExtractor.class).info("Starting " + currStep + " step") ;
-			dfs.delete(new Path(outputDir + "/" + getDirectoryName(currStep)), true) ;
+			fs.delete(new Path(workingDir + "/" + getDirectoryName(currStep)), true) ;
 
 			long startTime = System.currentTimeMillis() ;
 
@@ -263,7 +296,7 @@ public class DumpExtractor {
 		if (lastCompletedStep.compareTo(ExtractionStep.labelSense) < 0) {
 			ExtractionStep currStep = ExtractionStep.labelSense ;
 			Logger.getLogger(DumpExtractor.class).info("Starting " + currStep + " step") ;
-			dfs.delete(new Path(outputDir + "/" + getDirectoryName(currStep)), true) ;
+			fs.delete(new Path(workingDir + "/" + getDirectoryName(currStep)), true) ;
 
 			long startTime = System.currentTimeMillis() ;
 
@@ -288,7 +321,7 @@ public class DumpExtractor {
 		if (lastCompletedStep.compareTo(ExtractionStep.pageLabel) < 0) {
 			ExtractionStep currStep = ExtractionStep.pageLabel ;
 			Logger.getLogger(DumpExtractor.class).info("Starting " + currStep + " step") ;
-			dfs.delete(new Path(outputDir + "/" + getDirectoryName(currStep)), true) ;
+			fs.delete(new Path(workingDir + "/" + getDirectoryName(currStep)), true) ;
 
 			long startTime = System.currentTimeMillis() ;
 
@@ -312,7 +345,7 @@ public class DumpExtractor {
 		if (lastCompletedStep.compareTo(ExtractionStep.labelOccurrence) < 0) {
 			ExtractionStep currStep = ExtractionStep.labelOccurrence ;
 			Logger.getLogger(DumpExtractor.class).info("Starting " + currStep + " step") ;
-			dfs.delete(new Path(outputDir + "/" + getDirectoryName(currStep)), true) ;
+			fs.delete(new Path(workingDir + "/" + getDirectoryName(currStep)), true) ;
 
 			long startTime = System.currentTimeMillis() ;
 
@@ -336,7 +369,7 @@ public class DumpExtractor {
 		if (lastCompletedStep.compareTo(ExtractionStep.pageLink) < 0) {
 			ExtractionStep currStep = ExtractionStep.pageLink ;
 			Logger.getLogger(DumpExtractor.class).info("Starting " + currStep + " step") ;
-			dfs.delete(new Path(outputDir + "/" + getDirectoryName(currStep)), true) ;
+			fs.delete(new Path(workingDir + "/" + getDirectoryName(currStep)), true) ;
 
 			long startTime = System.currentTimeMillis() ;
 
@@ -360,7 +393,7 @@ public class DumpExtractor {
 		if (lastCompletedStep.compareTo(ExtractionStep.categoryParent) < 0) {
 			ExtractionStep currStep = ExtractionStep.categoryParent ;
 			Logger.getLogger(DumpExtractor.class).info("Starting " + currStep + " step") ;
-			dfs.delete(new Path(outputDir + "/" + getDirectoryName(currStep)), true) ;
+			fs.delete(new Path(workingDir + "/" + getDirectoryName(currStep)), true) ;
 
 			long startTime = System.currentTimeMillis() ;
 
@@ -385,7 +418,7 @@ public class DumpExtractor {
 		if (lastCompletedStep.compareTo(ExtractionStep.articleParent) < 0) {
 			ExtractionStep currStep = ExtractionStep.articleParent ;
 			Logger.getLogger(DumpExtractor.class).info("Starting " + currStep + " step") ;
-			dfs.delete(new Path(outputDir + "/" + getDirectoryName(currStep)), true) ;
+			fs.delete(new Path(workingDir + "/" + getDirectoryName(currStep)), true) ;
 
 			long startTime = System.currentTimeMillis() ;
 
@@ -416,7 +449,7 @@ public class DumpExtractor {
 	private ExtractionStep readProgress() {
 
 		try {
-			BufferedReader reader = new BufferedReader(new InputStreamReader(dfs.open(new Path(outputDir + "/" + OUTPUT_PROGRESS)))) ;
+			BufferedReader reader = new BufferedReader(new InputStreamReader(getFileSystem(workingDir).open(new Path(workingDir + "/" + OUTPUT_PROGRESS)))) ;
 
 			int step = reader.read();
 			reader.close();
@@ -431,7 +464,7 @@ public class DumpExtractor {
 
 	private void writeProgress(ExtractionStep lastCompletedStep) throws IOException {
 
-		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(dfs.create(new Path(outputDir + "/" + OUTPUT_PROGRESS)))) ;
+		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(getFileSystem(workingDir).create(new Path(workingDir + "/" + OUTPUT_PROGRESS)))) ;
 
 		writer.write(lastCompletedStep.ordinal()) ;
 		writer.close();
@@ -442,7 +475,7 @@ public class DumpExtractor {
 		TreeMap<String, Long> stats = new TreeMap<String, Long>() ;
 
 		try {
-			BufferedReader reader = new BufferedReader(new InputStreamReader(dfs.open(new Path(outputDir + "/" + OUTPUT_TEMPSTATS)))) ;
+			BufferedReader reader = new BufferedReader(new InputStreamReader(getFileSystem(workingDir).open(new Path(workingDir + "/" + OUTPUT_TEMPSTATS)))) ;
 
 			String line ;
 			while ((line=reader.readLine()) != null) {
@@ -465,7 +498,7 @@ public class DumpExtractor {
 
 	private void writeStatistics(TreeMap<String, Long> stats) throws IOException {
 
-		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(dfs.create(new Path(outputDir + "/" + OUTPUT_TEMPSTATS)))) ;
+		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(getFileSystem(workingDir).create(new Path(workingDir + "/" + OUTPUT_TEMPSTATS)))) ;
 
 		for(Map.Entry<String,Long> e:stats.entrySet()) {
 
@@ -549,18 +582,20 @@ public class DumpExtractor {
 
 	private TIntObjectHashMap<TIntArrayList> gatherChildren(ExtractionStep step, final String filePrefix) throws IOException  {
 
+		FileSystem fs = getFileSystem(workingDir) ;
+		
 		TIntObjectHashMap<TIntArrayList> children = new TIntObjectHashMap<TIntArrayList>() ;
 
 
-		FileStatus[] fileStatuses = dfs.listStatus(new Path(outputDir + "/" + getDirectoryName(step)), new PathFilter() {
+		FileStatus[] fileStatuses = fs.listStatus(new Path(workingDir + "/" + getDirectoryName(step)), new PathFilter() {
 			public boolean accept(Path path) {				
 				return path.getName().startsWith(filePrefix) ;
 			}
 		}) ;
 
-		for (FileStatus fs:fileStatuses) {
+		for (FileStatus status:fileStatuses) {
 
-			BufferedReader reader = new BufferedReader(new InputStreamReader(dfs.open(fs.getPath()))) ;
+			BufferedReader reader = new BufferedReader(new InputStreamReader(fs.open(status.getPath()))) ;
 
 			String line = null;
 			while ((line = reader.readLine()) != null) {
@@ -587,8 +622,8 @@ public class DumpExtractor {
 
 	private void extractSiteInfo() throws IOException {
 
-		BufferedReader reader = new BufferedReader(new InputStreamReader(dfs.open(inputFile))) ;
-		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(dfs.create(new Path(outputDir + "/" + OUTPUT_SITEINFO)))) ;
+		BufferedReader reader = new BufferedReader(new InputStreamReader(getFileSystem(inputFile).open(inputFile))) ;
+		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(getFileSystem(workingDir).create(new Path(workingDir + "/" + OUTPUT_SITEINFO)))) ;
 
 		String line = null;
 		boolean startedWriting = false ;
@@ -613,23 +648,26 @@ public class DumpExtractor {
 
 
 	private void finalizePages(TreeMap<String, Long> stats) throws IOException {
+		
+		//FileSystem fs = getFileSystem(workingDir) ;
+		
 
 		TIntObjectHashMap<TIntArrayList> childCategories = gatherChildren(ExtractionStep.categoryParent, CategoryLinkSummaryStep.Output.childCategories.name()) ;
 		TIntObjectHashMap<TIntArrayList> childArticles = gatherChildren(ExtractionStep.articleParent, CategoryLinkSummaryStep.Output.childArticles.name()) ;
 
 		HashMap<Integer, Short> pageDepths = calculatePageDepths(stats, childCategories, childArticles) ;
 
-		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(dfs.create(new Path(finalDir + "/page.csv")))) ;
+		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(getFileSystem(finalDir).create(new Path(finalDir + "/page.csv")))) ;
 
-		FileStatus[] fileStatuses = dfs.listStatus(new Path(outputDir + "/" + getDirectoryName(ExtractionStep.page)), new PathFilter() {
+		FileStatus[] fileStatuses = getFileSystem(workingDir).listStatus(new Path(workingDir + "/" + getDirectoryName(ExtractionStep.page)), new PathFilter() {
 			public boolean accept(Path path) {				
 				return path.getName().startsWith(PageStep.Output.tempPage.name()) ;
 			}
 		}) ;
 
-		for (FileStatus fs:fileStatuses) {
+		for (FileStatus status:fileStatuses) {
 
-			BufferedReader reader = new BufferedReader(new InputStreamReader(dfs.open(fs.getPath()))) ;
+			BufferedReader reader = new BufferedReader(new InputStreamReader(getFileSystem(workingDir).open(status.getPath()))) ;
 
 			String line = null;
 			while ((line = reader.readLine()) != null) {
@@ -666,6 +704,9 @@ public class DumpExtractor {
 	}
 
 	private void finalizeLabels() throws IOException {
+		
+		//FileSystem fs = getFileSystem(workingDir) ;
+		
 
 		//merge two sets of labels
 		//one from step 3, which includes all senses and link counts, but not term/doc counts.
@@ -673,17 +714,17 @@ public class DumpExtractor {
 
 		//both sets are ordered by label text, so this can be done in one pass with a merge operation.
 
-		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(dfs.create(new Path(finalDir + "/label.csv")))) ;
+		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(getFileSystem(finalDir).create(new Path(finalDir + "/label.csv")))) ;
 
 		//gather label files from step 3	
-		FileStatus[] labelFilesA = dfs.listStatus(new Path(outputDir + "/" + getDirectoryName(ExtractionStep.labelSense)), new PathFilter() {
+		FileStatus[] labelFilesA = getFileSystem(workingDir).listStatus(new Path(workingDir + "/" + getDirectoryName(ExtractionStep.labelSense)), new PathFilter() {
 			public boolean accept(Path path) {				
 				return path.getName().startsWith(LabelSensesStep.Output.tempLabel.name()) ;
 			}
 		}) ;
 
 		//gather label files from step 4
-		FileStatus[] labelFilesB = dfs.listStatus(new Path(outputDir + "/" + getDirectoryName(ExtractionStep.labelOccurrence)), new PathFilter() {
+		FileStatus[] labelFilesB = getFileSystem(workingDir).listStatus(new Path(workingDir + "/" + getDirectoryName(ExtractionStep.labelOccurrence)), new PathFilter() {
 			public boolean accept(Path path) {				
 				return path.getName().startsWith(LabelSensesStep.Output.tempLabel.name()) ;
 			}
@@ -691,10 +732,10 @@ public class DumpExtractor {
 
 		long bytesTotal = 0 ;
 
-		for (FileStatus fs:labelFilesA) 
-			bytesTotal += fs.getLen() ;
-		for (FileStatus fs:labelFilesA) 
-			bytesTotal += fs.getLen() ;
+		for (FileStatus status:labelFilesA) 
+			bytesTotal += status.getLen() ;
+		for (FileStatus status:labelFilesA) 
+			bytesTotal += status.getLen() ;
 
 		ProgressTracker pt = new ProgressTracker(bytesTotal, "Finalizing labels", DumpExtractor.class) ;
 
@@ -704,10 +745,10 @@ public class DumpExtractor {
 		long[]  bytesRead = {0} ;
 
 		int[] fileIndexA = {0} ;
-		BufferedReader readerA = new BufferedReader(new InputStreamReader(dfs.open(labelFilesA[fileIndexA[0]].getPath()))) ;
+		BufferedReader readerA = new BufferedReader(new InputStreamReader(getFileSystem(workingDir).open(labelFilesA[fileIndexA[0]].getPath()))) ;
 
 		int[] fileIndexB = {0} ;
-		BufferedReader readerB = new BufferedReader(new InputStreamReader(dfs.open(labelFilesB[fileIndexB[0]].getPath()))) ;
+		BufferedReader readerB = new BufferedReader(new InputStreamReader(getFileSystem(workingDir).open(labelFilesB[fileIndexB[0]].getPath()))) ;
 
 		String labelTextA = null ;
 		String labelTextB = null ;
@@ -822,7 +863,7 @@ public class DumpExtractor {
 
 	private void finalizeStatistics(TreeMap<String, Long> stats) throws IOException {
 
-		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(dfs.create(new Path(outputDir + "/" + OUTPUT_STATS)))) ;
+		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(getFileSystem(workingDir).create(new Path(workingDir + "/" + OUTPUT_STATS)))) ;
 
 		for(Map.Entry<String,Long> e:stats.entrySet()) {
 
@@ -840,26 +881,27 @@ public class DumpExtractor {
 	}
 
 	private void finalizeFile(ExtractionStep step, final String filePrefix) throws IOException {
+		
+		
+		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(getFileSystem(finalDir).create(new Path(finalDir + "/" + filePrefix + ".csv")))) ;
 
-		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(dfs.create(new Path(finalDir + "/" + filePrefix + ".csv")))) ;
-
-		FileStatus[] fileStatuses = dfs.listStatus(new Path(outputDir + "/" + getDirectoryName(step)), new PathFilter() {
+		FileStatus[] fileStatuses = getFileSystem(workingDir).listStatus(new Path(workingDir + "/" + getDirectoryName(step)), new PathFilter() {
 			public boolean accept(Path path) {				
 				return path.getName().startsWith(filePrefix) ;
 			}
 		}) ;
 
 		long bytesTotal = 0 ;
-		for (FileStatus fs:fileStatuses) {
-			bytesTotal += fs.getLen() ;
+		for (FileStatus status:fileStatuses) {
+			bytesTotal += status.getLen() ;
 		}
 
 		ProgressTracker pt = new ProgressTracker(bytesTotal, "finalizing " + filePrefix, DumpExtractor.class) ;
 		long bytesRead = 0 ;
 
-		for (FileStatus fs:fileStatuses) {
+		for (FileStatus status:fileStatuses) {
 
-			BufferedReader reader = new BufferedReader(new InputStreamReader(dfs.open(fs.getPath()))) ;
+			BufferedReader reader = new BufferedReader(new InputStreamReader(getFileSystem(workingDir).open(status.getPath()))) ;
 
 			String line = null;
 			while ((line = reader.readLine()) != null) {
@@ -930,7 +972,9 @@ public class DumpExtractor {
 			reader.close();
 
 			if (fileIndex[0] < files.length) {
-				reader = new BufferedReader(new InputStreamReader(dfs.open(files[fileIndex[0]].getPath()))) ;
+				Path path = files[fileIndex[0]].getPath() ;
+				
+				reader = new BufferedReader(new InputStreamReader(getFileSystem(path).open(path))) ;
 				line = reader.readLine();
 
 				bytesRead[0] = bytesRead[0] + line.length() + 1 ;
@@ -941,8 +985,11 @@ public class DumpExtractor {
 	}
 
 	private Long getLastEdit() throws IOException {
+		
+		FileSystem fs = getFileSystem(workingDir) ;
+		
 
-		FileStatus[] fileStatuses = dfs.listStatus(new Path(outputDir + "/" + getDirectoryName(ExtractionStep.page)), new PathFilter() {
+		FileStatus[] fileStatuses = fs.listStatus(new Path(workingDir + "/" + getDirectoryName(ExtractionStep.page)), new PathFilter() {
 			public boolean accept(Path path) {				
 				return path.getName().startsWith(PageStep.Output.tempEditDates.name()) ;
 			}
@@ -950,9 +997,9 @@ public class DumpExtractor {
 
 		Long lastEdit = null ;
 
-		for (FileStatus fs:fileStatuses) {
+		for (FileStatus status:fileStatuses) {
 
-			BufferedReader reader = new BufferedReader(new InputStreamReader(dfs.open(fs.getPath()))) ;
+			BufferedReader reader = new BufferedReader(new InputStreamReader(fs.open(status.getPath()))) ;
 
 			String line = null;
 			while ((line = reader.readLine()) != null) {
