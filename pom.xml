@@ -25,7 +25,6 @@
 	</dependencies>
 	<modules>
 		<module>wikipedia-miner-core</module>
-		<module>wikipedia-miner-web</module>
 		<module>wikipedia-miner-extract</module>
 	</modules>
 

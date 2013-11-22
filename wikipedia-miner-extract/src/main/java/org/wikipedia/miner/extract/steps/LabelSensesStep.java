@@ -60,10 +60,13 @@ import org.wikipedia.miner.extract.model.DumpPage;
 import org.wikipedia.miner.extract.model.DumpPageParser;
 import org.wikipedia.miner.extract.model.struct.*;
 import org.wikipedia.miner.extract.util.LanguageConfiguration;
+import org.wikipedia.miner.extract.util.PagesByTitleCache;
+import org.wikipedia.miner.extract.util.RedirectCache;
 import org.wikipedia.miner.extract.util.SiteInfo;
 import org.wikipedia.miner.extract.util.Util;
 import org.wikipedia.miner.extract.util.XmlInputFormat;
 import org.wikipedia.miner.util.MarkupStripper;
+import org.wikipedia.miner.util.ProgressTracker;
 
 
 //TODO doc out of date
@@ -179,11 +182,12 @@ public class LabelSensesStep extends Configured implements Tool {
 		private DumpLinkParser linkParser ;
 
 		Vector<Path> pageFiles = new Vector<Path>() ;
-		private TObjectIntHashMap<String> articlesByTitle = null ; 
-		private TObjectIntHashMap<String> categoriesByTitle = null ; 
+		private PagesByTitleCache articlesByTitle = PagesByTitleCache.getArticlesCache() ;
+		private PagesByTitleCache categoriesByTitle = PagesByTitleCache.getCategoriesCache() ;
+		
 
 		Vector<Path> redirectFiles = new Vector<Path>() ;
-		private TIntIntHashMap redirectTargetsBySource = null ; 
+		private RedirectCache redirects = RedirectCache.get();
 
 		private MarkupStripper stripper = new MarkupStripper() ;
 		private SentenceDetectorME sentenceDetector ;
@@ -288,40 +292,23 @@ public class LabelSensesStep extends Configured implements Tool {
 		@Override
 		public void map(LongWritable key, Text value, OutputCollector<Text, ExLabel> output, Reporter reporter) throws IOException {
 
+			if (!articlesByTitle.isLoaded())
+				articlesByTitle.load(pageFiles, reporter) ;
+			
+			if (!categoriesByTitle.isLoaded())
+				categoriesByTitle.load(pageFiles, reporter) ;
+				
+			if(!redirects.isLoaded()) 
+				redirects.load(redirectFiles, reporter) ;
+			
 			DumpPage page = null ;
 
 			try {				
 				//set up articlesByTitle and categoriesByTitle, if this hasn't been done already
 				//this is done during map rather than configure, so that we can report progress
 				//and stop hadoop from declaring a timeout.
-				if (articlesByTitle == null || categoriesByTitle == null) {
-
-					HashSet<PageType> articleTypesToCache = new HashSet<PageType>() ;
-					articleTypesToCache.add(PageType.article) ;
-					articleTypesToCache.add(PageType.redirect) ;
-					articleTypesToCache.add(PageType.disambiguation) ;
-
-					HashSet<PageType> categoryTypesToCache = new HashSet<PageType>() ;
-					categoryTypesToCache.add(PageType.category) ;
-
-					articlesByTitle = new TObjectIntHashMap<String>() ;
-					categoriesByTitle = new TObjectIntHashMap<String>() ;
-
-					for (Path p:pageFiles) {
-						articlesByTitle = Util.gatherPageIdsByTitle(p, articleTypesToCache, articlesByTitle, reporter) ;
-						categoriesByTitle = Util.gatherPageIdsByTitle(p, categoryTypesToCache, categoriesByTitle, reporter) ;
-					}
-				}
-
-
-				//same with redirects
-				if (redirectTargetsBySource == null) {
-					redirectTargetsBySource = new TIntIntHashMap() ;
-					for (Path p:redirectFiles) {
-						redirectTargetsBySource = Util.gatherRedirectTargetsBySource(p, redirectTargetsBySource, reporter) ;
-					}
-				}
-
+				
+				
 				page = pageParser.parsePage(value.toString()) ;
 
 				if (page != null) {
@@ -374,8 +361,8 @@ public class LabelSensesStep extends Configured implements Tool {
 					case redirect :
 
 						// add association from this redirect title to target.
-						Integer targetId = Util.getTargetId(page.getTarget(), articlesByTitle, redirectTargetsBySource) ;
-
+						Integer targetId = redirects.getTargetId(page.getTarget()) ;
+						
 						if (targetId != null) {
 							label = new ExLabel(0,0,0,0,new TreeMap<Integer, ExSenseForLabel>()) ;
 							label.getSensesById().put(targetId, new ExSenseForLabel(0, 0, false, true)) ;
@@ -485,8 +472,7 @@ public class LabelSensesStep extends Configured implements Tool {
 				if (link != null && link.getTargetNamespace()==SiteInfo.MAIN_KEY) {
 
 
-					Integer targetId = Util.getTargetId(link.getTargetTitle(), articlesByTitle, redirectTargetsBySource) ;
-
+					Integer targetId = redirects.getTargetId(link.getTargetTitle()) ; 
 					if (targetId != null) {
 						label = labels.get(link.getAnchor()) ;
 
@@ -556,7 +542,7 @@ public class LabelSensesStep extends Configured implements Tool {
 				}
 
 				if (link.getTargetNamespace()==SiteInfo.CATEGORY_KEY)  {
-					Integer parentId = Util.getTargetId(link.getTargetTitle(), categoriesByTitle, null) ;
+					Integer parentId = categoriesByTitle.getPageId(link.getTargetTitle()) ;
 
 					if (parentId != null) {
 						if (page.getNamespace() == SiteInfo.CATEGORY_KEY)

@@ -9,7 +9,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.* ;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.fs.permission.FsAction;
@@ -68,6 +67,8 @@ public class DumpExtractor {
 
 	public static final String LOG_ORPHANED_PAGES = "orphanedPages" ;
 	public static final String LOG_WEIRD_LABEL_COUNT = "wierdLabelCounts" ;
+	public static final String LOG_MEMORY_USE = "memoryUsage" ;
+	
 
 	public static final String OUTPUT_SITEINFO = "final/siteInfo.xml" ;
 	public static final String OUTPUT_PROGRESS = "tempProgress.csv" ;
@@ -109,10 +110,17 @@ public class DumpExtractor {
 		conf.set(KEY_SENTENCE_MODEL, args[3]) ;
 		conf.set(KEY_OUTPUT_DIR, args[4]) ;
 
-		conf.set("mapred.child.java.opts", "-Xmx6G") ;
-
 		//force one reducer. These don't take very long, and multiple reducers would make finalise file functions more complicated.  
+		
+		conf.setNumMapTasks(64) ;
 		conf.setNumReduceTasks(1) ;
+		
+		//many of our tasks require pre-loading lots of data, may as well reuse this as much as we can.
+		conf.setNumTasksToExecutePerJvm(-1) ;
+		
+		conf.setInt("mapred.tasktracker.map.tasks.maximum", 4) ;
+		conf.setInt("mapred.tasktracker.reduce.tasks.maximum", 1) ;
+		conf.set("mapred.child.java.opts", "-Xmx1750M") ;
 
 		//conf.setBoolean("mapred.used.genericoptionsparser", true) ;
 
@@ -147,7 +155,6 @@ public class DumpExtractor {
 		if (args.length != 6) 
 			throw new IllegalArgumentException("Please specify a xml dump of wikipedia, a language.xml config file, a language code, an openNLP sentence detection model, an hdfs writable working directory, and an output directory") ;
 
-		System.out.println("Args:" + StringUtils.join(args, "|"));
 		
 		//check input file
 		inputFile = getPath(args[0]); 
@@ -173,10 +180,11 @@ public class DumpExtractor {
 		
 		
 		//TODO: this should be dependent on an "overwrite" flag
-		if (getFileSystem(workingDir).exists(workingDir))
-			getFileSystem(workingDir).delete(workingDir, true) ;
-		
-		getFileSystem(workingDir).mkdirs(workingDir) ;
+		//if (getFileSystem(workingDir).exists(workingDir))
+		//	getFileSystem(workingDir).delete(workingDir, true) ;
+
+		if (!getFileSystem(workingDir).exists(workingDir))
+			getFileSystem(workingDir).mkdirs(workingDir) ;
 		
 		fs = getFileStatus(workingDir) ;
 		if (!fs.isDir() || !fs.getPermission().getUserAction().implies(FsAction.WRITE)) 
@@ -214,6 +222,9 @@ public class DumpExtractor {
 		logger.setAdditivity(false);
 		logger.addAppender(new WriterAppender(new PatternLayout("%-5p: %m%n"), new OutputStreamWriter(fs.create(new Path(logDir + "/" + DumpExtractor.LOG_WEIRD_LABEL_COUNT + ".log"))))) ;
 
+		logger = Logger.getLogger(DumpExtractor.LOG_MEMORY_USE) ;
+		logger.setAdditivity(false);
+		logger.addAppender(new WriterAppender(new PatternLayout("%-5p: %m%n"), new OutputStreamWriter(fs.create(new Path(logDir + "/" + DumpExtractor.LOG_MEMORY_USE + ".log"))))) ;
 	}
 
 	private int run() throws Exception {

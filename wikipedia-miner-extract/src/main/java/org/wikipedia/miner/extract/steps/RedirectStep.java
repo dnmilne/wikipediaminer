@@ -11,6 +11,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Vector;
 
+import javax.security.auth.login.Configuration;
+
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.filecache.DistributedCache;
 import org.apache.hadoop.fs.FSDataOutputStream;
@@ -31,6 +33,7 @@ import org.wikipedia.miner.db.struct.DbIntList;
 import org.wikipedia.miner.extract.DumpExtractor;
 import org.wikipedia.miner.extract.DumpExtractor.ExtractionStep;
 import org.wikipedia.miner.extract.util.LanguageConfiguration;
+import org.wikipedia.miner.extract.util.PagesByTitleCache;
 import org.wikipedia.miner.extract.util.SiteInfo;
 import org.wikipedia.miner.extract.util.Util;
 import org.wikipedia.miner.model.Page.PageType;
@@ -114,10 +117,16 @@ public class RedirectStep extends Configured implements Tool {
 		private MultipleOutputs mos ;
 		
 		Vector<Path> pageFiles = new Vector<Path>() ;
-		private TObjectIntHashMap<String> articlesByTitle = null ;
+		
+		private PagesByTitleCache articleIdsByTitle = PagesByTitleCache.getArticlesCache();
+		
+		
+		
 
 		@Override
 		public void configure(JobConf job) {
+			
+			
 
 			HashSet<PageType> pageTypesToCache = new HashSet<PageType>() ;
 			pageTypesToCache.add(PageType.article) ;
@@ -165,24 +174,15 @@ public class RedirectStep extends Configured implements Tool {
 		@Override
 		public void map(LongWritable key, Text value, OutputCollector<IntWritable, DbIntList> output, Reporter reporter) throws IOException {
 
+			if (!articleIdsByTitle.isLoaded()) 
+				articleIdsByTitle.load(pageFiles, reporter) ;
+			
 			try {
 				
 				//set up articlesByTitle if this hasn't been done already
 				//this is done during map rather than configure, so that we can report progress
 				//and stop hadoop from declaring a timeout.
-				if (articlesByTitle == null) {
-					
-					HashSet<PageType> articleTypesToCache = new HashSet<PageType>() ;
-					articleTypesToCache.add(PageType.article) ;
-					articleTypesToCache.add(PageType.redirect) ;
-					articleTypesToCache.add(PageType.disambiguation) ;
-					
-					articlesByTitle = new TObjectIntHashMap<String>() ;
-					
-					for (Path p:pageFiles) {
-						articlesByTitle = Util.gatherPageIdsByTitle(p, articleTypesToCache, articlesByTitle, reporter) ;
-					}
-				}
+				
 				
 				String line = value.toString() ;
 
@@ -190,7 +190,7 @@ public class RedirectStep extends Configured implements Tool {
 
 				int sourceId = Integer.parseInt(line.substring(0,pos)) ;
 				String targetTitle = line.substring(pos+1) ;
-				Integer targetId = Util.getTargetId(targetTitle, articlesByTitle, null) ;
+				Integer targetId = articleIdsByTitle.getPageId(targetTitle) ;
 
 				if (targetId == null)
 					Logger.getLogger(Step2Mapper.class).warn("Could not identify id for redirect target '" + targetTitle + "'") ;

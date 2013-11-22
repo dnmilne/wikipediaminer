@@ -1,12 +1,5 @@
 package org.wikipedia.miner.extract.steps;
 
-
-
-import gnu.trove.set.hash.THashSet;
-
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -32,7 +25,6 @@ import org.apache.hadoop.mapred.Mapper;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
-import org.apache.hadoop.record.CsvRecordInput;
 import org.apache.hadoop.util.Tool;
 import org.apache.log4j.Logger;
 import org.wikipedia.miner.extract.DumpExtractor;
@@ -42,6 +34,7 @@ import org.wikipedia.miner.extract.model.DumpPageParser;
 import org.wikipedia.miner.extract.model.struct.ExLabel;
 import org.wikipedia.miner.extract.model.struct.ExSenseForLabel;
 import org.wikipedia.miner.extract.steps.LabelSensesStep.LabelOutputFormat;
+import org.wikipedia.miner.extract.util.LabelCache;
 import org.wikipedia.miner.extract.util.LanguageConfiguration;
 import org.wikipedia.miner.extract.util.SiteInfo;
 import org.wikipedia.miner.extract.util.XmlInputFormat;
@@ -113,7 +106,7 @@ public class LabelOccurrencesStep extends Configured implements Tool {
 		private DumpPageParser pageParser ;
 		
 		private Vector<Path> labelFiles = new Vector<Path>() ;
-		private THashSet<String> labelVocabulary = null ;
+		private LabelCache labelCache = LabelCache.get() ;
 
 		private MarkupStripper stripper = new MarkupStripper() ;
 		
@@ -162,15 +155,10 @@ public class LabelOccurrencesStep extends Configured implements Tool {
 		@Override
 		public void map(LongWritable key, Text value, OutputCollector<Text, ExLabel> output, Reporter reporter) throws IOException {
 			
+			if (!labelCache.isLoaded()) 
+				labelCache.load(labelFiles, reporter) ;
+			
 			try {
-				
-				if (labelVocabulary == null) {
-					labelVocabulary = new THashSet<String>() ;
-					
-					for (Path p:labelFiles) 
-						labelVocabulary = gatherLabelVocabulary(p, labelVocabulary, reporter) ;
-				}
-				
 				
 				DumpPage page = pageParser.parsePage(value.toString()) ;
 
@@ -208,7 +196,7 @@ public class LabelOccurrencesStep extends Configured implements Tool {
 							String ngram = s.substring(startIndex, currIndex) ;
 
 							if (! (ngram.length()==1 && s.substring(startIndex-1, startIndex).equals("'"))&& !ngram.trim().equals("")) {
-								if (labelVocabulary.contains(ngram)) {
+								if (labelCache.isKnown(ngram)) {
 									
 									ExLabel label = labels.get(ngram) ;
 									
@@ -235,29 +223,7 @@ public class LabelOccurrencesStep extends Configured implements Tool {
 			}
 		}
 		
-		private THashSet<String> gatherLabelVocabulary(Path p, THashSet<String> labelVocabulary, Reporter r) throws IOException {
-			BufferedReader fis = new BufferedReader(new FileReader(p.toString()));
-			String line = null;
-
-			while ((line = fis.readLine()) != null) {
-				try {
-
-					CsvRecordInput cri = new CsvRecordInput(new ByteArrayInputStream(line.getBytes("UTF8"))) ;
-					String labelText = cri.readString("labelText") ;
-					labelVocabulary.add(labelText) ;
-					
-					r.progress() ;
-
-				} catch (Exception e) {
-					Logger.getLogger(LabelOccurrencesMapper.class).error("Caught exception while gathering label from '" + line + "' in '" + p + "'", e);
-				}
-			}
-			
-			fis.close() ;
-			
-			return labelVocabulary ;
-			
-		}
+		
 
 	}
 
