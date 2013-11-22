@@ -118,9 +118,9 @@ public class DumpExtractor {
 		//many of our tasks require pre-loading lots of data, may as well reuse this as much as we can.
 		conf.setNumTasksToExecutePerJvm(-1) ;
 		
-		conf.setInt("mapred.tasktracker.map.tasks.maximum", 4) ;
+		conf.setInt("mapred.tasktracker.map.tasks.maximum", 2) ;
 		conf.setInt("mapred.tasktracker.reduce.tasks.maximum", 1) ;
-		conf.set("mapred.child.java.opts", "-Xmx1750M") ;
+		conf.set("mapred.child.java.opts", "-Xmx3500M") ;
 
 		//conf.setBoolean("mapred.used.genericoptionsparser", true) ;
 
