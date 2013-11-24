@@ -118,7 +118,7 @@ public class RedirectStep extends Configured implements Tool {
 		
 		Vector<Path> pageFiles = new Vector<Path>() ;
 		
-		private PagesByTitleCache articleIdsByTitle = PagesByTitleCache.getArticlesCache();
+		private PagesByTitleCache articleIdsByTitle ;
 		
 		
 		
@@ -163,6 +163,8 @@ public class RedirectStep extends Configured implements Tool {
 					throw new Exception("Could not gather page summary files produced in step 1") ;
 				
 				mos = new MultipleOutputs(job);
+				
+				articleIdsByTitle = PagesByTitleCache.getArticlesCache() ;
 
 			} catch (Exception e) {
 				Logger.getLogger(Step2Mapper.class).error("Could not configure mapper", e);

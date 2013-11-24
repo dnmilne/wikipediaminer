@@ -106,7 +106,7 @@ public class LabelOccurrencesStep extends Configured implements Tool {
 		private DumpPageParser pageParser ;
 		
 		private Vector<Path> labelFiles = new Vector<Path>() ;
-		private LabelCache labelCache = LabelCache.get() ;
+		private LabelCache labelCache ;
 
 		private MarkupStripper stripper = new MarkupStripper() ;
 		
@@ -145,6 +145,8 @@ public class LabelOccurrencesStep extends Configured implements Tool {
 					throw new Exception("Could not gather label files produced in step 3") ;
 
 				pageParser = new DumpPageParser(lc, si) ;
+				
+				labelCache = LabelCache.get() ;
 				
 			} catch (Exception e) {
 				Logger.getLogger(LabelOccurrencesMapper.class).error("Could not configure mapper", e);

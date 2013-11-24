@@ -1,21 +1,19 @@
 package org.wikipedia.miner.extract.util;
 
+import gnu.trove.map.hash.TIntIntHashMap;
+import gnu.trove.set.TIntSet;
+import gnu.trove.set.hash.TIntHashSet;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.List;
 
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.log4j.Logger;
 import org.wikipedia.miner.util.ProgressTracker;
-
-import gnu.trove.map.hash.TIntIntHashMap;
-import gnu.trove.map.hash.TObjectIntHashMap;
-import gnu.trove.set.TIntSet;
-import gnu.trove.set.hash.TIntHashSet;
 
 public class RedirectCache {
 
@@ -30,9 +28,18 @@ public class RedirectCache {
 	}
 
 
-	private TIntIntHashMap redirectTargetsBySource = new TIntIntHashMap() ;
+	
+	
+	private TIntIntHashMap redirectTargetsBySource ;
 	private boolean isLoaded = false ;
 
+	public RedirectCache() {
+		redirectTargetsBySource = new TIntIntHashMap() ;
+		
+		
+	}
+	
+	
 	public boolean isLoaded() {
 		return isLoaded ;
 	}
@@ -103,7 +110,7 @@ public class RedirectCache {
 
 	}
 
-	public Integer getTargetId(String targetTitle) {
+	public Integer getTargetId(String targetTitle) throws IOException {
 
 		Integer currId = PagesByTitleCache.getArticlesCache().getPageId(targetTitle) ;
 

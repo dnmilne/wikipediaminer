@@ -6,11 +6,15 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.record.CsvRecordInput;
 import org.apache.log4j.Logger;
+import org.mapdb.DB;
+import org.mapdb.DBMaker;
+import org.mapdb.HTreeMap;
 import org.wikipedia.miner.util.ProgressTracker;
 
 import gnu.trove.set.hash.THashSet;
@@ -19,16 +23,26 @@ public class LabelCache {
 
 	private static LabelCache cache ;
 
-	public static LabelCache get() {
+	public static LabelCache get() throws IOException {
 		if (cache == null)
 			cache = new LabelCache() ;
 
 		return cache ;
 	}
 
+	Set<String> labelVocabulary ;
 
-	THashSet<String> labelVocabulary = new THashSet<String>() ;
 
+	public LabelCache() throws IOException {
+		
+		DB db = DBMaker.newAppendFileDB(File.createTempFile("mapdb-temp", "labels"))
+	       .deleteFilesAfterClose().closeOnJvmShutdown().transactionDisable().cacheHardRefEnable().make();
+
+		
+		labelVocabulary = db.getHashSet("labels") ;
+	}
+	
+	
 	private boolean isLoaded = false ;
 
 	public boolean isLoaded() {

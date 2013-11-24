@@ -1,21 +1,23 @@
 package org.wikipedia.miner.extract.steps;
 
 
-import gnu.trove.map.hash.TIntIntHashMap;
-import gnu.trove.map.hash.TObjectIntHashMap;
-
-import java.io.File;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.* ;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.TreeSet;
+import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import opennlp.maxent.io.SuffixSensitiveGISModelReader;
 import opennlp.tools.sentdetect.SentenceDetectorME;
 import opennlp.tools.sentdetect.SentenceModel;
 import opennlp.tools.util.Span;
@@ -39,7 +41,6 @@ import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.RecordWriter;
 import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
-import org.apache.hadoop.mapred.TextInputFormat;
 import org.apache.hadoop.mapred.TextOutputFormat;
 import org.apache.hadoop.mapred.lib.MultipleOutputs;
 import org.apache.hadoop.record.CsvRecordOutput;
@@ -47,8 +48,6 @@ import org.apache.hadoop.record.Record;
 import org.apache.hadoop.util.Progressable;
 import org.apache.hadoop.util.Tool;
 import org.apache.log4j.Logger;
-
-import org.wikipedia.miner.model.Page.PageType;
 import org.wikipedia.miner.db.struct.DbLinkLocation;
 import org.wikipedia.miner.db.struct.DbSentenceSplitList;
 import org.wikipedia.miner.db.struct.DbTranslations;
@@ -58,15 +57,14 @@ import org.wikipedia.miner.extract.model.DumpLink;
 import org.wikipedia.miner.extract.model.DumpLinkParser;
 import org.wikipedia.miner.extract.model.DumpPage;
 import org.wikipedia.miner.extract.model.DumpPageParser;
-import org.wikipedia.miner.extract.model.struct.*;
+import org.wikipedia.miner.extract.model.struct.ExLabel;
+import org.wikipedia.miner.extract.model.struct.ExSenseForLabel;
 import org.wikipedia.miner.extract.util.LanguageConfiguration;
 import org.wikipedia.miner.extract.util.PagesByTitleCache;
 import org.wikipedia.miner.extract.util.RedirectCache;
 import org.wikipedia.miner.extract.util.SiteInfo;
-import org.wikipedia.miner.extract.util.Util;
 import org.wikipedia.miner.extract.util.XmlInputFormat;
 import org.wikipedia.miner.util.MarkupStripper;
-import org.wikipedia.miner.util.ProgressTracker;
 
 
 //TODO doc out of date
@@ -182,8 +180,8 @@ public class LabelSensesStep extends Configured implements Tool {
 		private DumpLinkParser linkParser ;
 
 		Vector<Path> pageFiles = new Vector<Path>() ;
-		private PagesByTitleCache articlesByTitle = PagesByTitleCache.getArticlesCache() ;
-		private PagesByTitleCache categoriesByTitle = PagesByTitleCache.getCategoriesCache() ;
+		private PagesByTitleCache articlesByTitle ;
+		private PagesByTitleCache categoriesByTitle ;
 		
 
 		Vector<Path> redirectFiles = new Vector<Path>() ;
@@ -282,6 +280,10 @@ public class LabelSensesStep extends Configured implements Tool {
 				linkParser = new DumpLinkParser(lc, si) ;
 
 				mos = new MultipleOutputs(job);
+				
+				
+				articlesByTitle = PagesByTitleCache.getArticlesCache() ;
+				categoriesByTitle = PagesByTitleCache.getCategoriesCache() ;
 
 			} catch (Exception e) {
 				Logger.getLogger(LabelSensesMapper.class).error("Could not configure mapper", e);
