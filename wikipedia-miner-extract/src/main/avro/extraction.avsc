@@ -1,0 +1,42 @@
+[
+  {
+      "type": "record",
+      "name": "PageSummary",
+      "namespace": "org.wikipedia.miner.extract.model.struct",
+      "fields": [
+        {"name": "id", "type": "int"},
+        {"name": "title", "type": "string"},
+        {"name": "namespace", "type": "int"},
+        {"name": "isForwarded", "type": ["boolean", "null"]}
+      ]
+    },
+    {
+      "type": "record",
+      "name": "PageKey",
+      "namespace": "org.wikipedia.miner.extract.model.struct",
+      "fields": [
+         {"name": "namespace", "type": ["int", "null"]},
+         {"name": "title", "type": ["string", "null"]}
+      ]
+    },
+    {
+      "type": "record",
+      "name": "PageDetail",
+      "namespace": "org.wikipedia.miner.extract.model.struct",
+      "fields": [
+         {"name": "id", "type": ["int", "null"]},
+         {"name": "title", "type": ["string", "null"]},
+         {"name": "namespace", "type": ["int", "null"]},
+         {"name": "lastEdited", "type": ["long","null"]},
+         {"name": "isRedirect", "type": ["boolean", "null"]},
+         {"name": "redirectsTo", "type": ["string", "null"]},
+         {
+          "name": "redirects", 
+          "type": {
+            "type": "array",
+            "items": "PageSummary"
+          }
+         }
+      ]
+    }
+  ]

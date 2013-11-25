@@ -3,11 +3,18 @@ package org.wikipedia.miner.extract;
 
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TIntObjectHashMap;
+import gnu.trove.map.hash.TIntShortHashMap;
 
 import java.io.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.* ;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.Vector;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.*;
@@ -118,9 +125,11 @@ public class DumpExtractor {
 		//many of our tasks require pre-loading lots of data, may as well reuse this as much as we can.
 		conf.setNumTasksToExecutePerJvm(-1) ;
 		
-		conf.setInt("mapred.tasktracker.map.tasks.maximum", 2) ;
-		conf.setInt("mapred.tasktracker.reduce.tasks.maximum", 1) ;
-		conf.set("mapred.child.java.opts", "-Xmx3500M") ;
+		
+		
+		//conf.setInt("mapred.tasktracker.map.tasks.maximum", 2) ;
+		//conf.setInt("mapred.tasktracker.reduce.tasks.maximum", 1) ;
+		//conf.set("mapred.child.java.opts", "-Xmx3500M") ;
 
 		//conf.setBoolean("mapred.used.genericoptionsparser", true) ;
 
@@ -526,9 +535,10 @@ public class DumpExtractor {
 		writer.close();
 	}
 
-	private HashMap<Integer, Short> calculatePageDepths(TreeMap<String, Long> stats, TIntObjectHashMap<TIntArrayList> childCategories, TIntObjectHashMap<TIntArrayList> childArticles) {
+	private TIntShortHashMap calculatePageDepths(TreeMap<String, Long> stats, TIntObjectHashMap<TIntArrayList> childCategories, TIntObjectHashMap<TIntArrayList> childArticles) {
 
-		final HashMap<Integer, Short> pageDepths = new HashMap<Integer, Short>() ;
+		TIntShortHashMap pageDepths = new TIntShortHashMap() ;
+
 
 		Short currDepth = 0 ;
 		Integer currCat = stats.get(PageStep.Counter.rootCategoryId.name()).intValue() ;
@@ -662,12 +672,18 @@ public class DumpExtractor {
 		
 		//FileSystem fs = getFileSystem(workingDir) ;
 		
+		Runtime runtime = Runtime.getRuntime() ;
+		long memBefore = runtime.totalMemory() ;
 
+		//TODO: this looks like a bottle-neck. Can it be parallelized? Should we be using mapDb to avoid out-of-memory issues?
 		TIntObjectHashMap<TIntArrayList> childCategories = gatherChildren(ExtractionStep.categoryParent, CategoryLinkSummaryStep.Output.childCategories.name()) ;
 		TIntObjectHashMap<TIntArrayList> childArticles = gatherChildren(ExtractionStep.articleParent, CategoryLinkSummaryStep.Output.childArticles.name()) ;
+		TIntShortHashMap pageDepths = calculatePageDepths(stats, childCategories, childArticles) ;
 
-		HashMap<Integer, Short> pageDepths = calculatePageDepths(stats, childCategories, childArticles) ;
-
+		long memAfter = runtime.totalMemory() ;
+		Logger.getLogger(getClass()).info("Memory used for finalizing pages: " + (memAfter - memBefore) / (1024*1024) + "Mb") ;
+		
+		
 		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(getFileSystem(finalDir).create(new Path(finalDir + "/page.csv")))) ;
 
 		FileStatus[] fileStatuses = getFileSystem(workingDir).listStatus(new Path(workingDir + "/" + getDirectoryName(ExtractionStep.page)), new PathFilter() {
