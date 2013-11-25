@@ -15,7 +15,7 @@ public class Util {
 		s.append(Character.toUpperCase(title.charAt(0))) ;
 		s.append(title.substring(1).replace('_', ' ')) ;
 
-		return s.toString() ;
+		return s.toString().trim() ;
 	}
 
 	public static long getFileSize(Path path) {

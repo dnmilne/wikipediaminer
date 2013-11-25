@@ -1,4 +1,4 @@
-package org.wikipedia.miner.extract.steps;
+package steps2;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -56,15 +56,22 @@ import org.wikipedia.miner.model.Page.PageType;
  * <li><b>tempRedirect-xxxxx</b> - a csv file associating Integer id with the title of a redirect target.</li>
  * </ul>
  */
-public class InitialPageSummaryStep extends Configured implements Tool {
+public class InitialPageSummaryStep extends Step {
 
-	public enum Output {tempPage, tempRedirect, tempRootCategory, tempEditDates} ;
-	public enum Counter {articleCount, categoryCount, disambiguationCount, redirectCount, rootCategoryId, rootCategoryCount, unforwardedRedirectCount} ;
+	public enum Counter {articleCount, categoryCount, disambiguationCount, redirectCount, rootCategoryId, rootCategoryCount, unparsablePageCount, unforwardedRedirectCount} ;
 
+	public InitialPageSummaryStep(Path baseWorkingDir) throws IOException {
 
-	public Counters counters ;
+		super(baseWorkingDir) ;
+	}
+
 
 	public int run(String[] args) throws Exception {
+
+		if (isFinished())
+			return 0 ;
+		else
+			reset() ;
 
 		JobConf conf = new JobConf(InitialPageSummaryStep.class);
 		DumpExtractor.configureJob(conf, args) ;
@@ -75,7 +82,7 @@ public class InitialPageSummaryStep extends Configured implements Tool {
 		conf.setOutputValueClass(AvroValue.class);
 
 		conf.setMapperClass(Map.class);
-	
+
 		conf.setInputFormat(XmlInputFormat.class);
 		conf.set(XmlInputFormat.START_TAG_KEY, "<page>") ;
 		conf.set(XmlInputFormat.END_TAG_KEY, "</page>") ;
@@ -83,40 +90,25 @@ public class InitialPageSummaryStep extends Configured implements Tool {
 		AvroJob.setReducerClass(conf, Reduce.class);
 		AvroJob.setOutputSchema(conf, Pair.getPairSchema(PageKey.getClassSchema(),PageDetail.getClassSchema()));
 		
+		
 		DistributedCache.addCacheFile(new Path(conf.get(DumpExtractor.KEY_OUTPUT_DIR) + "/" + DumpExtractor.OUTPUT_SITEINFO).toUri(), conf);
 		DistributedCache.addCacheFile(new Path(conf.get(DumpExtractor.KEY_LANG_FILE)).toUri(), conf);
 
 		FileInputFormat.setInputPaths(conf, conf.get(DumpExtractor.KEY_INPUT_FILE));
-		FileOutputFormat.setOutputPath(conf, new Path(conf.get(DumpExtractor.KEY_OUTPUT_DIR) + "/" + DumpExtractor.getDirectoryName(ExtractionStep.page)));
-
-		MultipleOutputs.addNamedOutput(conf, Output.tempRootCategory.name(), TextOutputFormat.class,
-				IntWritable.class, Text.class);
+		FileOutputFormat.setOutputPath(conf, getWorkingDir());
 
 		RunningJob runningJob = JobClient.runJob(conf);
-		counters = runningJob.getCounters() ;
 
-		return 0;
+		finish(runningJob) ;
+
+		return runningJob.getJobState() ;
 	}
 
+	public String getWorkingDirName() {
+		return "page_0" ;
+	}
 
-
-/*
-	public TreeMap<String, Long> updateStats(TreeMap<String, Long> stats) throws Exception {
-
-
-		if (counters.getCounter(Counter.rootCategoryCount) != 1) {
-			throw new Exception ("Could not identify root category") ;
-		}
-
-		for (Counter c: Counter.values()) {
-			if (c != Counter.rootCategoryCount)
-				stats.put(c.name(), counters.getCounter(c)) ;
-		}
-
-		return stats ;
-	}*/
-
-	private static class Map extends MapReduceBase implements Mapper<LongWritable, Text, PageKey, PageDetail> {
+	private static class Map extends MapReduceBase implements Mapper<LongWritable, Text, AvroKey<PageKey>, AvroValue<PageDetail>> {
 
 		private LanguageConfiguration lc ;
 		private DumpPageParser dpp ;
@@ -160,84 +152,101 @@ public class InitialPageSummaryStep extends Configured implements Tool {
 				rootCategoryTitle = Util.normaliseTitle(lc.getRootCategoryName()) ;
 
 			} catch (Exception e) {
+
+
 				Logger.getLogger(Map.class).error("Could not configure mapper", e);
 			}
 		}
 
 
 
+		
+		
 
 
-		public void map(LongWritable key, Text value, OutputCollector<PageKey, PageDetail> output, Reporter reporter) throws IOException {
+		public void map(LongWritable key, Text value, OutputCollector<AvroKey<PageKey>, AvroValue<PageDetail>> collector, Reporter reporter) throws IOException {
+
+			DumpPage parsedPage = null ;
 
 			try {
-				DumpPage parsedPage = dpp.parsePage(value.toString()) ;
-
-				if (parsedPage != null) {
-
-					String title = Util.normaliseTitle(parsedPage.getTitle()) ;
-
-					PageDetail page = new PageDetail() ;
-					page.setNamespace(parsedPage.getNamespace());
-					page.setId(parsedPage.getId());
-					page.setIsRedirect(parsedPage.getType() == PageType.redirect);
-
-					if (parsedPage.getLastEdited() != null)
-						page.setLastEdited(parsedPage.getLastEdited().getTime());
-
-					switch (parsedPage.getType()) {
-
-					case article :
-						reporter.incrCounter(Counter.articleCount, 1);
-
-						break ;
-					case category :
-						reporter.incrCounter(Counter.categoryCount, 1);
-
-						if (title.equals(rootCategoryTitle)) {
-							reporter.incrCounter(Counter.rootCategoryCount, 1);
-							reporter.incrCounter(Counter.rootCategoryId, parsedPage.getId()) ;
-						}
-
-						break ;
-					case disambiguation :
-						reporter.incrCounter(Counter.disambiguationCount, 1);
-						break ;
-					case redirect :
-						reporter.incrCounter(Counter.redirectCount, 1);
-						//mos.getCollector(Output.tempRedirect.name(), reporter).collect(new IntWritable(dp.getId()), new Text(dp.getTarget()));
-
-						String targetTitle = Util.normaliseTitle(parsedPage.getTarget()) ;
-
-						page.setRedirectsTo(targetTitle) ;
-
-
-						// emit a pair to associate this redirect with target
-						PageDetail targetSummary = new PageDetail() ;
-
-						PageSummary redirect = new PageSummary() ;
-						redirect.setId(parsedPage.getId());
-						redirect.setTitle(targetTitle);
-
-						List<PageSummary> redirects = new ArrayList<PageSummary>() ;
-						redirects.add(redirect) ;
-						targetSummary.setRedirects(redirects);
-
-						output.collect(new PageKey(parsedPage.getNamespace(), targetTitle), targetSummary);
-
-						break ;
-					default:
-						//for all other page types, do nothing
-						return ;
-					}
-
-
-					output.collect(new PageKey(parsedPage.getNamespace(), title), page);
-				}
-
+				parsedPage = dpp.parsePage(value.toString()) ;
 			} catch (Exception e) {
+				reporter.incrCounter(Counter.unparsablePageCount, 1);
 				Logger.getLogger(Map.class).error("Caught exception", e) ;
 			}
+
+			if (parsedPage == null)
+				return ;
+
+
+			String title = Util.normaliseTitle(parsedPage.getTitle()) ;
+
+			PageDetail page = new PageDetail() ;
+			page.setRedirects(new ArrayList<PageSummary>()) ;
+			page.setNamespace(parsedPage.getNamespace());
+			page.setId(parsedPage.getId());
+			page.setTitle(title) ;
+			page.setIsRedirect(parsedPage.getType() == PageType.redirect);
+
+			if (parsedPage.getLastEdited() != null)
+				page.setLastEdited(parsedPage.getLastEdited().getTime());
+
+			switch (parsedPage.getType()) {
+
+			case article :
+				reporter.incrCounter(Counter.articleCount, 1);
+
+				break ;
+			case category :
+				reporter.incrCounter(Counter.categoryCount, 1);
+
+				if (title.equals(rootCategoryTitle)) {
+					reporter.incrCounter(Counter.rootCategoryCount, 1);
+					reporter.incrCounter(Counter.rootCategoryId, parsedPage.getId()) ;
+				}
+
+				break ;
+			case disambiguation :
+				reporter.incrCounter(Counter.disambiguationCount, 1);
+				break ;
+			case redirect :
+				reporter.incrCounter(Counter.redirectCount, 1);
+				//mos.getCollector(Output.tempRedirect.name(), reporter).collect(new IntWritable(dp.getId()), new Text(dp.getTarget()));
+
+				String targetTitle = Util.normaliseTitle(parsedPage.getTarget()) ;
+
+				page.setRedirectsToTitle(targetTitle) ;
+
+				// emit a pair to associate this redirect with target
+				PageDetail targetSummary = new PageDetail() ;
+
+				PageSummary redirect = new PageSummary() ;
+				redirect.setId(parsedPage.getId());
+				redirect.setTitle(title);
+				redirect.setForwarded(false) ;
+				redirect.setBacktracked(false) ;
+
+				List<PageSummary> redirects = new ArrayList<PageSummary>() ;
+				redirects.add(redirect) ;
+				targetSummary.setRedirects(redirects);
+
+				collect(new PageKey(parsedPage.getNamespace(), targetTitle), targetSummary, collector) ;
+
+				break ;
+			default:
+				//for all other page types, do nothing
+				return ;
+			}
+
+			collect(new PageKey(parsedPage.getNamespace(), title),  page, collector) ; 
+		}
+		
+		private void collect(PageKey key, PageDetail value, OutputCollector<AvroKey<PageKey>, AvroValue<PageDetail>> collector) throws IOException {
+			
+			AvroKey<PageKey> k = new AvroKey<PageKey>(key) ;
+			AvroValue<PageDetail> v = new AvroValue<PageDetail>(value) ;
+			
+			collector.collect(k,v) ;
 		}
 
 		@Override
@@ -248,70 +257,83 @@ public class InitialPageSummaryStep extends Configured implements Tool {
 	}
 	
 	
+	
+
+
 	protected static class Reduce extends AvroReducer<PageKey, PageDetail, Pair<PageKey, PageDetail>> {
 
-		
-		
+
+
 		@Override
 		public void reduce(PageKey key, Iterable<PageDetail> pages,
-                AvroCollector<Pair<PageKey, PageDetail>> collector,
-                Reporter reporter) throws IOException {
-			
+				AvroCollector<Pair<PageKey, PageDetail>> collector,
+				Reporter reporter) throws IOException {
+
 			PageDetail combinedPage = new PageDetail() ;
-			
+			combinedPage.setRedirects(new ArrayList<PageSummary>()) ;
+
 			SortedMap<Integer,PageSummary> redirects = new TreeMap<Integer, PageSummary>() ;
-			
+
 			for (PageDetail p: pages) {
-								
+
 				if (p.getId() != null)
 					combinedPage.setId(p.getId());
 				
-				if (p.getIsRedirect())
+				if (p.getTitle() != null)
+					combinedPage.setTitle(p.getTitle()) ;
+
+				if (p.getIsRedirect() != null && p.getIsRedirect())
 					combinedPage.setIsRedirect(p.getIsRedirect()) ;
+
+				if (p.getRedirectsToTitle() != null)
+					combinedPage.setRedirectsToTitle(p.getRedirectsToTitle());
 				
 				if (p.getRedirectsTo() != null)
 					combinedPage.setRedirectsTo(p.getRedirectsTo());
-				
+
 				if (p.getRedirects() != null) {
-					
+
 					for (PageSummary redirect:p.getRedirects()) {
-						
-						//assume this has not been forwarded, unless explicitly stated
-						if (redirect.getIsForwarded() == null)
-							redirect.setIsForwarded(false);
-						
+
 						//only overwrite if previous entry has not been forwarded
 						PageSummary existingRedirect = redirects.get(redirect.getId()) ;
-						if (existingRedirect == null || !existingRedirect.getIsForwarded())
+						if (existingRedirect == null || !existingRedirect.getForwarded())
 							redirects.put(redirect.getId(), redirect) ;
 					}
 				}
 			}
-			
+
 			if (!redirects.isEmpty()) {
-		
+
 				List<PageSummary> redirectList = new ArrayList<PageSummary>() ;
 				for (PageSummary redirect:redirects.values()) {
-	
+
 					if (combinedPage.getIsRedirect()) {
-						if (redirect.getIsForwarded() == false)
-							reporter.incrCounter(Counter.unforwardedRedirectCount, 1);
 						
+						//we have received a redirect to a redirect, which needs to be forwarded along (unless already done so)
+						if (!redirect.getForwarded())
+							reporter.incrCounter(Counter.unforwardedRedirectCount, 1);
+
 					} else {
-						//remove any mention of forwarding (because this is not a redirect)
-						combinedPage.setIsRedirect(null);
+						//this redirect does not need to be forwarded
+						//state that this redirect has been forwarded
+						redirect.setForwarded(true) ;
 					}
-					
+
 					redirectList.add(redirect) ;
-					
+
 				}
-								
+
 				combinedPage.setRedirects(redirectList);
 			}
-				
+
+			//if we don't know the id of the page by this point, then it must be the result of an unresolvable redirect or link (so forget it)
+			if (combinedPage.getId() == null)
+				return ;
+			
+			
+			//otherwise, collect it
 			collector.collect(new Pair<PageKey,PageDetail>(key, combinedPage));
-			
-			
 		}
 	}
 }

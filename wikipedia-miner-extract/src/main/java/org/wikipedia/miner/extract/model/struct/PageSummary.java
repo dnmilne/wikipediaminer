@@ -7,12 +7,13 @@ package org.wikipedia.miner.extract.model.struct;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class PageSummary extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"PageSummary\",\"namespace\":\"org.wikipedia.miner.extract.model.struct\",\"fields\":[{\"name\":\"id\",\"type\":\"int\"},{\"name\":\"title\",\"type\":\"string\"},{\"name\":\"namespace\",\"type\":\"int\"},{\"name\":\"isForwarded\",\"type\":[\"boolean\",\"null\"]}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"PageSummary\",\"namespace\":\"org.wikipedia.miner.extract.model.struct\",\"fields\":[{\"name\":\"id\",\"type\":\"int\"},{\"name\":\"title\",\"type\":\"string\"},{\"name\":\"namespace\",\"type\":\"int\"},{\"name\":\"forwarded\",\"type\":\"boolean\"},{\"name\":\"backtracked\",\"type\":\"boolean\"}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
   @Deprecated public int id;
   @Deprecated public java.lang.CharSequence title;
   @Deprecated public int namespace;
-  @Deprecated public java.lang.Boolean isForwarded;
+  @Deprecated public boolean forwarded;
+  @Deprecated public boolean backtracked;
 
   /**
    * Default constructor.  Note that this does not initialize fields
@@ -24,11 +25,12 @@ public class PageSummary extends org.apache.avro.specific.SpecificRecordBase imp
   /**
    * All-args constructor.
    */
-  public PageSummary(java.lang.Integer id, java.lang.CharSequence title, java.lang.Integer namespace, java.lang.Boolean isForwarded) {
+  public PageSummary(java.lang.Integer id, java.lang.CharSequence title, java.lang.Integer namespace, java.lang.Boolean forwarded, java.lang.Boolean backtracked) {
     this.id = id;
     this.title = title;
     this.namespace = namespace;
-    this.isForwarded = isForwarded;
+    this.forwarded = forwarded;
+    this.backtracked = backtracked;
   }
 
   public org.apache.avro.Schema getSchema() { return SCHEMA$; }
@@ -38,7 +40,8 @@ public class PageSummary extends org.apache.avro.specific.SpecificRecordBase imp
     case 0: return id;
     case 1: return title;
     case 2: return namespace;
-    case 3: return isForwarded;
+    case 3: return forwarded;
+    case 4: return backtracked;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -49,7 +52,8 @@ public class PageSummary extends org.apache.avro.specific.SpecificRecordBase imp
     case 0: id = (java.lang.Integer)value$; break;
     case 1: title = (java.lang.CharSequence)value$; break;
     case 2: namespace = (java.lang.Integer)value$; break;
-    case 3: isForwarded = (java.lang.Boolean)value$; break;
+    case 3: forwarded = (java.lang.Boolean)value$; break;
+    case 4: backtracked = (java.lang.Boolean)value$; break;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -100,18 +104,33 @@ public class PageSummary extends org.apache.avro.specific.SpecificRecordBase imp
   }
 
   /**
-   * Gets the value of the 'isForwarded' field.
+   * Gets the value of the 'forwarded' field.
    */
-  public java.lang.Boolean getIsForwarded() {
-    return isForwarded;
+  public java.lang.Boolean getForwarded() {
+    return forwarded;
   }
 
   /**
-   * Sets the value of the 'isForwarded' field.
+   * Sets the value of the 'forwarded' field.
    * @param value the value to set.
    */
-  public void setIsForwarded(java.lang.Boolean value) {
-    this.isForwarded = value;
+  public void setForwarded(java.lang.Boolean value) {
+    this.forwarded = value;
+  }
+
+  /**
+   * Gets the value of the 'backtracked' field.
+   */
+  public java.lang.Boolean getBacktracked() {
+    return backtracked;
+  }
+
+  /**
+   * Sets the value of the 'backtracked' field.
+   * @param value the value to set.
+   */
+  public void setBacktracked(java.lang.Boolean value) {
+    this.backtracked = value;
   }
 
   /** Creates a new PageSummary RecordBuilder */
@@ -138,7 +157,8 @@ public class PageSummary extends org.apache.avro.specific.SpecificRecordBase imp
     private int id;
     private java.lang.CharSequence title;
     private int namespace;
-    private java.lang.Boolean isForwarded;
+    private boolean forwarded;
+    private boolean backtracked;
 
     /** Creates a new Builder */
     private Builder() {
@@ -160,9 +180,13 @@ public class PageSummary extends org.apache.avro.specific.SpecificRecordBase imp
         this.namespace = data().deepCopy(fields()[2].schema(), other.namespace);
         fieldSetFlags()[2] = true;
       }
-      if (isValidValue(fields()[3], other.isForwarded)) {
-        this.isForwarded = data().deepCopy(fields()[3].schema(), other.isForwarded);
+      if (isValidValue(fields()[3], other.forwarded)) {
+        this.forwarded = data().deepCopy(fields()[3].schema(), other.forwarded);
         fieldSetFlags()[3] = true;
+      }
+      if (isValidValue(fields()[4], other.backtracked)) {
+        this.backtracked = data().deepCopy(fields()[4].schema(), other.backtracked);
+        fieldSetFlags()[4] = true;
       }
     }
     
@@ -181,9 +205,13 @@ public class PageSummary extends org.apache.avro.specific.SpecificRecordBase imp
         this.namespace = data().deepCopy(fields()[2].schema(), other.namespace);
         fieldSetFlags()[2] = true;
       }
-      if (isValidValue(fields()[3], other.isForwarded)) {
-        this.isForwarded = data().deepCopy(fields()[3].schema(), other.isForwarded);
+      if (isValidValue(fields()[3], other.forwarded)) {
+        this.forwarded = data().deepCopy(fields()[3].schema(), other.forwarded);
         fieldSetFlags()[3] = true;
+      }
+      if (isValidValue(fields()[4], other.backtracked)) {
+        this.backtracked = data().deepCopy(fields()[4].schema(), other.backtracked);
+        fieldSetFlags()[4] = true;
       }
     }
 
@@ -260,28 +288,51 @@ public class PageSummary extends org.apache.avro.specific.SpecificRecordBase imp
       return this;
     }
 
-    /** Gets the value of the 'isForwarded' field */
-    public java.lang.Boolean getIsForwarded() {
-      return isForwarded;
+    /** Gets the value of the 'forwarded' field */
+    public java.lang.Boolean getForwarded() {
+      return forwarded;
     }
     
-    /** Sets the value of the 'isForwarded' field */
-    public org.wikipedia.miner.extract.model.struct.PageSummary.Builder setIsForwarded(java.lang.Boolean value) {
+    /** Sets the value of the 'forwarded' field */
+    public org.wikipedia.miner.extract.model.struct.PageSummary.Builder setForwarded(boolean value) {
       validate(fields()[3], value);
-      this.isForwarded = value;
+      this.forwarded = value;
       fieldSetFlags()[3] = true;
       return this; 
     }
     
-    /** Checks whether the 'isForwarded' field has been set */
-    public boolean hasIsForwarded() {
+    /** Checks whether the 'forwarded' field has been set */
+    public boolean hasForwarded() {
       return fieldSetFlags()[3];
     }
     
-    /** Clears the value of the 'isForwarded' field */
-    public org.wikipedia.miner.extract.model.struct.PageSummary.Builder clearIsForwarded() {
-      isForwarded = null;
+    /** Clears the value of the 'forwarded' field */
+    public org.wikipedia.miner.extract.model.struct.PageSummary.Builder clearForwarded() {
       fieldSetFlags()[3] = false;
+      return this;
+    }
+
+    /** Gets the value of the 'backtracked' field */
+    public java.lang.Boolean getBacktracked() {
+      return backtracked;
+    }
+    
+    /** Sets the value of the 'backtracked' field */
+    public org.wikipedia.miner.extract.model.struct.PageSummary.Builder setBacktracked(boolean value) {
+      validate(fields()[4], value);
+      this.backtracked = value;
+      fieldSetFlags()[4] = true;
+      return this; 
+    }
+    
+    /** Checks whether the 'backtracked' field has been set */
+    public boolean hasBacktracked() {
+      return fieldSetFlags()[4];
+    }
+    
+    /** Clears the value of the 'backtracked' field */
+    public org.wikipedia.miner.extract.model.struct.PageSummary.Builder clearBacktracked() {
+      fieldSetFlags()[4] = false;
       return this;
     }
 
@@ -292,7 +343,8 @@ public class PageSummary extends org.apache.avro.specific.SpecificRecordBase imp
         record.id = fieldSetFlags()[0] ? this.id : (java.lang.Integer) defaultValue(fields()[0]);
         record.title = fieldSetFlags()[1] ? this.title : (java.lang.CharSequence) defaultValue(fields()[1]);
         record.namespace = fieldSetFlags()[2] ? this.namespace : (java.lang.Integer) defaultValue(fields()[2]);
-        record.isForwarded = fieldSetFlags()[3] ? this.isForwarded : (java.lang.Boolean) defaultValue(fields()[3]);
+        record.forwarded = fieldSetFlags()[3] ? this.forwarded : (java.lang.Boolean) defaultValue(fields()[3]);
+        record.backtracked = fieldSetFlags()[4] ? this.backtracked : (java.lang.Boolean) defaultValue(fields()[4]);
         return record;
       } catch (Exception e) {
         throw new org.apache.avro.AvroRuntimeException(e);

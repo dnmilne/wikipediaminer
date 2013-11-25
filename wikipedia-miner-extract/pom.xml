@@ -116,7 +116,7 @@
 					</descriptors>
 					<archive>
 						<manifest>
-							<mainClass>org.wikipedia.miner.extract.DumpExtractor</mainClass>
+							<mainClass>org.wikipedia.miner.extract.DumpExtractor2</mainClass>
 						</manifest>
 					</archive>
 				</configuration>

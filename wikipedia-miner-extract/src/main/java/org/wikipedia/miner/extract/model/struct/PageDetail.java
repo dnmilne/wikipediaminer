@@ -7,14 +7,15 @@ package org.wikipedia.miner.extract.model.struct;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class PageDetail extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"PageDetail\",\"namespace\":\"org.wikipedia.miner.extract.model.struct\",\"fields\":[{\"name\":\"id\",\"type\":[\"int\",\"null\"]},{\"name\":\"title\",\"type\":[\"string\",\"null\"]},{\"name\":\"namespace\",\"type\":[\"int\",\"null\"]},{\"name\":\"lastEdited\",\"type\":[\"long\",\"null\"]},{\"name\":\"isRedirect\",\"type\":[\"boolean\",\"null\"]},{\"name\":\"redirectsTo\",\"type\":[\"string\",\"null\"]},{\"name\":\"redirects\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"PageSummary\",\"fields\":[{\"name\":\"id\",\"type\":\"int\"},{\"name\":\"title\",\"type\":\"string\"},{\"name\":\"namespace\",\"type\":\"int\"},{\"name\":\"isForwarded\",\"type\":[\"boolean\",\"null\"]}]}}}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"PageDetail\",\"namespace\":\"org.wikipedia.miner.extract.model.struct\",\"fields\":[{\"name\":\"id\",\"type\":[\"int\",\"null\"]},{\"name\":\"title\",\"type\":[\"string\",\"null\"]},{\"name\":\"namespace\",\"type\":[\"int\",\"null\"]},{\"name\":\"lastEdited\",\"type\":[\"long\",\"null\"]},{\"name\":\"isRedirect\",\"type\":\"boolean\"},{\"name\":\"redirectsToTitle\",\"type\":[\"string\",\"null\"]},{\"name\":\"redirectsTo\",\"type\":[{\"type\":\"record\",\"name\":\"PageSummary\",\"fields\":[{\"name\":\"id\",\"type\":\"int\"},{\"name\":\"title\",\"type\":\"string\"},{\"name\":\"namespace\",\"type\":\"int\"},{\"name\":\"forwarded\",\"type\":\"boolean\"},{\"name\":\"backtracked\",\"type\":\"boolean\"}]},\"null\"]},{\"name\":\"redirects\",\"type\":{\"type\":\"array\",\"items\":\"PageSummary\"}}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
   @Deprecated public java.lang.Integer id;
   @Deprecated public java.lang.CharSequence title;
   @Deprecated public java.lang.Integer namespace;
   @Deprecated public java.lang.Long lastEdited;
-  @Deprecated public java.lang.Boolean isRedirect;
-  @Deprecated public java.lang.CharSequence redirectsTo;
+  @Deprecated public boolean isRedirect;
+  @Deprecated public java.lang.CharSequence redirectsToTitle;
+  @Deprecated public org.wikipedia.miner.extract.model.struct.PageSummary redirectsTo;
   @Deprecated public java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary> redirects;
 
   /**
@@ -27,12 +28,13 @@ public class PageDetail extends org.apache.avro.specific.SpecificRecordBase impl
   /**
    * All-args constructor.
    */
-  public PageDetail(java.lang.Integer id, java.lang.CharSequence title, java.lang.Integer namespace, java.lang.Long lastEdited, java.lang.Boolean isRedirect, java.lang.CharSequence redirectsTo, java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary> redirects) {
+  public PageDetail(java.lang.Integer id, java.lang.CharSequence title, java.lang.Integer namespace, java.lang.Long lastEdited, java.lang.Boolean isRedirect, java.lang.CharSequence redirectsToTitle, org.wikipedia.miner.extract.model.struct.PageSummary redirectsTo, java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary> redirects) {
     this.id = id;
     this.title = title;
     this.namespace = namespace;
     this.lastEdited = lastEdited;
     this.isRedirect = isRedirect;
+    this.redirectsToTitle = redirectsToTitle;
     this.redirectsTo = redirectsTo;
     this.redirects = redirects;
   }
@@ -46,8 +48,9 @@ public class PageDetail extends org.apache.avro.specific.SpecificRecordBase impl
     case 2: return namespace;
     case 3: return lastEdited;
     case 4: return isRedirect;
-    case 5: return redirectsTo;
-    case 6: return redirects;
+    case 5: return redirectsToTitle;
+    case 6: return redirectsTo;
+    case 7: return redirects;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -60,8 +63,9 @@ public class PageDetail extends org.apache.avro.specific.SpecificRecordBase impl
     case 2: namespace = (java.lang.Integer)value$; break;
     case 3: lastEdited = (java.lang.Long)value$; break;
     case 4: isRedirect = (java.lang.Boolean)value$; break;
-    case 5: redirectsTo = (java.lang.CharSequence)value$; break;
-    case 6: redirects = (java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary>)value$; break;
+    case 5: redirectsToTitle = (java.lang.CharSequence)value$; break;
+    case 6: redirectsTo = (org.wikipedia.miner.extract.model.struct.PageSummary)value$; break;
+    case 7: redirects = (java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary>)value$; break;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -142,9 +146,24 @@ public class PageDetail extends org.apache.avro.specific.SpecificRecordBase impl
   }
 
   /**
+   * Gets the value of the 'redirectsToTitle' field.
+   */
+  public java.lang.CharSequence getRedirectsToTitle() {
+    return redirectsToTitle;
+  }
+
+  /**
+   * Sets the value of the 'redirectsToTitle' field.
+   * @param value the value to set.
+   */
+  public void setRedirectsToTitle(java.lang.CharSequence value) {
+    this.redirectsToTitle = value;
+  }
+
+  /**
    * Gets the value of the 'redirectsTo' field.
    */
-  public java.lang.CharSequence getRedirectsTo() {
+  public org.wikipedia.miner.extract.model.struct.PageSummary getRedirectsTo() {
     return redirectsTo;
   }
 
@@ -152,7 +171,7 @@ public class PageDetail extends org.apache.avro.specific.SpecificRecordBase impl
    * Sets the value of the 'redirectsTo' field.
    * @param value the value to set.
    */
-  public void setRedirectsTo(java.lang.CharSequence value) {
+  public void setRedirectsTo(org.wikipedia.miner.extract.model.struct.PageSummary value) {
     this.redirectsTo = value;
   }
 
@@ -196,8 +215,9 @@ public class PageDetail extends org.apache.avro.specific.SpecificRecordBase impl
     private java.lang.CharSequence title;
     private java.lang.Integer namespace;
     private java.lang.Long lastEdited;
-    private java.lang.Boolean isRedirect;
-    private java.lang.CharSequence redirectsTo;
+    private boolean isRedirect;
+    private java.lang.CharSequence redirectsToTitle;
+    private org.wikipedia.miner.extract.model.struct.PageSummary redirectsTo;
     private java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary> redirects;
 
     /** Creates a new Builder */
@@ -228,13 +248,17 @@ public class PageDetail extends org.apache.avro.specific.SpecificRecordBase impl
         this.isRedirect = data().deepCopy(fields()[4].schema(), other.isRedirect);
         fieldSetFlags()[4] = true;
       }
-      if (isValidValue(fields()[5], other.redirectsTo)) {
-        this.redirectsTo = data().deepCopy(fields()[5].schema(), other.redirectsTo);
+      if (isValidValue(fields()[5], other.redirectsToTitle)) {
+        this.redirectsToTitle = data().deepCopy(fields()[5].schema(), other.redirectsToTitle);
         fieldSetFlags()[5] = true;
       }
-      if (isValidValue(fields()[6], other.redirects)) {
-        this.redirects = data().deepCopy(fields()[6].schema(), other.redirects);
+      if (isValidValue(fields()[6], other.redirectsTo)) {
+        this.redirectsTo = data().deepCopy(fields()[6].schema(), other.redirectsTo);
         fieldSetFlags()[6] = true;
+      }
+      if (isValidValue(fields()[7], other.redirects)) {
+        this.redirects = data().deepCopy(fields()[7].schema(), other.redirects);
+        fieldSetFlags()[7] = true;
       }
     }
     
@@ -261,13 +285,17 @@ public class PageDetail extends org.apache.avro.specific.SpecificRecordBase impl
         this.isRedirect = data().deepCopy(fields()[4].schema(), other.isRedirect);
         fieldSetFlags()[4] = true;
       }
-      if (isValidValue(fields()[5], other.redirectsTo)) {
-        this.redirectsTo = data().deepCopy(fields()[5].schema(), other.redirectsTo);
+      if (isValidValue(fields()[5], other.redirectsToTitle)) {
+        this.redirectsToTitle = data().deepCopy(fields()[5].schema(), other.redirectsToTitle);
         fieldSetFlags()[5] = true;
       }
-      if (isValidValue(fields()[6], other.redirects)) {
-        this.redirects = data().deepCopy(fields()[6].schema(), other.redirects);
+      if (isValidValue(fields()[6], other.redirectsTo)) {
+        this.redirectsTo = data().deepCopy(fields()[6].schema(), other.redirectsTo);
         fieldSetFlags()[6] = true;
+      }
+      if (isValidValue(fields()[7], other.redirects)) {
+        this.redirects = data().deepCopy(fields()[7].schema(), other.redirects);
+        fieldSetFlags()[7] = true;
       }
     }
 
@@ -377,7 +405,7 @@ public class PageDetail extends org.apache.avro.specific.SpecificRecordBase impl
     }
     
     /** Sets the value of the 'isRedirect' field */
-    public org.wikipedia.miner.extract.model.struct.PageDetail.Builder setIsRedirect(java.lang.Boolean value) {
+    public org.wikipedia.miner.extract.model.struct.PageDetail.Builder setIsRedirect(boolean value) {
       validate(fields()[4], value);
       this.isRedirect = value;
       fieldSetFlags()[4] = true;
@@ -391,33 +419,57 @@ public class PageDetail extends org.apache.avro.specific.SpecificRecordBase impl
     
     /** Clears the value of the 'isRedirect' field */
     public org.wikipedia.miner.extract.model.struct.PageDetail.Builder clearIsRedirect() {
-      isRedirect = null;
       fieldSetFlags()[4] = false;
       return this;
     }
 
+    /** Gets the value of the 'redirectsToTitle' field */
+    public java.lang.CharSequence getRedirectsToTitle() {
+      return redirectsToTitle;
+    }
+    
+    /** Sets the value of the 'redirectsToTitle' field */
+    public org.wikipedia.miner.extract.model.struct.PageDetail.Builder setRedirectsToTitle(java.lang.CharSequence value) {
+      validate(fields()[5], value);
+      this.redirectsToTitle = value;
+      fieldSetFlags()[5] = true;
+      return this; 
+    }
+    
+    /** Checks whether the 'redirectsToTitle' field has been set */
+    public boolean hasRedirectsToTitle() {
+      return fieldSetFlags()[5];
+    }
+    
+    /** Clears the value of the 'redirectsToTitle' field */
+    public org.wikipedia.miner.extract.model.struct.PageDetail.Builder clearRedirectsToTitle() {
+      redirectsToTitle = null;
+      fieldSetFlags()[5] = false;
+      return this;
+    }
+
     /** Gets the value of the 'redirectsTo' field */
-    public java.lang.CharSequence getRedirectsTo() {
+    public org.wikipedia.miner.extract.model.struct.PageSummary getRedirectsTo() {
       return redirectsTo;
     }
     
     /** Sets the value of the 'redirectsTo' field */
-    public org.wikipedia.miner.extract.model.struct.PageDetail.Builder setRedirectsTo(java.lang.CharSequence value) {
-      validate(fields()[5], value);
+    public org.wikipedia.miner.extract.model.struct.PageDetail.Builder setRedirectsTo(org.wikipedia.miner.extract.model.struct.PageSummary value) {
+      validate(fields()[6], value);
       this.redirectsTo = value;
-      fieldSetFlags()[5] = true;
+      fieldSetFlags()[6] = true;
       return this; 
     }
     
     /** Checks whether the 'redirectsTo' field has been set */
     public boolean hasRedirectsTo() {
-      return fieldSetFlags()[5];
+      return fieldSetFlags()[6];
     }
     
     /** Clears the value of the 'redirectsTo' field */
     public org.wikipedia.miner.extract.model.struct.PageDetail.Builder clearRedirectsTo() {
       redirectsTo = null;
-      fieldSetFlags()[5] = false;
+      fieldSetFlags()[6] = false;
       return this;
     }
 
@@ -428,21 +480,21 @@ public class PageDetail extends org.apache.avro.specific.SpecificRecordBase impl
     
     /** Sets the value of the 'redirects' field */
     public org.wikipedia.miner.extract.model.struct.PageDetail.Builder setRedirects(java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary> value) {
-      validate(fields()[6], value);
+      validate(fields()[7], value);
       this.redirects = value;
-      fieldSetFlags()[6] = true;
+      fieldSetFlags()[7] = true;
       return this; 
     }
     
     /** Checks whether the 'redirects' field has been set */
     public boolean hasRedirects() {
-      return fieldSetFlags()[6];
+      return fieldSetFlags()[7];
     }
     
     /** Clears the value of the 'redirects' field */
     public org.wikipedia.miner.extract.model.struct.PageDetail.Builder clearRedirects() {
       redirects = null;
-      fieldSetFlags()[6] = false;
+      fieldSetFlags()[7] = false;
       return this;
     }
 
@@ -455,8 +507,9 @@ public class PageDetail extends org.apache.avro.specific.SpecificRecordBase impl
         record.namespace = fieldSetFlags()[2] ? this.namespace : (java.lang.Integer) defaultValue(fields()[2]);
         record.lastEdited = fieldSetFlags()[3] ? this.lastEdited : (java.lang.Long) defaultValue(fields()[3]);
         record.isRedirect = fieldSetFlags()[4] ? this.isRedirect : (java.lang.Boolean) defaultValue(fields()[4]);
-        record.redirectsTo = fieldSetFlags()[5] ? this.redirectsTo : (java.lang.CharSequence) defaultValue(fields()[5]);
-        record.redirects = fieldSetFlags()[6] ? this.redirects : (java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary>) defaultValue(fields()[6]);
+        record.redirectsToTitle = fieldSetFlags()[5] ? this.redirectsToTitle : (java.lang.CharSequence) defaultValue(fields()[5]);
+        record.redirectsTo = fieldSetFlags()[6] ? this.redirectsTo : (org.wikipedia.miner.extract.model.struct.PageSummary) defaultValue(fields()[6]);
+        record.redirects = fieldSetFlags()[7] ? this.redirects : (java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary>) defaultValue(fields()[7]);
         return record;
       } catch (Exception e) {
         throw new org.apache.avro.AvroRuntimeException(e);
