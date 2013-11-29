@@ -21,9 +21,11 @@ import org.wikipedia.miner.comparison.ArticleComparer;
 import org.wikipedia.miner.model.Article;
 import org.wikipedia.miner.model.Category;
 import org.wikipedia.miner.model.Wikipedia;
+import org.wikipedia.miner.web.util.ImageRetriever;
 import org.wikipedia.miner.web.util.UtilityMessages;
 import org.wikipedia.miner.web.util.UtilityMessages.InvalidIdMessage;
 import org.wikipedia.miner.web.util.UtilityMessages.InvalidTitleMessage;
+import org.apache.log4j.Logger;
 import org.dmilne.xjsf.Service;
 import org.dmilne.xjsf.UtilityMessages.ErrorMessage;
 import org.dmilne.xjsf.UtilityMessages.ParameterMissingMessage;
@@ -44,8 +46,7 @@ public class ExploreArticleService extends WMService{
 	private enum GroupName{id,title} ; 
 	public enum DefinitionLength{LONG, SHORT} ;
 
-	private Pattern fb_imagePattern = Pattern.compile("\"image\"\\:\\[(.*?)\\]") ;
-	private Pattern fb_idPattern = Pattern.compile("\"id\"\\:\"(.*?)\"") ;
+	private ImageRetriever imageRetriever ;
 
 	private ParameterGroup grpId ;
 	private IntParameter prmId ;
@@ -76,13 +77,15 @@ public class ExploreArticleService extends WMService{
 
 	private BooleanParameter prmLinkRelatedness ;
 
+	private static Logger logger = Logger.getLogger(ExploreArticleService.class) ;
+
 
 	public ExploreArticleService() {
 
 		super("core","Provides details of individual articles",
 
 				"<p></p>", false
-		);
+				);
 	}
 
 	@Override
@@ -150,6 +153,8 @@ public class ExploreArticleService extends WMService{
 		prmLinkRelatedness = new BooleanParameter("linkRelatedness", "<b>true</b> if the relatedness of in- and out-links should be measured, otherwise <b>false</b>", false) ;
 		addGlobalParameter(prmLinkRelatedness) ;
 
+		imageRetriever = new ImageRetriever(getWMHub().getRetriever()) ;
+
 	}
 
 	public Service.Message buildWrappedResponse(HttpServletRequest request) throws Exception {
@@ -198,7 +203,7 @@ public class ExploreArticleService extends WMService{
 		}
 
 		Message msg = new Message(request, art) ;
-		
+
 		if (prmDefinition.getValue(request)) {
 			String definition = null ;
 
@@ -235,29 +240,30 @@ public class ExploreArticleService extends WMService{
 
 
 		if (prmImages.getValue(request)) {
-				URL freebaseRequest = new URL("https://www.googleapis.com/freebase/v1/mqlread?query={\"query\":{\"key\":[{\"namespace\":\"/wikipedia/en_id\",\"value\":\"" + art.getId() + "\"}], \"type\":\"/common/topic\", \"article\":[{\"id\":null}], \"image\":[{\"id\":null}]}}") ;
-	
-				try {
-					String freebaseResponse = getWMHub().getRetriever().getWebContent(freebaseRequest) ;
-		
-					freebaseResponse = freebaseResponse.replaceAll("\\s", "") ;
-		
-					Matcher m = fb_imagePattern.matcher(freebaseResponse) ;
-		
-					if (m.find()) {
-						Matcher n = fb_idPattern.matcher(m.group(1)) ;
-						while (n.find()) {
-							String url = "https://www.googleapis.com/freebase/v1/trans/image_thumb" + n.group(1).replace("\\/", "/") + "?maxwidth=" + prmImageWidth.getValue(request) + "&maxheight=" + prmImageHeight.getValue(request) ;
-							msg.addImage(new Image(url)) ;
-						}
-					}
-				} catch (Exception e) {
-					e.printStackTrace();
+
+			int width =  prmImageWidth.getValue(request) ;
+			int height = prmImageHeight.getValue(request)  ;
+
+			try {
+
+				for (String imgTitle: imageRetriever.getImageTitles(art.getId())) {
+
+					String imgUrl = imageRetriever.getImageUrl(imgTitle, width, height) ;
+
+					if (imgUrl != null)
+						msg.addImage(new Image(imgUrl));
+
 				}
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 
 		if (prmParentCategories.getValue(request)) {
 			Category[] parents = art.getParentCategories() ;
+
+			logger.info("retrieving parents from " + parents.length + " total");
 
 			msg.setTotalParentCategories(parents.length) ;
 			for (Category parent:parents) 
@@ -274,6 +280,9 @@ public class ExploreArticleService extends WMService{
 				max = max + start ;
 
 			Article[] linksOut = art.getLinksOut() ;
+			logger.info("retrieving out links [" + start + "," + max + "] from " + linksOut.length + " total");
+
+
 
 			msg.setTotalOutLinks(linksOut.length) ;
 			for (int i=start ; i < max && i < linksOut.length ; i++) {
@@ -295,6 +304,8 @@ public class ExploreArticleService extends WMService{
 				max = max + start ;
 
 			Article[] linksIn = art.getLinksIn() ;
+			logger.info("retrieving in links [" + start + "," + max + "] from " + linksIn.length + " total");
+
 
 			msg.setTotalInLinks(linksIn.length) ;
 			for (int i=start ; i < max && i < linksIn.length ; i++) {
@@ -305,7 +316,7 @@ public class ExploreArticleService extends WMService{
 				msg.addInLink(p) ;
 			}
 		}
-		
+
 		return msg ;
 	}
 
@@ -326,7 +337,7 @@ public class ExploreArticleService extends WMService{
 		@Expose
 		@ElementList(required=false, entry="image") 
 		private ArrayList<Image> images = null ;
-		
+
 		@Expose
 		@ElementList(required=false, entry="label") 
 		private ArrayList<Label> labels = null ;
@@ -368,11 +379,11 @@ public class ExploreArticleService extends WMService{
 		private void setDefinition(String markup) {
 			this.definition = markup ;
 		}
-		
+
 		private void addImage(Image image) {
 			if (images == null)
 				images = new ArrayList<Image>() ;
-			
+
 			images.add(image) ;
 		}
 
@@ -436,30 +447,30 @@ public class ExploreArticleService extends WMService{
 		}
 
 		public List<Image> getImages() {
-			
+
 			if (images == null) return Collections.unmodifiableList(new ArrayList<Image>()) ;
-			
+
 			return Collections.unmodifiableList(images);
 		}
 
 		public List<Label> getLabels() {
-			
+
 			if (labels == null) return Collections.unmodifiableList(new ArrayList<Label>()) ;
-			
+
 			return Collections.unmodifiableList(labels);
 		}
 
 		public List<Translation> getTranslations() {
-			
+
 			if (translations == null) return Collections.unmodifiableList(new ArrayList<Translation>()) ;
-			
+
 			return Collections.unmodifiableList(translations);
 		}
 
 		public List<Page> getParentCategories() {
-			
+
 			if (parentCategories == null) return Collections.unmodifiableList(new ArrayList<Page>()) ;
-			
+
 			return Collections.unmodifiableList(parentCategories);
 		}
 
@@ -468,9 +479,9 @@ public class ExploreArticleService extends WMService{
 		}
 
 		public List<Page> getInLinks() {
-			
+
 			if (inLinks == null) return Collections.unmodifiableList(new ArrayList<Page>()) ;
-			
+
 			return Collections.unmodifiableList(inLinks);
 		}
 
@@ -479,9 +490,9 @@ public class ExploreArticleService extends WMService{
 		}
 
 		public List<Page> getOutLinks() {
-			
+
 			if (outLinks == null) return Collections.unmodifiableList(new ArrayList<Page>()) ;
-			
+
 			return Collections.unmodifiableList(outLinks);
 		}
 
@@ -494,11 +505,11 @@ public class ExploreArticleService extends WMService{
 		@Expose
 		@Attribute
 		private String url ;
-		
+
 		private Image(String url) {
 			this.url = url ;
 		}
-		
+
 		public String getUrl() {
 			return url ;
 		}

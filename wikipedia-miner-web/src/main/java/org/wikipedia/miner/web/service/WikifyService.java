@@ -39,6 +39,8 @@ import com.google.gson.annotations.Expose;
 
 @SuppressWarnings("serial")
 public class WikifyService extends WMService {
+	
+	
 
 	public enum SourceMode{AUTO, URL, HTML, WIKI} ;
 	public enum LinkFormat{AUTO,WIKI,WIKI_ID,WIKI_ID_WEIGHT,HTML,HTML_ID, HTML_ID_WEIGHT} ;
@@ -75,6 +77,7 @@ public class WikifyService extends WMService {
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
 	
+		
 		prmSource = new StringParameter("source", "The document to be wikified (either its content or a web-accessible URL)", null) ;
 		addGlobalParameter(prmSource) ;
 		
@@ -321,7 +324,7 @@ public class WikifyService extends WMService {
 				
 				
 				newHeaderStuff.append("<script type=\"text/javascript\" src=\"" + basePath + "/js/jquery-1.5.1.min.js\"></script>\n") ;
-				newHeaderStuff.append("<script type=\"text/javascript\" src=\"" + basePath + "/js/jquery.qtip-1.0.0-rc3.min.js\"></script>\n") ;
+				newHeaderStuff.append("<script type=\"text/javascript\" src=\"" + basePath + "/js/jquery.qtip.min.js\"></script>\n") ;
 				newHeaderStuff.append("<script type=\"text/javascript\" src=\"" + basePath + "/js/tooltips.js\"></script>\n") ;
 				newHeaderStuff.append("<script type=\"text/javascript\"> \n") ;
 				newHeaderStuff.append("  var wm_host=\"" + basePath + "\" ; \n") ;

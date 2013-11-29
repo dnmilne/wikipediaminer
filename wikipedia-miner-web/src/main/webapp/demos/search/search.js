@@ -332,14 +332,14 @@ function processArticleResponse(data) {
 	wm_addDefinitionTooltipsToAllLinks($('#artDefinition')) ;
 	
 	
-	var sortedLabels = data.labels.sort(function(a,b) {
-		var valA = a.text ;
-		var valB = b.text ;
-		
-		return valA < valB ? -1 : valA == valB? 0 : 1 ;
-	}) ;
-	
-	if (sortedLabels.length > 0) {
+	if (data.labels && data.labels.length > 0) {
+
+		var sortedLabels = data.labels.sort(function(a,b) {
+			var valA = a.text ;
+			var valB = b.text ;
+			
+			return valA < valB ? -1 : valA == valB? 0 : 1 ;
+		}) ;
 		
 		var maxWeight, minWeight ;
 		$.each(sortedLabels, function() {
@@ -370,22 +370,27 @@ function processArticleResponse(data) {
 				$('#labels').append(label) ;
 			}
 		}) ;
+
 	} else {
+
 		$('#noLabels').show() ;
 	}
+
+	if (data.translations && data.translations.length > 0) {
 	
-	var sortedTranslations = data.translations.sort(function(a,b) {
-		var valA = a.lang ;
-		var valB = b.lang ;
-		
-		return valA < valB ? -1 : valA == valB? 0 : 1 ;
-	}) ;
+		var sortedTranslations = data.translations.sort(function(a,b) {
+			var valA = a.lang ;
+			var valB = b.lang ;
+			
+			return valA < valB ? -1 : valA == valB? 0 : 1 ;
+		}) ;
 	
-	if (sortedTranslations.length > 0) {
+	
 		$.each(sortedTranslations, function() {			
 			var translation = $("<li><em>" + this.lang + "</em>: " + this.text + "</li>") ;
 			$('#translations').append(translation) ;
 		}) ;
+
 	} else {
 		$('#noTranslations').show() ;
 	}
