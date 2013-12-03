@@ -3,3 +3,21 @@ Disallow: /demos/
 Disallow: /demos
 Disallow: /service
 Disallow: /wikifier 
+
+
+Natural language processing (NLP) is a field of computer science, artificial intelligence, and linguistics concerned with the interactions between computers and human (natural) languages. As such, NLP is related to the area of human–computer interaction. Many challenges in NLP involve natural language understanding -- that is, enabling computers to derive meaning from human or natural language input.
+
+Kazama, J. I., & Torisawa, K. Exploiting Wikipedia as external knowledge for named entity recognition.  CoNLL 2007
+
+Ratinov, L., & Roth, D. Design challenges and misconceptions in named entity recognition. CoNLL 2009 
+
+
+Traitement automatique du langage naturel
+Elaborazione del linguaggio naturale
+Pemrosesan bahasa alami
+Обработка естественного языка
+Procesamiento de lenguajes naturales
+
+Gabay, D., Ben-Eliahu, Z., & Elhadad, M. Using wikipedia links to construct word segmentation corpora. AAAI 2008 Workshops.
+
+Nastase, V., & Strube, M. Decoding Wikipedia Categories for Knowledge Acquisition. In AAAI 2008

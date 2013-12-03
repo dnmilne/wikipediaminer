@@ -40,7 +40,7 @@
 	</dependencies>
 	<build>
 		<finalName>wikipedia-miner-web</finalName>
-		
+
 		<plugins>
 			<plugin>
 				<groupId>org.mortbay.jetty</groupId>
@@ -50,7 +50,7 @@
 					<useTestClasspath>true</useTestClasspath>
 				</configuration>
 			</plugin>
-			
+
 			<plugin>
 				<groupId>org.apache.tomcat.maven</groupId>
 				<artifactId>tomcat7-maven-plugin</artifactId>
@@ -61,7 +61,7 @@
 					<path>/</path>
 				</configuration>
 			</plugin>
-			
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -71,7 +71,15 @@
 					<target>1.6</target>
 				</configuration>
 			</plugin>
-	
+
+			<plugin>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>2.4</version>
+				<configuration>
+					<attachClasses>true</attachClasses>
+				</configuration>
+			</plugin>
+
 		</plugins>
 	</build>
 </project>
