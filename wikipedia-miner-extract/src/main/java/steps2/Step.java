@@ -54,6 +54,10 @@ public abstract class Step extends Configured implements Tool {
 		hdfs.delete(getWorkingDir(), true) ;
 	}
 	
+	public Path getBaseWorkingDir() {
+		return baseWorkingDir ;
+	}
+	
 	public Path getWorkingDir() {
 		return new Path(baseWorkingDir.toString() + Path.SEPARATOR + getWorkingDirName()) ;
 	}

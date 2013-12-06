@@ -7,8 +7,7 @@
         {"name": "id", "type": "int"},
         {"name": "title", "type": "string"},
         {"name": "namespace", "type": "int"},
-        {"name": "forwarded", "type": "boolean"},
-        {"name": "backtracked", "type": "boolean"}
+        {"name": "forwarded", "type": "boolean"}
       ]
     },
     {
@@ -29,11 +28,44 @@
          {"name": "title", "type": ["string", "null"]},
          {"name": "namespace", "type": ["int", "null"]},
          {"name": "lastEdited", "type": ["long","null"]},
-         {"name": "isRedirect", "type": "boolean"},
-         {"name": "redirectsToTitle", "type": ["string", "null"]},
          {"name": "redirectsTo", "type": ["PageSummary","null"]},
          {
           "name": "redirects", 
+          "type": {
+            "type": "array",
+            "items": "PageSummary"
+          }
+         },
+         {
+          "name": "linksOut", 
+          "type": {
+            "type": "array",
+            "items": "PageSummary"
+          }
+         },
+         {
+          "name": "linksIn", 
+          "type": {
+            "type": "array",
+            "items": "PageSummary"
+          }
+         },
+         {
+          "name": "parentCategories", 
+          "type": {
+            "type": "array",
+            "items": "PageSummary"
+          }
+         },
+         {
+          "name": "childCategories", 
+          "type": {
+            "type": "array",
+            "items": "PageSummary"
+          }
+         },
+         {
+          "name": "childArticles", 
           "type": {
             "type": "array",
             "items": "PageSummary"

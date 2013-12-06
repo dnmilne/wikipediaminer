@@ -35,6 +35,9 @@ import org.wikipedia.miner.model.Page.PageType;
 import org.wikipedia.miner.util.ProgressTracker;
 
 import steps2.InitialPageSummaryStep;
+import steps2.PageSummaryStep.UnforwardedCount;
+import steps2.PageSummaryStep;
+import steps2.SubsequentPageSummaryStep;
 
 import com.sleepycat.je.dbi.StartupTracker.Counter;
 
@@ -82,6 +85,8 @@ public class DumpExtractor2 {
 	public static final String OUTPUT_PROGRESS = "tempProgress.csv" ;
 	public static final String OUTPUT_TEMPSTATS = "tempStats.csv" ;
 	public static final String OUTPUT_STATS = "final/stats.csv" ;
+	
+	DateFormat timeFormat = new SimpleDateFormat("HH:mm:ss") ;
 
 
 
@@ -210,50 +215,76 @@ public class DumpExtractor2 {
 
 	private int run() throws Exception {
 
-		FileSystem fs = getFileSystem(workingDir) ;
-
 		Logger.getLogger(DumpExtractor2.class).info("Extracting site info") ;
 		extractSiteInfo() ;
 
-		int result = 0 ;
-
-		DateFormat timeFormat = new SimpleDateFormat("HH:mm:ss") ;
-
-		String currStep = "page" ;
-
-		Logger.getLogger(DumpExtractor2.class).info("Starting " + currStep + " step") ;
-		//fs.delete(new Path(workingDir + "/" + getDirectoryName(currStep)), true) ;
-
-		long startTime = System.currentTimeMillis() ;
-
-		InitialPageSummaryStep step = new InitialPageSummaryStep(workingDir) ;
-
-		result = ToolRunner.run(new Configuration(), step, args);
-		if (result != 0) {
-			Logger.getLogger(DumpExtractor2.class).fatal("Could not complete " + currStep + " step. Check map/reduce user logs for an explanation.") ;
-			return result ;
+		long totalUnforwarded = runInitialStep() ;
+		int currIteration = 0 ;
+		
+		while (totalUnforwarded > 0) {
+			
+			currIteration ++ ;
+			
+			totalUnforwarded = runSubsequentStep(currIteration) ;
+			
+			System.out.println(totalUnforwarded + " unforwarded after " + currIteration + " iterations");
+			
 		}
+			
+		return 0 ;
+	}
+	
+	private long runInitialStep() throws Exception {
+		
+		long startTime = System.currentTimeMillis() ;
+		
+		PageSummaryStep step = new InitialPageSummaryStep(workingDir) ;
 
-		long unforwardedRedirects = step.getCounters().findCounter(InitialPageSummaryStep.Counter.unforwardedRedirectCount).getCounter() ;
-
-		System.out.println("unforwardedRedirects: " + unforwardedRedirects) ;
-
-		//update statistics
-		//stats = step.updateStats(stats) ;
-		//stats.put("lastEdit", getLastEdit()) ;
-		//writeStatistics(stats) ;
-
-		//update progress
-		//lastCompletedStep = currStep ;
-		//writeProgress(lastCompletedStep) ;
-
+		ToolRunner.run(new Configuration(), step, args);
+		
+		if (step.getCounters() != null) {
+			for (UnforwardedCount uc:UnforwardedCount.values()) {
+				Counters.Counter counter = step.getCounters().findCounter(uc) ;
+				
+				if (counter == null)
+					System.out.println(uc.name() + ": 0") ;
+	
+				System.out.println(uc.name() + ": " + counter.getCounter()) ;
+			}
+		}
+		
+		
 		//print time
-		System.out.println(currStep + " step completed in " + timeFormat.format(System.currentTimeMillis()-startTime)) ;
-
-		return result ;
+		System.out.println("intitial step completed in " + timeFormat.format(System.currentTimeMillis()-startTime)) ;
+		
+		return step.getTotalUnforwarded() ;
 	}
 
+	private long runSubsequentStep(int iteration) throws Exception {
+		
+		long startTime = System.currentTimeMillis() ;
+		
+		PageSummaryStep step = new SubsequentPageSummaryStep(workingDir, iteration) ;
 
+		ToolRunner.run(new Configuration(), step, args);
+		
+		if (step.getCounters() != null) {
+			for (UnforwardedCount uc:UnforwardedCount.values()) {
+				Counters.Counter counter = step.getCounters().findCounter(uc) ;
+				
+				if (counter == null)
+					System.out.println(uc.name() + ": 0") ;
+	
+				System.out.println(uc.name() + ": " + counter.getCounter()) ;
+			}
+		}
+		
+		
+		//print time
+		System.out.println("Step " + iteration + " completed in " + timeFormat.format(System.currentTimeMillis()-startTime)) ;
+		
+		return step.getTotalUnforwarded() ;
+	}
 
 
 	private void extractSiteInfo() throws IOException {
