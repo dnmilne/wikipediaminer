@@ -1,45 +1,25 @@
 package org.wikipedia.miner.extract;
 
 
-import gnu.trove.list.array.TIntArrayList;
-import gnu.trove.map.hash.TIntObjectHashMap;
-import gnu.trove.map.hash.TIntShortHashMap;
-
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.Vector;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.*;
+import org.apache.hadoop.fs.FileStatus;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.permission.FsAction;
-import org.apache.hadoop.mapred.Counters;
 import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.record.CsvRecordInput;
-import org.apache.hadoop.record.CsvRecordOutput;
 import org.apache.hadoop.util.GenericOptionsParser;
 import org.apache.hadoop.util.ToolRunner;
-import org.apache.log4j.*;
-import org.wikipedia.miner.db.struct.*;
-import org.wikipedia.miner.extract.steps.*;
+import org.apache.log4j.Logger;
+import org.wikipedia.miner.extract.pageSummary.PageSummaryStep;
 import org.wikipedia.miner.extract.util.LanguageConfiguration;
-import org.wikipedia.miner.extract.model.struct.ExLabel;
-import org.wikipedia.miner.extract.model.struct.ExSenseForLabel;
-import org.wikipedia.miner.model.Page.PageType;
-import org.wikipedia.miner.util.ProgressTracker;
-
-import steps2.InitialPageSummaryStep;
-import steps2.PageSummaryStep.UnforwardedCount;
-import steps2.PageSummaryStep;
-import steps2.SubsequentPageSummaryStep;
-
-import com.sleepycat.je.dbi.StartupTracker.Counter;
 
 
 
@@ -125,7 +105,7 @@ public class DumpExtractor2 {
 		//force one reducer. These don't take very long, and multiple reducers would make finalise file functions more complicated.  
 
 		conf.setNumMapTasks(64) ;
-		conf.setNumReduceTasks(1) ;
+		conf.setNumReduceTasks(4) ;
 
 		//many of our tasks require pre-loading lots of data, may as well reuse this as much as we can.
 		//conf.setNumTasksToExecutePerJvm(-1) ;
@@ -218,73 +198,29 @@ public class DumpExtractor2 {
 		Logger.getLogger(DumpExtractor2.class).info("Extracting site info") ;
 		extractSiteInfo() ;
 
-		long totalUnforwarded = runInitialStep() ;
-		int currIteration = 0 ;
 		
-		while (totalUnforwarded > 0) {
+		//extract basic page summaries
+		int iteration = 0 ;
+		while (true) {
 			
-			currIteration ++ ;
+			//long startTime = System.currentTimeMillis() ;
 			
-			totalUnforwarded = runSubsequentStep(currIteration) ;
+			PageSummaryStep step = new PageSummaryStep(workingDir, iteration) ;
+			ToolRunner.run(new Configuration(), step, args);
 			
-			System.out.println(totalUnforwarded + " unforwarded after " + currIteration + " iterations");
+			//System.out.println("intitial step completed in " + timeFormat.format(System.currentTimeMillis()-startTime)) ;
 			
+			if (!step.furtherIterationsRequired())
+				break ;
+			else
+				iteration++ ;
 		}
+		
 			
 		return 0 ;
 	}
 	
-	private long runInitialStep() throws Exception {
-		
-		long startTime = System.currentTimeMillis() ;
-		
-		PageSummaryStep step = new InitialPageSummaryStep(workingDir) ;
-
-		ToolRunner.run(new Configuration(), step, args);
-		
-		if (step.getCounters() != null) {
-			for (UnforwardedCount uc:UnforwardedCount.values()) {
-				Counters.Counter counter = step.getCounters().findCounter(uc) ;
-				
-				if (counter == null)
-					System.out.println(uc.name() + ": 0") ;
 	
-				System.out.println(uc.name() + ": " + counter.getCounter()) ;
-			}
-		}
-		
-		
-		//print time
-		System.out.println("intitial step completed in " + timeFormat.format(System.currentTimeMillis()-startTime)) ;
-		
-		return step.getTotalUnforwarded() ;
-	}
-
-	private long runSubsequentStep(int iteration) throws Exception {
-		
-		long startTime = System.currentTimeMillis() ;
-		
-		PageSummaryStep step = new SubsequentPageSummaryStep(workingDir, iteration) ;
-
-		ToolRunner.run(new Configuration(), step, args);
-		
-		if (step.getCounters() != null) {
-			for (UnforwardedCount uc:UnforwardedCount.values()) {
-				Counters.Counter counter = step.getCounters().findCounter(uc) ;
-				
-				if (counter == null)
-					System.out.println(uc.name() + ": 0") ;
-	
-				System.out.println(uc.name() + ": " + counter.getCounter()) ;
-			}
-		}
-		
-		
-		//print time
-		System.out.println("Step " + iteration + " completed in " + timeFormat.format(System.currentTimeMillis()-startTime)) ;
-		
-		return step.getTotalUnforwarded() ;
-	}
 
 
 	private void extractSiteInfo() throws IOException {

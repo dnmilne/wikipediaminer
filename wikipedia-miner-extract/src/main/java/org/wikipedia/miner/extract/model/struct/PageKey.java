@@ -7,9 +7,9 @@ package org.wikipedia.miner.extract.model.struct;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class PageKey extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"PageKey\",\"namespace\":\"org.wikipedia.miner.extract.model.struct\",\"fields\":[{\"name\":\"namespace\",\"type\":[\"int\",\"null\"]},{\"name\":\"title\",\"type\":[\"string\",\"null\"]}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"PageKey\",\"namespace\":\"org.wikipedia.miner.extract.model.struct\",\"fields\":[{\"name\":\"namespace\",\"type\":\"int\"},{\"name\":\"title\",\"type\":\"string\"}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
-  @Deprecated public java.lang.Integer namespace;
+  @Deprecated public int namespace;
   @Deprecated public java.lang.CharSequence title;
 
   /**
@@ -97,7 +97,7 @@ public class PageKey extends org.apache.avro.specific.SpecificRecordBase impleme
   public static class Builder extends org.apache.avro.specific.SpecificRecordBuilderBase<PageKey>
     implements org.apache.avro.data.RecordBuilder<PageKey> {
 
-    private java.lang.Integer namespace;
+    private int namespace;
     private java.lang.CharSequence title;
 
     /** Creates a new Builder */
@@ -137,7 +137,7 @@ public class PageKey extends org.apache.avro.specific.SpecificRecordBase impleme
     }
     
     /** Sets the value of the 'namespace' field */
-    public org.wikipedia.miner.extract.model.struct.PageKey.Builder setNamespace(java.lang.Integer value) {
+    public org.wikipedia.miner.extract.model.struct.PageKey.Builder setNamespace(int value) {
       validate(fields()[0], value);
       this.namespace = value;
       fieldSetFlags()[0] = true;
@@ -151,7 +151,6 @@ public class PageKey extends org.apache.avro.specific.SpecificRecordBase impleme
     
     /** Clears the value of the 'namespace' field */
     public org.wikipedia.miner.extract.model.struct.PageKey.Builder clearNamespace() {
-      namespace = null;
       fieldSetFlags()[0] = false;
       return this;
     }

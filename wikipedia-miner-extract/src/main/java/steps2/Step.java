@@ -15,12 +15,12 @@ public abstract class Step extends Configured implements Tool {
 
 	private Counters counters ;
 
-	private Path baseWorkingDir ;
+	private Path workingDir ;
 	private FileSystem hdfs ;
 	
-	public Step(Path baseWorkingDir) throws IOException {
+	public Step(Path workingDir) throws IOException {
 		
-		this.baseWorkingDir = baseWorkingDir ;
+		this.workingDir = workingDir ;
 		
 		Configuration conf = new Configuration();
 		hdfs = FileSystem.get(conf);
@@ -44,29 +44,33 @@ public abstract class Step extends Configured implements Tool {
 		
 		FSDataOutputStream out = hdfs.create(getFinishPath());
 		
-		counters.write(out) ;
+		out.writeUTF("finished") ;
 		
 		out.close();
 	}
 	
 	public void reset() throws IOException {
 		
-		hdfs.delete(getWorkingDir(), true) ;
+		hdfs.delete(getDir(), true) ;
 	}
 	
-	public Path getBaseWorkingDir() {
-		return baseWorkingDir ;
+	public FileSystem getHdfs() {
+		return hdfs ;
 	}
 	
 	public Path getWorkingDir() {
-		return new Path(baseWorkingDir.toString() + Path.SEPARATOR + getWorkingDirName()) ;
+		return workingDir ;
+	}
+	
+	public Path getDir() {
+		return new Path(workingDir.toString() + Path.SEPARATOR + getDirName()) ;
 	}
 	
 	private Path getFinishPath() {		
-		return new Path(getWorkingDir().toString() + Path.SEPARATOR + "finished") ;
+		return new Path(getDir().toString() + Path.SEPARATOR + "finished") ;
 	}
 	
-	public abstract String getWorkingDirName() ;
+	public abstract String getDirName() ;
 	
 	
 	

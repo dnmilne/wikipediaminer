@@ -118,27 +118,31 @@ public class DumpPageParser {
 		PageType type ;
 		String redirectTarget = null ;
 		
-		if (namespaceKey == SiteInfo.CATEGORY_KEY) {
+		
+		Matcher redirectMatcher = languageConfiguration.getRedirectPattern().matcher(text) ;
+		if (redirectMatcher.find()) {
+			
+			type = PageType.redirect ;
+			
+			if (redirectMatcher.group(2) != null)
+				redirectTarget = redirectMatcher.group(2) ;
+			else
+				redirectTarget = redirectMatcher.group(3) ;
+			
+		} else if (namespaceKey == SiteInfo.CATEGORY_KEY) {
 			type = PageType.category ;
 		} else if (namespaceKey == SiteInfo.TEMPLATE_KEY) {
 			type = PageType.template ;
-		} else {
-			type = PageType.article ;
+		} else if (namespaceKey == SiteInfo.MAIN_KEY){
 			
-			Matcher m = languageConfiguration.getDisambiguationPattern().matcher(text) ;
-			if (m.find()) {
+			Matcher disambigMatcher = languageConfiguration.getDisambiguationPattern().matcher(text) ;
+			if (disambigMatcher.find()) {
 				type = PageType.disambiguation ;
+			} else {
+				type = PageType.article ;
 			}
-			
-			m = languageConfiguration.getRedirectPattern().matcher(text) ;
-			if (m.find()) {
-				type = PageType.redirect ;
-				
-				if (m.group(2) != null)
-					redirectTarget = m.group(2) ;
-				else
-					redirectTarget = m.group(3) ;
-			}
+		} else {
+			type = PageType.invalid ;
 		}
 		
 		return new DumpPage(id, namespaceKey, type, title, text, redirectTarget, lastEdited) ;

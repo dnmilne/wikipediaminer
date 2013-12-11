@@ -15,9 +15,18 @@
       "name": "PageKey",
       "namespace": "org.wikipedia.miner.extract.model.struct",
       "fields": [
-         {"name": "namespace", "type": ["int", "null"]},
-         {"name": "title", "type": ["string", "null"]}
+         {"name": "namespace", "type": "int"},
+         {"name": "title", "type": "string"}
       ]
+    },
+    {
+    	"type": "record",
+    	"name": "LabelCount",
+    	"namespace": "org.wikipedia.miner.extract.model.struct",
+    	"fields": [
+         	{"name": "label", "type": "string"},
+         	{"name": "count", "type": "int"}
+      	]   
     },
     {
       "type": "record",
@@ -69,6 +78,13 @@
           "type": {
             "type": "array",
             "items": "PageSummary"
+          }
+         },
+         {
+          "name": "labelCounts", 
+          "type": {
+            "type": "array",
+            "items": "LabelCount"
           }
          }
       ]

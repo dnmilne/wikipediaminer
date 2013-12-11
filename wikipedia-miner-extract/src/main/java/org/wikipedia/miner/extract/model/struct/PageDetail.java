@@ -7,7 +7,7 @@ package org.wikipedia.miner.extract.model.struct;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class PageDetail extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"PageDetail\",\"namespace\":\"org.wikipedia.miner.extract.model.struct\",\"fields\":[{\"name\":\"id\",\"type\":[\"int\",\"null\"]},{\"name\":\"title\",\"type\":[\"string\",\"null\"]},{\"name\":\"namespace\",\"type\":[\"int\",\"null\"]},{\"name\":\"lastEdited\",\"type\":[\"long\",\"null\"]},{\"name\":\"redirectsTo\",\"type\":[{\"type\":\"record\",\"name\":\"PageSummary\",\"fields\":[{\"name\":\"id\",\"type\":\"int\"},{\"name\":\"title\",\"type\":\"string\"},{\"name\":\"namespace\",\"type\":\"int\"},{\"name\":\"forwarded\",\"type\":\"boolean\"}]},\"null\"]},{\"name\":\"redirects\",\"type\":{\"type\":\"array\",\"items\":\"PageSummary\"}},{\"name\":\"linksOut\",\"type\":{\"type\":\"array\",\"items\":\"PageSummary\"}},{\"name\":\"linksIn\",\"type\":{\"type\":\"array\",\"items\":\"PageSummary\"}},{\"name\":\"parentCategories\",\"type\":{\"type\":\"array\",\"items\":\"PageSummary\"}},{\"name\":\"childCategories\",\"type\":{\"type\":\"array\",\"items\":\"PageSummary\"}},{\"name\":\"childArticles\",\"type\":{\"type\":\"array\",\"items\":\"PageSummary\"}}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"PageDetail\",\"namespace\":\"org.wikipedia.miner.extract.model.struct\",\"fields\":[{\"name\":\"id\",\"type\":[\"int\",\"null\"]},{\"name\":\"title\",\"type\":[\"string\",\"null\"]},{\"name\":\"namespace\",\"type\":[\"int\",\"null\"]},{\"name\":\"lastEdited\",\"type\":[\"long\",\"null\"]},{\"name\":\"redirectsTo\",\"type\":[{\"type\":\"record\",\"name\":\"PageSummary\",\"fields\":[{\"name\":\"id\",\"type\":\"int\"},{\"name\":\"title\",\"type\":\"string\"},{\"name\":\"namespace\",\"type\":\"int\"},{\"name\":\"forwarded\",\"type\":\"boolean\"}]},\"null\"]},{\"name\":\"redirects\",\"type\":{\"type\":\"array\",\"items\":\"PageSummary\"}},{\"name\":\"linksOut\",\"type\":{\"type\":\"array\",\"items\":\"PageSummary\"}},{\"name\":\"linksIn\",\"type\":{\"type\":\"array\",\"items\":\"PageSummary\"}},{\"name\":\"parentCategories\",\"type\":{\"type\":\"array\",\"items\":\"PageSummary\"}},{\"name\":\"childCategories\",\"type\":{\"type\":\"array\",\"items\":\"PageSummary\"}},{\"name\":\"childArticles\",\"type\":{\"type\":\"array\",\"items\":\"PageSummary\"}},{\"name\":\"labelCounts\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"LabelCount\",\"fields\":[{\"name\":\"label\",\"type\":\"string\"},{\"name\":\"count\",\"type\":\"int\"}]}}}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
   @Deprecated public java.lang.Integer id;
   @Deprecated public java.lang.CharSequence title;
@@ -20,6 +20,7 @@ public class PageDetail extends org.apache.avro.specific.SpecificRecordBase impl
   @Deprecated public java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary> parentCategories;
   @Deprecated public java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary> childCategories;
   @Deprecated public java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary> childArticles;
+  @Deprecated public java.util.List<org.wikipedia.miner.extract.model.struct.LabelCount> labelCounts;
 
   /**
    * Default constructor.  Note that this does not initialize fields
@@ -31,7 +32,7 @@ public class PageDetail extends org.apache.avro.specific.SpecificRecordBase impl
   /**
    * All-args constructor.
    */
-  public PageDetail(java.lang.Integer id, java.lang.CharSequence title, java.lang.Integer namespace, java.lang.Long lastEdited, org.wikipedia.miner.extract.model.struct.PageSummary redirectsTo, java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary> redirects, java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary> linksOut, java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary> linksIn, java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary> parentCategories, java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary> childCategories, java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary> childArticles) {
+  public PageDetail(java.lang.Integer id, java.lang.CharSequence title, java.lang.Integer namespace, java.lang.Long lastEdited, org.wikipedia.miner.extract.model.struct.PageSummary redirectsTo, java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary> redirects, java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary> linksOut, java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary> linksIn, java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary> parentCategories, java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary> childCategories, java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary> childArticles, java.util.List<org.wikipedia.miner.extract.model.struct.LabelCount> labelCounts) {
     this.id = id;
     this.title = title;
     this.namespace = namespace;
@@ -43,6 +44,7 @@ public class PageDetail extends org.apache.avro.specific.SpecificRecordBase impl
     this.parentCategories = parentCategories;
     this.childCategories = childCategories;
     this.childArticles = childArticles;
+    this.labelCounts = labelCounts;
   }
 
   public org.apache.avro.Schema getSchema() { return SCHEMA$; }
@@ -60,6 +62,7 @@ public class PageDetail extends org.apache.avro.specific.SpecificRecordBase impl
     case 8: return parentCategories;
     case 9: return childCategories;
     case 10: return childArticles;
+    case 11: return labelCounts;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -78,6 +81,7 @@ public class PageDetail extends org.apache.avro.specific.SpecificRecordBase impl
     case 8: parentCategories = (java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary>)value$; break;
     case 9: childCategories = (java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary>)value$; break;
     case 10: childArticles = (java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary>)value$; break;
+    case 11: labelCounts = (java.util.List<org.wikipedia.miner.extract.model.struct.LabelCount>)value$; break;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -247,6 +251,21 @@ public class PageDetail extends org.apache.avro.specific.SpecificRecordBase impl
     this.childArticles = value;
   }
 
+  /**
+   * Gets the value of the 'labelCounts' field.
+   */
+  public java.util.List<org.wikipedia.miner.extract.model.struct.LabelCount> getLabelCounts() {
+    return labelCounts;
+  }
+
+  /**
+   * Sets the value of the 'labelCounts' field.
+   * @param value the value to set.
+   */
+  public void setLabelCounts(java.util.List<org.wikipedia.miner.extract.model.struct.LabelCount> value) {
+    this.labelCounts = value;
+  }
+
   /** Creates a new PageDetail RecordBuilder */
   public static org.wikipedia.miner.extract.model.struct.PageDetail.Builder newBuilder() {
     return new org.wikipedia.miner.extract.model.struct.PageDetail.Builder();
@@ -279,6 +298,7 @@ public class PageDetail extends org.apache.avro.specific.SpecificRecordBase impl
     private java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary> parentCategories;
     private java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary> childCategories;
     private java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary> childArticles;
+    private java.util.List<org.wikipedia.miner.extract.model.struct.LabelCount> labelCounts;
 
     /** Creates a new Builder */
     private Builder() {
@@ -332,6 +352,10 @@ public class PageDetail extends org.apache.avro.specific.SpecificRecordBase impl
         this.childArticles = data().deepCopy(fields()[10].schema(), other.childArticles);
         fieldSetFlags()[10] = true;
       }
+      if (isValidValue(fields()[11], other.labelCounts)) {
+        this.labelCounts = data().deepCopy(fields()[11].schema(), other.labelCounts);
+        fieldSetFlags()[11] = true;
+      }
     }
     
     /** Creates a Builder by copying an existing PageDetail instance */
@@ -380,6 +404,10 @@ public class PageDetail extends org.apache.avro.specific.SpecificRecordBase impl
       if (isValidValue(fields()[10], other.childArticles)) {
         this.childArticles = data().deepCopy(fields()[10].schema(), other.childArticles);
         fieldSetFlags()[10] = true;
+      }
+      if (isValidValue(fields()[11], other.labelCounts)) {
+        this.labelCounts = data().deepCopy(fields()[11].schema(), other.labelCounts);
+        fieldSetFlags()[11] = true;
       }
     }
 
@@ -658,6 +686,31 @@ public class PageDetail extends org.apache.avro.specific.SpecificRecordBase impl
       return this;
     }
 
+    /** Gets the value of the 'labelCounts' field */
+    public java.util.List<org.wikipedia.miner.extract.model.struct.LabelCount> getLabelCounts() {
+      return labelCounts;
+    }
+    
+    /** Sets the value of the 'labelCounts' field */
+    public org.wikipedia.miner.extract.model.struct.PageDetail.Builder setLabelCounts(java.util.List<org.wikipedia.miner.extract.model.struct.LabelCount> value) {
+      validate(fields()[11], value);
+      this.labelCounts = value;
+      fieldSetFlags()[11] = true;
+      return this; 
+    }
+    
+    /** Checks whether the 'labelCounts' field has been set */
+    public boolean hasLabelCounts() {
+      return fieldSetFlags()[11];
+    }
+    
+    /** Clears the value of the 'labelCounts' field */
+    public org.wikipedia.miner.extract.model.struct.PageDetail.Builder clearLabelCounts() {
+      labelCounts = null;
+      fieldSetFlags()[11] = false;
+      return this;
+    }
+
     @Override
     public PageDetail build() {
       try {
@@ -673,6 +726,7 @@ public class PageDetail extends org.apache.avro.specific.SpecificRecordBase impl
         record.parentCategories = fieldSetFlags()[8] ? this.parentCategories : (java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary>) defaultValue(fields()[8]);
         record.childCategories = fieldSetFlags()[9] ? this.childCategories : (java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary>) defaultValue(fields()[9]);
         record.childArticles = fieldSetFlags()[10] ? this.childArticles : (java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary>) defaultValue(fields()[10]);
+        record.labelCounts = fieldSetFlags()[11] ? this.labelCounts : (java.util.List<org.wikipedia.miner.extract.model.struct.LabelCount>) defaultValue(fields()[11]);
         return record;
       } catch (Exception e) {
         throw new org.apache.avro.AvroRuntimeException(e);

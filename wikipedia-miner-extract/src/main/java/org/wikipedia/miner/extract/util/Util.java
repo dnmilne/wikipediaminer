@@ -13,9 +13,17 @@ public class Util {
 		StringBuffer s = new StringBuffer() ;
 
 		s.append(Character.toUpperCase(title.charAt(0))) ;
+		
 		s.append(title.substring(1).replace('_', ' ')) ;
+		
+		String newTitle = s.toString() ;
+		
+		int index = newTitle.indexOf('#') ;
+		
+		if (index>0)
+			newTitle = newTitle.substring(0,index) ;
 
-		return s.toString().trim() ;
+		return newTitle.trim() ;
 	}
 
 	public static long getFileSize(Path path) {
