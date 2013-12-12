@@ -57,12 +57,12 @@ public class WikifyService extends WMService {
 	private BooleanParameter prmReferences ;
 	private EnumParameter<DisambiguationPolicy> prmDisambigPolicy ;
 	
-	private HashMap<String, TopicDetector> topicDetectors = new HashMap<String, TopicDetector>();
-	private HashMap<String, LinkDetector> linkDetectors = new HashMap<String, LinkDetector>();
+	private final HashMap<String, TopicDetector> topicDetectors = new HashMap<String, TopicDetector>();
+	private final HashMap<String, LinkDetector> linkDetectors = new HashMap<String, LinkDetector>();
 	
-	private String linkClassName = "wm_wikifiedLink" ;
+	private final String linkClassName = "wm_wikifiedLink" ;
 	
-	private int maxTokenCount = 10000 ;
+	private final int maxTokenCount = 10000 ;
 	
 	public WikifyService() {
 		super("core","Augments textual documents with links to the appropriate Wikipedia articles",
@@ -129,7 +129,7 @@ public class WikifyService extends WMService {
 				linkDetectors.put(wikiName, ld) ;
 			} catch (Exception e) {
 				throw new ServletException(e) ;
-			} ;
+			} 
 		}
 		
 		addExample(
@@ -203,6 +203,7 @@ public class WikifyService extends WMService {
 		return msg;
 	}
 	
+        @Override
 	public void buildUnwrappedResponse(HttpServletRequest request, HttpServletResponse response) throws Exception{
 		
 		Wikipedia wikipedia = getWikipedia(request) ;	
@@ -215,7 +216,6 @@ public class WikifyService extends WMService {
 		String wikifiedDoc = wikifyAndGatherTopics(request, detectedTopics, wikipedia) ;
 		
 		response.getWriter().append(wikifiedDoc) ;
-		return ;
 	}
 
 	
@@ -312,22 +312,22 @@ public class WikifyService extends WMService {
 				if (!basePath.endsWith("/"))
 					basePath = basePath + "/" ;
 				
-				StringBuffer newHeaderStuff = new StringBuffer();
-				newHeaderStuff.append("<link type=\"text/css\" rel=\"stylesheet\" href=\"" + basePath + "/css/tooltips.css\"/>\n") ;
-				newHeaderStuff.append("<link type=\"text/css\" rel=\"stylesheet\" href=\"" + basePath + "/css/jquery-ui/jquery-ui-1.8.14.custom.css\"/>\n") ;
+				StringBuilder newHeaderStuff = new StringBuilder();
+				newHeaderStuff.append("<link type=\"text/css\" rel=\"stylesheet\" href=\"").append(basePath).append("/css/tooltips.css\"/>\n") ;
+				newHeaderStuff.append("<link type=\"text/css\" rel=\"stylesheet\" href=\"").append(basePath).append("/css/jquery-ui/jquery-ui-1.8.14.custom.css\"/>\n") ;
 				
 				String style = prmLinkStyle.getValue(request) ;
 				if (style != null && style.trim().length() > 0) 
-					newHeaderStuff.append("<style type='text/css'> ." + linkClassName + "{" + style + ";}</style>\n") ;
+					newHeaderStuff.append("<style type='text/css'> ." + linkClassName + "{").append(style).append(";}</style>\n") ;
 				
 				newHeaderStuff.append("<style type='text/css'> .qtip-content div, .qtip-content div p, .qtip-content div b {color:inherit;} </style>") ;
 				
 				
-				newHeaderStuff.append("<script type=\"text/javascript\" src=\"" + basePath + "/js/jquery-1.5.1.min.js\"></script>\n") ;
-				newHeaderStuff.append("<script type=\"text/javascript\" src=\"" + basePath + "/js/jquery.qtip.min.js\"></script>\n") ;
-				newHeaderStuff.append("<script type=\"text/javascript\" src=\"" + basePath + "/js/tooltips.js\"></script>\n") ;
+				newHeaderStuff.append("<script type=\"text/javascript\" src=\"").append(basePath).append("/js/jquery-1.5.1.min.js\"></script>\n") ;
+				newHeaderStuff.append("<script type=\"text/javascript\" src=\"").append(basePath).append("/js/jquery.qtip.min.js\"></script>\n") ;
+				newHeaderStuff.append("<script type=\"text/javascript\" src=\"").append(basePath).append("/js/tooltips.js\"></script>\n") ;
 				newHeaderStuff.append("<script type=\"text/javascript\"> \n") ;
-				newHeaderStuff.append("  var wm_host=\"" + basePath + "\" ; \n") ;
+				newHeaderStuff.append("  var wm_host=\"").append(basePath).append("\" ; \n") ;
 				newHeaderStuff.append("  $(document).ready(function() { \n") ;
 				newHeaderStuff.append("    wm_addDefinitionTooltipsToAllLinks(null, \"" + linkClassName + "\") ; \n") ;
 				newHeaderStuff.append("  });\n") ;
@@ -397,21 +397,22 @@ public class WikifyService extends WMService {
 			this.wikipedia = wikipedia ;
 		}
 				
+                @Override
 		public String getTag(String anchor, org.wikipedia.miner.annotation.Topic topic) {
 			
-			StringBuffer tag = new StringBuffer("<a") ;
-			tag.append(" href=\"http://www." + wikipedia.getConfig().getLangCode() + ".wikipedia.org/wiki/" + topic.getTitle() + "\"") ;
+			StringBuilder tag = new StringBuilder("<a") ;
+			tag.append(" href=\"http://www.").append(wikipedia.getConfig().getLangCode()).append(".wikipedia.org/wiki/").append(topic.getTitle()).append("\"") ;
 			
 			tag.append(" class=\"" + linkClassName + "\"") ;
 			
 			if (linkFormat == LinkFormat.HTML_ID || linkFormat == LinkFormat.HTML_ID_WEIGHT) 
-				tag.append(" pageId=\"" + topic.getId() + "\"") ;
+				tag.append(" pageId=\"").append(topic.getId()).append("\"") ;
 			
 			if (linkFormat == LinkFormat.HTML_ID_WEIGHT) 
-				tag.append(" linkProb=\"" + getHub().format(topic.getWeight()) + "\"") ; 
+				tag.append(" linkProb=\"").append(getHub().format(topic.getWeight())).append("\"") ; 
 			
 			if (linkStyle != null && linkStyle.length() > 0) 
-				tag.append(" style=\"" + linkStyle + "\"") ;
+				tag.append(" style=\"").append(linkStyle).append("\"") ;
 			
 			tag.append(">") ;
 			tag.append(anchor) ;
@@ -431,9 +432,10 @@ public class WikifyService extends WMService {
 			this.linkFormat = linkFormat ;
 		}
 		
+                @Override
 		public String getTag(String anchor, org.wikipedia.miner.annotation.Topic topic) {
 			
-			StringBuffer tag = new StringBuffer("[[") ;
+			StringBuilder tag = new StringBuilder("[[") ;
 			
 			if (linkFormat == LinkFormat.WIKI_ID || linkFormat == LinkFormat.WIKI_ID_WEIGHT) {
 				tag.append(topic.getId()) ;
@@ -466,15 +468,15 @@ public class WikifyService extends WMService {
 		
 		@Expose
 		@Element(data=true)	
-		private String wikifiedDocument ;
+		private final String wikifiedDocument ;
 
 		@Expose
 		@Attribute
-		private SourceMode sourceMode ;
+		private final SourceMode sourceMode ;
 		
 		@Expose
 		@Attribute
-		private double documentScore ;
+		private final double documentScore ;
 		
 		@Expose
 		@ElementList(entry="detectedTopic")
@@ -520,15 +522,15 @@ public class WikifyService extends WMService {
 		
 		@Expose
 		@Attribute
-		private int id ;
+		private final int id ;
 		
 		@Expose
 		@Attribute
-		private String title ;
+		private final String title ;
 		
 		@Expose
 		@Attribute
-		private double weight ;
+		private final double weight ;
 		
 		@Expose
 		@ElementList(entry="reference", required=false) 
@@ -575,11 +577,11 @@ public class WikifyService extends WMService {
 		
 		@Expose
 		@Attribute
-		private int start ;
+		private final int start ;
 		
 		@Expose
 		@Attribute
-		private int end ;
+		private final int end ;
 		
 		private Reference(int start, int end) {
 			this.start = start ;
@@ -599,11 +601,11 @@ public class WikifyService extends WMService {
 
 		@Expose
 		@Attribute
-		private int tokenCount ;
+		private final int tokenCount ;
 		
 		@Expose
 		@Attribute
-		private int maxTokenCount ;
+		private final int maxTokenCount ;
 	
 		protected TooLongMessage(HttpServletRequest httpRequest, TooLongException e) {
 			super(httpRequest, e);
@@ -624,8 +626,8 @@ public class WikifyService extends WMService {
 	
 	public static class TooLongException extends Exception {
 		
-		private int tokenCount ;
-		private int maxTokenCount ;
+		private final int tokenCount ;
+		private final int maxTokenCount ;
 		
 		public TooLongException(int tokenCount, int maxTokenCount) {
 			

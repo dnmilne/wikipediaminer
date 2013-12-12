@@ -36,7 +36,11 @@
             <artifactId>xjsf</artifactId>
             <version>0.0.6</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.dmilne</groupId>
+            <artifactId>weka-wrapper</artifactId>
+            <version>0.0.1</version>
+        </dependency>
     </dependencies>
     <build>
         <finalName>wikipedia-miner-web</finalName>
