@@ -7,7 +7,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -256,7 +255,7 @@ public class SearchService extends WMService {
         for (int i = 0; i < queryLabels.size(); i++) {
             QueryLabel lbl1 = queryLabels.get(i);
 
-            Vector<QueryLabel> overlappingTopics = new Vector<QueryLabel>();
+            List<QueryLabel> overlappingTopics = new ArrayList<QueryLabel>();
 
             double qtWeight = lbl1.getWeight();
 
@@ -324,7 +323,7 @@ public class SearchService extends WMService {
 
     private String cleanTopicMarkup(String query, ArrayList<Span> contiguousSpans, HashMap<Long, Integer> topicIdsBySpan) {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         int lastCopyPoint = 0;
         Matcher m = topicPattern.matcher(query);
@@ -346,7 +345,7 @@ public class SearchService extends WMService {
     }
 
     private String cleanQuoteMarkup(String query, ArrayList<Span> contiguousSpans) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         int lastCopyPoint = 0;
         Matcher m = quotePattern.matcher(query);
@@ -511,7 +510,6 @@ public class SearchService extends WMService {
         }
 
         /**
-         * @param tr the topic reference to check for overlap
          * @return true if this overlaps the given reference, otherwise false.
          */
         //public boolean overlaps(QueryLabel qt) {
@@ -582,27 +580,27 @@ public class SearchService extends WMService {
 
         @Expose
         @Attribute
-        private String text;
+        private final String text;
 
         @Expose
         @Attribute
-        private long linkDocCount;
+        private final long linkDocCount;
 
         @Expose
         @Attribute
-        private long linkOccCount;
+        private final long linkOccCount;
 
         @Expose
         @Attribute
-        private long docCount;
+        private final long docCount;
 
         @Expose
         @Attribute
-        private long occCount;
+        private final long occCount;
 
         @Expose
         @Attribute
-        private double linkProbability;
+        private final double linkProbability;
 
         @Expose
         @Attribute(required = false)
@@ -616,7 +614,7 @@ public class SearchService extends WMService {
         //private Integer end ;
         @Expose
         @ElementList(entry = "sense")
-        private ArrayList<Sense> senses;
+        private final ArrayList<Sense> senses;
 
         private Label(org.wikipedia.miner.model.Label lbl) {
 
@@ -654,6 +652,7 @@ public class SearchService extends WMService {
 
             Collections.sort(senses, new Comparator<Sense>() {
 
+                @Override
                 public int compare(Sense s1, Sense s2) {
 
                     int cmp = 0;
@@ -719,15 +718,15 @@ public class SearchService extends WMService {
 
         @Expose
         @Attribute
-        private String title;
+        private final String title;
 
         @Expose
         @Attribute
-        private long linkDocCount;
+        private final long linkDocCount;
 
         @Expose
         @Attribute
-        private long linkOccCount;
+        private final long linkOccCount;
 
         @Expose
         @Attribute
@@ -735,11 +734,11 @@ public class SearchService extends WMService {
 
         @Expose
         @Attribute
-        private boolean fromTitle;
+        private final boolean fromTitle;
 
         @Expose
         @Attribute
-        private boolean fromRedirect;
+        private final boolean fromRedirect;
 
         @Expose
         @Attribute
