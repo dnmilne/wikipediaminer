@@ -1,5 +1,6 @@
 package org.wikipedia.miner.extract.util;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -35,6 +36,10 @@ public class LanguageConfiguration {
 	
 	public LanguageConfiguration(String langCode, Path languageConfigFile) throws XMLStreamException, FactoryConfigurationError, IOException {
 		this.init(new FileReader(languageConfigFile.toString()), langCode) ;
+	}
+	
+	public LanguageConfiguration(String langCode, File languageConfigFile) throws XMLStreamException, FactoryConfigurationError, IOException {
+		this.init(new FileReader(languageConfigFile), langCode) ;
 	}
 		
 	private void init(InputStreamReader input, String langCode) throws XMLStreamException, FactoryConfigurationError, IOException {

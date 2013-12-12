@@ -21,17 +21,17 @@ import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.JobStatus;
 import org.apache.hadoop.mapred.RunningJob;
 import org.wikipedia.miner.extract.DumpExtractor;
+import org.wikipedia.miner.extract.DumpExtractor2;
+import org.wikipedia.miner.extract.Step;
 import org.wikipedia.miner.extract.model.struct.LabelCount;
+import org.wikipedia.miner.extract.model.struct.LinkSummary;
 import org.wikipedia.miner.extract.model.struct.PageDetail;
 import org.wikipedia.miner.extract.model.struct.PageKey;
 import org.wikipedia.miner.extract.model.struct.PageSummary;
 import org.wikipedia.miner.extract.pageSummary.CombinerOrReducer.Combiner;
 import org.wikipedia.miner.extract.pageSummary.CombinerOrReducer.Reducer;
+import org.wikipedia.miner.extract.util.UncompletedStepException;
 import org.wikipedia.miner.extract.util.XmlInputFormat;
-
-
-import steps2.Step;
-import steps2.UncompletedStepException;
 
 
 /**
@@ -85,14 +85,20 @@ public class PageSummaryStep extends Step {
 
 		return PageSummary.newBuilder(summary).build() ;
 	}
+	
+	public static LinkSummary clone(LinkSummary summary) {
+
+		return LinkSummary.newBuilder(summary).build() ;
+	}
 
 	public static PageDetail buildEmptyPageDetail() {
 
 		PageDetail p = new PageDetail() ;
 
+		p.setSentenceSplits(new ArrayList<Integer>());
 		p.setRedirects(new ArrayList<PageSummary>()) ;
-		p.setLinksIn(new ArrayList<PageSummary>());
-		p.setLinksOut(new ArrayList<PageSummary>());
+		p.setLinksIn(new ArrayList<LinkSummary>());
+		p.setLinksOut(new ArrayList<LinkSummary>());
 		p.setParentCategories(new ArrayList<PageSummary>());
 		p.setChildCategories(new ArrayList<PageSummary>());
 		p.setChildArticles(new ArrayList<PageSummary>());
@@ -114,7 +120,7 @@ public class PageSummaryStep extends Step {
 			reset() ;
 		
 		JobConf conf = new JobConf(PageSummaryStep.class);
-		DumpExtractor.configureJob(conf, args) ;
+		DumpExtractor2.configureJob(conf, args) ;
 
 		conf.setJobName("WM: page summary (" + iteration + ")");
 		
@@ -131,19 +137,21 @@ public class PageSummaryStep extends Step {
 			conf.set(XmlInputFormat.END_TAG_KEY, "</page>") ;
 			
 			FileInputFormat.setInputPaths(conf, conf.get(DumpExtractor.KEY_INPUT_FILE));
+			DistributedCache.addCacheFile(new Path(conf.get(DumpExtractor.KEY_SENTENCE_MODEL)).toUri(), conf);
+			
 			
 		} else {
 			
 			AvroJob.setMapperClass(conf, SubsequentMapper.class);
 			AvroJob.setInputSchema(conf, Pair.getPairSchema(PageKey.getClassSchema(),PageDetail.getClassSchema()));
 		
-			FileInputFormat.setInputPaths(conf, getWorkingDir() + "/" + "pageSummary_" + (iteration-1));
+			FileInputFormat.setInputPaths(conf, getWorkingDir() + Path.SEPARATOR + "pageSummary_" + (iteration-1));
 			
 		}
 		
 		DistributedCache.addCacheFile(new Path(conf.get(DumpExtractor.KEY_OUTPUT_DIR) + "/" + DumpExtractor.OUTPUT_SITEINFO).toUri(), conf);
 		DistributedCache.addCacheFile(new Path(conf.get(DumpExtractor.KEY_LANG_FILE)).toUri(), conf);
-
+		
 		AvroJob.setCombinerClass(conf, Combiner.class) ;
 		AvroJob.setReducerClass(conf, Reducer.class);
 		AvroJob.setOutputSchema(conf, Pair.getPairSchema(PageKey.getClassSchema(),PageDetail.getClassSchema()));

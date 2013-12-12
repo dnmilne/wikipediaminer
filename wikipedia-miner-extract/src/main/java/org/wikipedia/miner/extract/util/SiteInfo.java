@@ -1,9 +1,10 @@
 package org.wikipedia.miner.extract.util;
 
 import java.util.HashMap ;
-
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.InputStreamReader;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -25,9 +26,23 @@ public class SiteInfo {
 	public static final int TEMPLATE_KEY = 10 ;
 	public static final int CATEGORY_KEY = 14 ;
 	
-	public SiteInfo(Path siteInfoFile) throws XMLStreamException, FileNotFoundException {
+	public SiteInfo(Path siteInfoFile) throws FileNotFoundException, XMLStreamException {
 		
-		XMLStreamReader xmlStreamReader = XMLInputFactory.newInstance().createXMLStreamReader(new FileReader(siteInfoFile.toString())) ;
+		init(new FileReader(siteInfoFile.toString())) ;
+	}
+			
+	public SiteInfo(File siteInfoFile) throws FileNotFoundException, XMLStreamException {
+		init(new FileReader(siteInfoFile)) ;
+	}
+	
+	public SiteInfo(InputStreamReader input) throws FileNotFoundException, XMLStreamException {
+		
+		init(input) ;
+	}
+			
+	public void init(InputStreamReader input) throws XMLStreamException, FileNotFoundException {
+		
+		XMLStreamReader xmlStreamReader = XMLInputFactory.newInstance().createXMLStreamReader(input) ;
 	
 		Integer currNamespaceKey = null ;
 		StringBuffer characters = new StringBuffer() ;
@@ -77,6 +92,9 @@ public class SiteInfo {
 		xmlStreamReader.close() ;
 	
 	}
+	
+	
+	
 
 	public String getBase() {
 		return base;

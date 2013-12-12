@@ -8,6 +8,7 @@ import org.apache.avro.mapred.AvroMapper;
 import org.apache.avro.mapred.Pair;
 import org.apache.hadoop.mapred.Reporter;
 import org.wikipedia.miner.extract.model.struct.LabelCount;
+import org.wikipedia.miner.extract.model.struct.LinkSummary;
 import org.wikipedia.miner.extract.model.struct.PageDetail;
 import org.wikipedia.miner.extract.model.struct.PageKey;
 import org.wikipedia.miner.extract.model.struct.PageSummary;
@@ -44,7 +45,7 @@ public class SubsequentMapper extends AvroMapper<Pair<PageKey, PageDetail>, Pair
 					//backtrack this redirect to the target of this page (so we are following down the redirect chain)
 					PageKey redirectKey = new PageKey(redirect.getNamespace(), redirect.getTitle()) ;
 					PageDetail redirectDetail = PageSummaryStep.buildEmptyPageDetail() ;
-					redirectDetail.setRedirectsTo(PageSummary.newBuilder(page.getRedirectsTo()).build()) ;
+					redirectDetail.setRedirectsTo(PageSummaryStep.clone(page.getRedirectsTo())) ;
 					
 					collector.collect(new Pair<PageKey,PageDetail>(redirectKey, redirectDetail));
 				}
@@ -65,20 +66,20 @@ public class SubsequentMapper extends AvroMapper<Pair<PageKey, PageDetail>, Pair
 					continue ;
 				
 				//forward this redirect to the target of this page (so we are following down the redirect chain)
-				target.getRedirects().add(PageSummary.newBuilder(redirect).build()) ;
+				target.getRedirects().add(PageSummaryStep.clone(redirect)) ;
 				
 				
 				//and record that it has been forwarded
 				redirect.setForwarded(true);
 			}
 			
-			for (PageSummary linkIn:page.getLinksIn()) {
+			for (LinkSummary linkIn:page.getLinksIn()) {
 				
 				if (linkIn.getForwarded())
 					continue ;
 				
 				//forward this link to the target of this page (so we are following down the redirect chain)
-				target.getLinksIn().add(PageSummary.newBuilder(linkIn).build()) ;
+				target.getLinksIn().add(PageSummaryStep.clone(linkIn)) ;
 				
 				linkIn.setForwarded(true);
 			}
@@ -88,7 +89,7 @@ public class SubsequentMapper extends AvroMapper<Pair<PageKey, PageDetail>, Pair
 				if (childCategory.getForwarded())
 					continue ;
 				
-				target.getChildCategories().add(PageSummary.newBuilder(childCategory).build()) ;
+				target.getChildCategories().add(PageSummaryStep.clone(childCategory)) ;
 				
 				childCategory.setForwarded(true);
 			}
@@ -98,7 +99,7 @@ public class SubsequentMapper extends AvroMapper<Pair<PageKey, PageDetail>, Pair
 				if (childArticle.getForwarded())
 					continue ;
 				
-				target.getChildArticles().add(PageSummary.newBuilder(childArticle).build()) ;
+				target.getChildArticles().add(PageSummaryStep.clone(childArticle)) ;
 				
 				childArticle.setForwarded(true);
 			}
@@ -133,7 +134,7 @@ public class SubsequentMapper extends AvroMapper<Pair<PageKey, PageDetail>, Pair
 				redirect.setForwarded(true);
 			}
 			
-			for (PageSummary linkIn:page.getLinksIn()) {
+			for (LinkSummary linkIn:page.getLinksIn()) {
 				
 				if (linkIn.getForwarded())
 					continue ;
@@ -141,7 +142,7 @@ public class SubsequentMapper extends AvroMapper<Pair<PageKey, PageDetail>, Pair
 				//backtrack, so the source of this link knows what the resolved target is
 				PageKey sourceKey = new PageKey(linkIn.getNamespace(), linkIn.getTitle()) ;
 				PageDetail sourceDetail = PageSummaryStep.buildEmptyPageDetail() ;
-				sourceDetail.getLinksOut().add(new PageSummary(page.getId(), page.getTitle(), page.getNamespace(), false));
+				sourceDetail.getLinksOut().add(new LinkSummary(page.getId(), page.getTitle(), page.getNamespace(), false, linkIn.getSentenceIndexes()));
 				
 				collector.collect(new Pair<PageKey,PageDetail>(sourceKey, sourceDetail));
 				
@@ -149,7 +150,7 @@ public class SubsequentMapper extends AvroMapper<Pair<PageKey, PageDetail>, Pair
 				linkIn.setForwarded(true);
 			}
 			
-			for (PageSummary linkOut:page.getLinksOut()) {
+			for (LinkSummary linkOut:page.getLinksOut()) {
 				
 				//immediately set these as forwarded, because we only get them if they have been forwarded and backtracked already					
 				linkOut.setForwarded(true);

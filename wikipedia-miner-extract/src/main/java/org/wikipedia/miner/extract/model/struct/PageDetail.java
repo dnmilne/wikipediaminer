@@ -7,16 +7,17 @@ package org.wikipedia.miner.extract.model.struct;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class PageDetail extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"PageDetail\",\"namespace\":\"org.wikipedia.miner.extract.model.struct\",\"fields\":[{\"name\":\"id\",\"type\":[\"int\",\"null\"]},{\"name\":\"title\",\"type\":[\"string\",\"null\"]},{\"name\":\"namespace\",\"type\":[\"int\",\"null\"]},{\"name\":\"lastEdited\",\"type\":[\"long\",\"null\"]},{\"name\":\"redirectsTo\",\"type\":[{\"type\":\"record\",\"name\":\"PageSummary\",\"fields\":[{\"name\":\"id\",\"type\":\"int\"},{\"name\":\"title\",\"type\":\"string\"},{\"name\":\"namespace\",\"type\":\"int\"},{\"name\":\"forwarded\",\"type\":\"boolean\"}]},\"null\"]},{\"name\":\"redirects\",\"type\":{\"type\":\"array\",\"items\":\"PageSummary\"}},{\"name\":\"linksOut\",\"type\":{\"type\":\"array\",\"items\":\"PageSummary\"}},{\"name\":\"linksIn\",\"type\":{\"type\":\"array\",\"items\":\"PageSummary\"}},{\"name\":\"parentCategories\",\"type\":{\"type\":\"array\",\"items\":\"PageSummary\"}},{\"name\":\"childCategories\",\"type\":{\"type\":\"array\",\"items\":\"PageSummary\"}},{\"name\":\"childArticles\",\"type\":{\"type\":\"array\",\"items\":\"PageSummary\"}},{\"name\":\"labelCounts\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"LabelCount\",\"fields\":[{\"name\":\"label\",\"type\":\"string\"},{\"name\":\"count\",\"type\":\"int\"}]}}}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"PageDetail\",\"namespace\":\"org.wikipedia.miner.extract.model.struct\",\"fields\":[{\"name\":\"id\",\"type\":[\"int\",\"null\"]},{\"name\":\"title\",\"type\":[\"string\",\"null\"]},{\"name\":\"namespace\",\"type\":[\"int\",\"null\"]},{\"name\":\"lastEdited\",\"type\":[\"long\",\"null\"]},{\"name\":\"sentenceSplits\",\"type\":{\"type\":\"array\",\"items\":\"int\"}},{\"name\":\"redirectsTo\",\"type\":[{\"type\":\"record\",\"name\":\"PageSummary\",\"fields\":[{\"name\":\"id\",\"type\":\"int\"},{\"name\":\"title\",\"type\":\"string\"},{\"name\":\"namespace\",\"type\":\"int\"},{\"name\":\"forwarded\",\"type\":\"boolean\"}]},\"null\"]},{\"name\":\"redirects\",\"type\":{\"type\":\"array\",\"items\":\"PageSummary\"}},{\"name\":\"linksOut\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"LinkSummary\",\"fields\":[{\"name\":\"id\",\"type\":\"int\"},{\"name\":\"title\",\"type\":\"string\"},{\"name\":\"namespace\",\"type\":\"int\"},{\"name\":\"forwarded\",\"type\":\"boolean\"},{\"name\":\"sentenceIndexes\",\"type\":{\"type\":\"array\",\"items\":\"int\"}}]}}},{\"name\":\"linksIn\",\"type\":{\"type\":\"array\",\"items\":\"LinkSummary\"}},{\"name\":\"parentCategories\",\"type\":{\"type\":\"array\",\"items\":\"PageSummary\"}},{\"name\":\"childCategories\",\"type\":{\"type\":\"array\",\"items\":\"PageSummary\"}},{\"name\":\"childArticles\",\"type\":{\"type\":\"array\",\"items\":\"PageSummary\"}},{\"name\":\"labelCounts\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"LabelCount\",\"fields\":[{\"name\":\"label\",\"type\":\"string\"},{\"name\":\"count\",\"type\":\"int\"}]}}}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
   @Deprecated public java.lang.Integer id;
   @Deprecated public java.lang.CharSequence title;
   @Deprecated public java.lang.Integer namespace;
   @Deprecated public java.lang.Long lastEdited;
+  @Deprecated public java.util.List<java.lang.Integer> sentenceSplits;
   @Deprecated public org.wikipedia.miner.extract.model.struct.PageSummary redirectsTo;
   @Deprecated public java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary> redirects;
-  @Deprecated public java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary> linksOut;
-  @Deprecated public java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary> linksIn;
+  @Deprecated public java.util.List<org.wikipedia.miner.extract.model.struct.LinkSummary> linksOut;
+  @Deprecated public java.util.List<org.wikipedia.miner.extract.model.struct.LinkSummary> linksIn;
   @Deprecated public java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary> parentCategories;
   @Deprecated public java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary> childCategories;
   @Deprecated public java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary> childArticles;
@@ -32,11 +33,12 @@ public class PageDetail extends org.apache.avro.specific.SpecificRecordBase impl
   /**
    * All-args constructor.
    */
-  public PageDetail(java.lang.Integer id, java.lang.CharSequence title, java.lang.Integer namespace, java.lang.Long lastEdited, org.wikipedia.miner.extract.model.struct.PageSummary redirectsTo, java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary> redirects, java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary> linksOut, java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary> linksIn, java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary> parentCategories, java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary> childCategories, java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary> childArticles, java.util.List<org.wikipedia.miner.extract.model.struct.LabelCount> labelCounts) {
+  public PageDetail(java.lang.Integer id, java.lang.CharSequence title, java.lang.Integer namespace, java.lang.Long lastEdited, java.util.List<java.lang.Integer> sentenceSplits, org.wikipedia.miner.extract.model.struct.PageSummary redirectsTo, java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary> redirects, java.util.List<org.wikipedia.miner.extract.model.struct.LinkSummary> linksOut, java.util.List<org.wikipedia.miner.extract.model.struct.LinkSummary> linksIn, java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary> parentCategories, java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary> childCategories, java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary> childArticles, java.util.List<org.wikipedia.miner.extract.model.struct.LabelCount> labelCounts) {
     this.id = id;
     this.title = title;
     this.namespace = namespace;
     this.lastEdited = lastEdited;
+    this.sentenceSplits = sentenceSplits;
     this.redirectsTo = redirectsTo;
     this.redirects = redirects;
     this.linksOut = linksOut;
@@ -55,14 +57,15 @@ public class PageDetail extends org.apache.avro.specific.SpecificRecordBase impl
     case 1: return title;
     case 2: return namespace;
     case 3: return lastEdited;
-    case 4: return redirectsTo;
-    case 5: return redirects;
-    case 6: return linksOut;
-    case 7: return linksIn;
-    case 8: return parentCategories;
-    case 9: return childCategories;
-    case 10: return childArticles;
-    case 11: return labelCounts;
+    case 4: return sentenceSplits;
+    case 5: return redirectsTo;
+    case 6: return redirects;
+    case 7: return linksOut;
+    case 8: return linksIn;
+    case 9: return parentCategories;
+    case 10: return childCategories;
+    case 11: return childArticles;
+    case 12: return labelCounts;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -74,14 +77,15 @@ public class PageDetail extends org.apache.avro.specific.SpecificRecordBase impl
     case 1: title = (java.lang.CharSequence)value$; break;
     case 2: namespace = (java.lang.Integer)value$; break;
     case 3: lastEdited = (java.lang.Long)value$; break;
-    case 4: redirectsTo = (org.wikipedia.miner.extract.model.struct.PageSummary)value$; break;
-    case 5: redirects = (java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary>)value$; break;
-    case 6: linksOut = (java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary>)value$; break;
-    case 7: linksIn = (java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary>)value$; break;
-    case 8: parentCategories = (java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary>)value$; break;
-    case 9: childCategories = (java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary>)value$; break;
-    case 10: childArticles = (java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary>)value$; break;
-    case 11: labelCounts = (java.util.List<org.wikipedia.miner.extract.model.struct.LabelCount>)value$; break;
+    case 4: sentenceSplits = (java.util.List<java.lang.Integer>)value$; break;
+    case 5: redirectsTo = (org.wikipedia.miner.extract.model.struct.PageSummary)value$; break;
+    case 6: redirects = (java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary>)value$; break;
+    case 7: linksOut = (java.util.List<org.wikipedia.miner.extract.model.struct.LinkSummary>)value$; break;
+    case 8: linksIn = (java.util.List<org.wikipedia.miner.extract.model.struct.LinkSummary>)value$; break;
+    case 9: parentCategories = (java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary>)value$; break;
+    case 10: childCategories = (java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary>)value$; break;
+    case 11: childArticles = (java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary>)value$; break;
+    case 12: labelCounts = (java.util.List<org.wikipedia.miner.extract.model.struct.LabelCount>)value$; break;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -147,6 +151,21 @@ public class PageDetail extends org.apache.avro.specific.SpecificRecordBase impl
   }
 
   /**
+   * Gets the value of the 'sentenceSplits' field.
+   */
+  public java.util.List<java.lang.Integer> getSentenceSplits() {
+    return sentenceSplits;
+  }
+
+  /**
+   * Sets the value of the 'sentenceSplits' field.
+   * @param value the value to set.
+   */
+  public void setSentenceSplits(java.util.List<java.lang.Integer> value) {
+    this.sentenceSplits = value;
+  }
+
+  /**
    * Gets the value of the 'redirectsTo' field.
    */
   public org.wikipedia.miner.extract.model.struct.PageSummary getRedirectsTo() {
@@ -179,7 +198,7 @@ public class PageDetail extends org.apache.avro.specific.SpecificRecordBase impl
   /**
    * Gets the value of the 'linksOut' field.
    */
-  public java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary> getLinksOut() {
+  public java.util.List<org.wikipedia.miner.extract.model.struct.LinkSummary> getLinksOut() {
     return linksOut;
   }
 
@@ -187,14 +206,14 @@ public class PageDetail extends org.apache.avro.specific.SpecificRecordBase impl
    * Sets the value of the 'linksOut' field.
    * @param value the value to set.
    */
-  public void setLinksOut(java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary> value) {
+  public void setLinksOut(java.util.List<org.wikipedia.miner.extract.model.struct.LinkSummary> value) {
     this.linksOut = value;
   }
 
   /**
    * Gets the value of the 'linksIn' field.
    */
-  public java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary> getLinksIn() {
+  public java.util.List<org.wikipedia.miner.extract.model.struct.LinkSummary> getLinksIn() {
     return linksIn;
   }
 
@@ -202,7 +221,7 @@ public class PageDetail extends org.apache.avro.specific.SpecificRecordBase impl
    * Sets the value of the 'linksIn' field.
    * @param value the value to set.
    */
-  public void setLinksIn(java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary> value) {
+  public void setLinksIn(java.util.List<org.wikipedia.miner.extract.model.struct.LinkSummary> value) {
     this.linksIn = value;
   }
 
@@ -291,10 +310,11 @@ public class PageDetail extends org.apache.avro.specific.SpecificRecordBase impl
     private java.lang.CharSequence title;
     private java.lang.Integer namespace;
     private java.lang.Long lastEdited;
+    private java.util.List<java.lang.Integer> sentenceSplits;
     private org.wikipedia.miner.extract.model.struct.PageSummary redirectsTo;
     private java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary> redirects;
-    private java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary> linksOut;
-    private java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary> linksIn;
+    private java.util.List<org.wikipedia.miner.extract.model.struct.LinkSummary> linksOut;
+    private java.util.List<org.wikipedia.miner.extract.model.struct.LinkSummary> linksIn;
     private java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary> parentCategories;
     private java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary> childCategories;
     private java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary> childArticles;
@@ -324,37 +344,41 @@ public class PageDetail extends org.apache.avro.specific.SpecificRecordBase impl
         this.lastEdited = data().deepCopy(fields()[3].schema(), other.lastEdited);
         fieldSetFlags()[3] = true;
       }
-      if (isValidValue(fields()[4], other.redirectsTo)) {
-        this.redirectsTo = data().deepCopy(fields()[4].schema(), other.redirectsTo);
+      if (isValidValue(fields()[4], other.sentenceSplits)) {
+        this.sentenceSplits = data().deepCopy(fields()[4].schema(), other.sentenceSplits);
         fieldSetFlags()[4] = true;
       }
-      if (isValidValue(fields()[5], other.redirects)) {
-        this.redirects = data().deepCopy(fields()[5].schema(), other.redirects);
+      if (isValidValue(fields()[5], other.redirectsTo)) {
+        this.redirectsTo = data().deepCopy(fields()[5].schema(), other.redirectsTo);
         fieldSetFlags()[5] = true;
       }
-      if (isValidValue(fields()[6], other.linksOut)) {
-        this.linksOut = data().deepCopy(fields()[6].schema(), other.linksOut);
+      if (isValidValue(fields()[6], other.redirects)) {
+        this.redirects = data().deepCopy(fields()[6].schema(), other.redirects);
         fieldSetFlags()[6] = true;
       }
-      if (isValidValue(fields()[7], other.linksIn)) {
-        this.linksIn = data().deepCopy(fields()[7].schema(), other.linksIn);
+      if (isValidValue(fields()[7], other.linksOut)) {
+        this.linksOut = data().deepCopy(fields()[7].schema(), other.linksOut);
         fieldSetFlags()[7] = true;
       }
-      if (isValidValue(fields()[8], other.parentCategories)) {
-        this.parentCategories = data().deepCopy(fields()[8].schema(), other.parentCategories);
+      if (isValidValue(fields()[8], other.linksIn)) {
+        this.linksIn = data().deepCopy(fields()[8].schema(), other.linksIn);
         fieldSetFlags()[8] = true;
       }
-      if (isValidValue(fields()[9], other.childCategories)) {
-        this.childCategories = data().deepCopy(fields()[9].schema(), other.childCategories);
+      if (isValidValue(fields()[9], other.parentCategories)) {
+        this.parentCategories = data().deepCopy(fields()[9].schema(), other.parentCategories);
         fieldSetFlags()[9] = true;
       }
-      if (isValidValue(fields()[10], other.childArticles)) {
-        this.childArticles = data().deepCopy(fields()[10].schema(), other.childArticles);
+      if (isValidValue(fields()[10], other.childCategories)) {
+        this.childCategories = data().deepCopy(fields()[10].schema(), other.childCategories);
         fieldSetFlags()[10] = true;
       }
-      if (isValidValue(fields()[11], other.labelCounts)) {
-        this.labelCounts = data().deepCopy(fields()[11].schema(), other.labelCounts);
+      if (isValidValue(fields()[11], other.childArticles)) {
+        this.childArticles = data().deepCopy(fields()[11].schema(), other.childArticles);
         fieldSetFlags()[11] = true;
+      }
+      if (isValidValue(fields()[12], other.labelCounts)) {
+        this.labelCounts = data().deepCopy(fields()[12].schema(), other.labelCounts);
+        fieldSetFlags()[12] = true;
       }
     }
     
@@ -377,37 +401,41 @@ public class PageDetail extends org.apache.avro.specific.SpecificRecordBase impl
         this.lastEdited = data().deepCopy(fields()[3].schema(), other.lastEdited);
         fieldSetFlags()[3] = true;
       }
-      if (isValidValue(fields()[4], other.redirectsTo)) {
-        this.redirectsTo = data().deepCopy(fields()[4].schema(), other.redirectsTo);
+      if (isValidValue(fields()[4], other.sentenceSplits)) {
+        this.sentenceSplits = data().deepCopy(fields()[4].schema(), other.sentenceSplits);
         fieldSetFlags()[4] = true;
       }
-      if (isValidValue(fields()[5], other.redirects)) {
-        this.redirects = data().deepCopy(fields()[5].schema(), other.redirects);
+      if (isValidValue(fields()[5], other.redirectsTo)) {
+        this.redirectsTo = data().deepCopy(fields()[5].schema(), other.redirectsTo);
         fieldSetFlags()[5] = true;
       }
-      if (isValidValue(fields()[6], other.linksOut)) {
-        this.linksOut = data().deepCopy(fields()[6].schema(), other.linksOut);
+      if (isValidValue(fields()[6], other.redirects)) {
+        this.redirects = data().deepCopy(fields()[6].schema(), other.redirects);
         fieldSetFlags()[6] = true;
       }
-      if (isValidValue(fields()[7], other.linksIn)) {
-        this.linksIn = data().deepCopy(fields()[7].schema(), other.linksIn);
+      if (isValidValue(fields()[7], other.linksOut)) {
+        this.linksOut = data().deepCopy(fields()[7].schema(), other.linksOut);
         fieldSetFlags()[7] = true;
       }
-      if (isValidValue(fields()[8], other.parentCategories)) {
-        this.parentCategories = data().deepCopy(fields()[8].schema(), other.parentCategories);
+      if (isValidValue(fields()[8], other.linksIn)) {
+        this.linksIn = data().deepCopy(fields()[8].schema(), other.linksIn);
         fieldSetFlags()[8] = true;
       }
-      if (isValidValue(fields()[9], other.childCategories)) {
-        this.childCategories = data().deepCopy(fields()[9].schema(), other.childCategories);
+      if (isValidValue(fields()[9], other.parentCategories)) {
+        this.parentCategories = data().deepCopy(fields()[9].schema(), other.parentCategories);
         fieldSetFlags()[9] = true;
       }
-      if (isValidValue(fields()[10], other.childArticles)) {
-        this.childArticles = data().deepCopy(fields()[10].schema(), other.childArticles);
+      if (isValidValue(fields()[10], other.childCategories)) {
+        this.childCategories = data().deepCopy(fields()[10].schema(), other.childCategories);
         fieldSetFlags()[10] = true;
       }
-      if (isValidValue(fields()[11], other.labelCounts)) {
-        this.labelCounts = data().deepCopy(fields()[11].schema(), other.labelCounts);
+      if (isValidValue(fields()[11], other.childArticles)) {
+        this.childArticles = data().deepCopy(fields()[11].schema(), other.childArticles);
         fieldSetFlags()[11] = true;
+      }
+      if (isValidValue(fields()[12], other.labelCounts)) {
+        this.labelCounts = data().deepCopy(fields()[12].schema(), other.labelCounts);
+        fieldSetFlags()[12] = true;
       }
     }
 
@@ -511,6 +539,31 @@ public class PageDetail extends org.apache.avro.specific.SpecificRecordBase impl
       return this;
     }
 
+    /** Gets the value of the 'sentenceSplits' field */
+    public java.util.List<java.lang.Integer> getSentenceSplits() {
+      return sentenceSplits;
+    }
+    
+    /** Sets the value of the 'sentenceSplits' field */
+    public org.wikipedia.miner.extract.model.struct.PageDetail.Builder setSentenceSplits(java.util.List<java.lang.Integer> value) {
+      validate(fields()[4], value);
+      this.sentenceSplits = value;
+      fieldSetFlags()[4] = true;
+      return this; 
+    }
+    
+    /** Checks whether the 'sentenceSplits' field has been set */
+    public boolean hasSentenceSplits() {
+      return fieldSetFlags()[4];
+    }
+    
+    /** Clears the value of the 'sentenceSplits' field */
+    public org.wikipedia.miner.extract.model.struct.PageDetail.Builder clearSentenceSplits() {
+      sentenceSplits = null;
+      fieldSetFlags()[4] = false;
+      return this;
+    }
+
     /** Gets the value of the 'redirectsTo' field */
     public org.wikipedia.miner.extract.model.struct.PageSummary getRedirectsTo() {
       return redirectsTo;
@@ -518,21 +571,21 @@ public class PageDetail extends org.apache.avro.specific.SpecificRecordBase impl
     
     /** Sets the value of the 'redirectsTo' field */
     public org.wikipedia.miner.extract.model.struct.PageDetail.Builder setRedirectsTo(org.wikipedia.miner.extract.model.struct.PageSummary value) {
-      validate(fields()[4], value);
+      validate(fields()[5], value);
       this.redirectsTo = value;
-      fieldSetFlags()[4] = true;
+      fieldSetFlags()[5] = true;
       return this; 
     }
     
     /** Checks whether the 'redirectsTo' field has been set */
     public boolean hasRedirectsTo() {
-      return fieldSetFlags()[4];
+      return fieldSetFlags()[5];
     }
     
     /** Clears the value of the 'redirectsTo' field */
     public org.wikipedia.miner.extract.model.struct.PageDetail.Builder clearRedirectsTo() {
       redirectsTo = null;
-      fieldSetFlags()[4] = false;
+      fieldSetFlags()[5] = false;
       return this;
     }
 
@@ -543,71 +596,71 @@ public class PageDetail extends org.apache.avro.specific.SpecificRecordBase impl
     
     /** Sets the value of the 'redirects' field */
     public org.wikipedia.miner.extract.model.struct.PageDetail.Builder setRedirects(java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary> value) {
-      validate(fields()[5], value);
+      validate(fields()[6], value);
       this.redirects = value;
-      fieldSetFlags()[5] = true;
+      fieldSetFlags()[6] = true;
       return this; 
     }
     
     /** Checks whether the 'redirects' field has been set */
     public boolean hasRedirects() {
-      return fieldSetFlags()[5];
+      return fieldSetFlags()[6];
     }
     
     /** Clears the value of the 'redirects' field */
     public org.wikipedia.miner.extract.model.struct.PageDetail.Builder clearRedirects() {
       redirects = null;
-      fieldSetFlags()[5] = false;
+      fieldSetFlags()[6] = false;
       return this;
     }
 
     /** Gets the value of the 'linksOut' field */
-    public java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary> getLinksOut() {
+    public java.util.List<org.wikipedia.miner.extract.model.struct.LinkSummary> getLinksOut() {
       return linksOut;
     }
     
     /** Sets the value of the 'linksOut' field */
-    public org.wikipedia.miner.extract.model.struct.PageDetail.Builder setLinksOut(java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary> value) {
-      validate(fields()[6], value);
+    public org.wikipedia.miner.extract.model.struct.PageDetail.Builder setLinksOut(java.util.List<org.wikipedia.miner.extract.model.struct.LinkSummary> value) {
+      validate(fields()[7], value);
       this.linksOut = value;
-      fieldSetFlags()[6] = true;
+      fieldSetFlags()[7] = true;
       return this; 
     }
     
     /** Checks whether the 'linksOut' field has been set */
     public boolean hasLinksOut() {
-      return fieldSetFlags()[6];
+      return fieldSetFlags()[7];
     }
     
     /** Clears the value of the 'linksOut' field */
     public org.wikipedia.miner.extract.model.struct.PageDetail.Builder clearLinksOut() {
       linksOut = null;
-      fieldSetFlags()[6] = false;
+      fieldSetFlags()[7] = false;
       return this;
     }
 
     /** Gets the value of the 'linksIn' field */
-    public java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary> getLinksIn() {
+    public java.util.List<org.wikipedia.miner.extract.model.struct.LinkSummary> getLinksIn() {
       return linksIn;
     }
     
     /** Sets the value of the 'linksIn' field */
-    public org.wikipedia.miner.extract.model.struct.PageDetail.Builder setLinksIn(java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary> value) {
-      validate(fields()[7], value);
+    public org.wikipedia.miner.extract.model.struct.PageDetail.Builder setLinksIn(java.util.List<org.wikipedia.miner.extract.model.struct.LinkSummary> value) {
+      validate(fields()[8], value);
       this.linksIn = value;
-      fieldSetFlags()[7] = true;
+      fieldSetFlags()[8] = true;
       return this; 
     }
     
     /** Checks whether the 'linksIn' field has been set */
     public boolean hasLinksIn() {
-      return fieldSetFlags()[7];
+      return fieldSetFlags()[8];
     }
     
     /** Clears the value of the 'linksIn' field */
     public org.wikipedia.miner.extract.model.struct.PageDetail.Builder clearLinksIn() {
       linksIn = null;
-      fieldSetFlags()[7] = false;
+      fieldSetFlags()[8] = false;
       return this;
     }
 
@@ -618,21 +671,21 @@ public class PageDetail extends org.apache.avro.specific.SpecificRecordBase impl
     
     /** Sets the value of the 'parentCategories' field */
     public org.wikipedia.miner.extract.model.struct.PageDetail.Builder setParentCategories(java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary> value) {
-      validate(fields()[8], value);
+      validate(fields()[9], value);
       this.parentCategories = value;
-      fieldSetFlags()[8] = true;
+      fieldSetFlags()[9] = true;
       return this; 
     }
     
     /** Checks whether the 'parentCategories' field has been set */
     public boolean hasParentCategories() {
-      return fieldSetFlags()[8];
+      return fieldSetFlags()[9];
     }
     
     /** Clears the value of the 'parentCategories' field */
     public org.wikipedia.miner.extract.model.struct.PageDetail.Builder clearParentCategories() {
       parentCategories = null;
-      fieldSetFlags()[8] = false;
+      fieldSetFlags()[9] = false;
       return this;
     }
 
@@ -643,21 +696,21 @@ public class PageDetail extends org.apache.avro.specific.SpecificRecordBase impl
     
     /** Sets the value of the 'childCategories' field */
     public org.wikipedia.miner.extract.model.struct.PageDetail.Builder setChildCategories(java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary> value) {
-      validate(fields()[9], value);
+      validate(fields()[10], value);
       this.childCategories = value;
-      fieldSetFlags()[9] = true;
+      fieldSetFlags()[10] = true;
       return this; 
     }
     
     /** Checks whether the 'childCategories' field has been set */
     public boolean hasChildCategories() {
-      return fieldSetFlags()[9];
+      return fieldSetFlags()[10];
     }
     
     /** Clears the value of the 'childCategories' field */
     public org.wikipedia.miner.extract.model.struct.PageDetail.Builder clearChildCategories() {
       childCategories = null;
-      fieldSetFlags()[9] = false;
+      fieldSetFlags()[10] = false;
       return this;
     }
 
@@ -668,21 +721,21 @@ public class PageDetail extends org.apache.avro.specific.SpecificRecordBase impl
     
     /** Sets the value of the 'childArticles' field */
     public org.wikipedia.miner.extract.model.struct.PageDetail.Builder setChildArticles(java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary> value) {
-      validate(fields()[10], value);
+      validate(fields()[11], value);
       this.childArticles = value;
-      fieldSetFlags()[10] = true;
+      fieldSetFlags()[11] = true;
       return this; 
     }
     
     /** Checks whether the 'childArticles' field has been set */
     public boolean hasChildArticles() {
-      return fieldSetFlags()[10];
+      return fieldSetFlags()[11];
     }
     
     /** Clears the value of the 'childArticles' field */
     public org.wikipedia.miner.extract.model.struct.PageDetail.Builder clearChildArticles() {
       childArticles = null;
-      fieldSetFlags()[10] = false;
+      fieldSetFlags()[11] = false;
       return this;
     }
 
@@ -693,21 +746,21 @@ public class PageDetail extends org.apache.avro.specific.SpecificRecordBase impl
     
     /** Sets the value of the 'labelCounts' field */
     public org.wikipedia.miner.extract.model.struct.PageDetail.Builder setLabelCounts(java.util.List<org.wikipedia.miner.extract.model.struct.LabelCount> value) {
-      validate(fields()[11], value);
+      validate(fields()[12], value);
       this.labelCounts = value;
-      fieldSetFlags()[11] = true;
+      fieldSetFlags()[12] = true;
       return this; 
     }
     
     /** Checks whether the 'labelCounts' field has been set */
     public boolean hasLabelCounts() {
-      return fieldSetFlags()[11];
+      return fieldSetFlags()[12];
     }
     
     /** Clears the value of the 'labelCounts' field */
     public org.wikipedia.miner.extract.model.struct.PageDetail.Builder clearLabelCounts() {
       labelCounts = null;
-      fieldSetFlags()[11] = false;
+      fieldSetFlags()[12] = false;
       return this;
     }
 
@@ -719,14 +772,15 @@ public class PageDetail extends org.apache.avro.specific.SpecificRecordBase impl
         record.title = fieldSetFlags()[1] ? this.title : (java.lang.CharSequence) defaultValue(fields()[1]);
         record.namespace = fieldSetFlags()[2] ? this.namespace : (java.lang.Integer) defaultValue(fields()[2]);
         record.lastEdited = fieldSetFlags()[3] ? this.lastEdited : (java.lang.Long) defaultValue(fields()[3]);
-        record.redirectsTo = fieldSetFlags()[4] ? this.redirectsTo : (org.wikipedia.miner.extract.model.struct.PageSummary) defaultValue(fields()[4]);
-        record.redirects = fieldSetFlags()[5] ? this.redirects : (java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary>) defaultValue(fields()[5]);
-        record.linksOut = fieldSetFlags()[6] ? this.linksOut : (java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary>) defaultValue(fields()[6]);
-        record.linksIn = fieldSetFlags()[7] ? this.linksIn : (java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary>) defaultValue(fields()[7]);
-        record.parentCategories = fieldSetFlags()[8] ? this.parentCategories : (java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary>) defaultValue(fields()[8]);
-        record.childCategories = fieldSetFlags()[9] ? this.childCategories : (java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary>) defaultValue(fields()[9]);
-        record.childArticles = fieldSetFlags()[10] ? this.childArticles : (java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary>) defaultValue(fields()[10]);
-        record.labelCounts = fieldSetFlags()[11] ? this.labelCounts : (java.util.List<org.wikipedia.miner.extract.model.struct.LabelCount>) defaultValue(fields()[11]);
+        record.sentenceSplits = fieldSetFlags()[4] ? this.sentenceSplits : (java.util.List<java.lang.Integer>) defaultValue(fields()[4]);
+        record.redirectsTo = fieldSetFlags()[5] ? this.redirectsTo : (org.wikipedia.miner.extract.model.struct.PageSummary) defaultValue(fields()[5]);
+        record.redirects = fieldSetFlags()[6] ? this.redirects : (java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary>) defaultValue(fields()[6]);
+        record.linksOut = fieldSetFlags()[7] ? this.linksOut : (java.util.List<org.wikipedia.miner.extract.model.struct.LinkSummary>) defaultValue(fields()[7]);
+        record.linksIn = fieldSetFlags()[8] ? this.linksIn : (java.util.List<org.wikipedia.miner.extract.model.struct.LinkSummary>) defaultValue(fields()[8]);
+        record.parentCategories = fieldSetFlags()[9] ? this.parentCategories : (java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary>) defaultValue(fields()[9]);
+        record.childCategories = fieldSetFlags()[10] ? this.childCategories : (java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary>) defaultValue(fields()[10]);
+        record.childArticles = fieldSetFlags()[11] ? this.childArticles : (java.util.List<org.wikipedia.miner.extract.model.struct.PageSummary>) defaultValue(fields()[11]);
+        record.labelCounts = fieldSetFlags()[12] ? this.labelCounts : (java.util.List<org.wikipedia.miner.extract.model.struct.LabelCount>) defaultValue(fields()[12]);
         return record;
       } catch (Exception e) {
         throw new org.apache.avro.AvroRuntimeException(e);

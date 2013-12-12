@@ -1,10 +1,25 @@
 package org.wikipedia.miner.extract.pageSummary;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import opennlp.tools.sentdetect.SentenceDetectorME;
+import opennlp.tools.sentdetect.SentenceModel;
+import opennlp.tools.util.InvalidFormatException;
+import opennlp.tools.util.Span;
 
 import org.apache.avro.mapred.AvroKey;
 import org.apache.avro.mapred.AvroValue;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.filecache.DistributedCache;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
@@ -21,11 +36,13 @@ import org.wikipedia.miner.extract.model.DumpLinkParser;
 import org.wikipedia.miner.extract.model.DumpPage;
 import org.wikipedia.miner.extract.model.DumpPageParser;
 import org.wikipedia.miner.extract.model.struct.LabelCount;
+import org.wikipedia.miner.extract.model.struct.LinkSummary;
 import org.wikipedia.miner.extract.model.struct.PageDetail;
 import org.wikipedia.miner.extract.model.struct.PageKey;
 import org.wikipedia.miner.extract.model.struct.PageSummary;
 import org.wikipedia.miner.extract.pageSummary.PageSummaryStep.PageType;
 import org.wikipedia.miner.extract.util.LanguageConfiguration;
+import org.wikipedia.miner.extract.util.PageSentenceExtractor;
 import org.wikipedia.miner.extract.util.SiteInfo;
 import org.wikipedia.miner.extract.util.Util;
 import org.wikipedia.miner.util.MarkupStripper;
@@ -34,7 +51,7 @@ import org.wikipedia.miner.util.MarkupStripper;
 public class InitialMapper extends MapReduceBase implements Mapper<LongWritable, Text, AvroKey<PageKey>, AvroValue<PageDetail>> {
 
 	private static Logger logger = Logger.getLogger(InitialMapper.class) ;
-	
+
 	private LanguageConfiguration languageConfig ;
 	private SiteInfo siteInfo ;
 
@@ -42,8 +59,12 @@ public class InitialMapper extends MapReduceBase implements Mapper<LongWritable,
 	private DumpLinkParser linkParser ;
 
 	private MarkupStripper stripper = new MarkupStripper() ;
+	private PageSentenceExtractor sentenceExtractor ;
 
-	private String rootCategoryTitle ;
+	
+	private String[] debugTitles = {"Atheist","Atheism","Atheists","Athiest","People by religion"} ;
+
+
 
 	@Override
 	public void configure(JobConf job) {
@@ -64,6 +85,10 @@ public class InitialMapper extends MapReduceBase implements Mapper<LongWritable,
 				if (cf.getName().equals(new Path(job.get(DumpExtractor.KEY_LANG_FILE)).getName())) {
 					languageConfig = new LanguageConfiguration(job.get(DumpExtractor.KEY_LANG_CODE), cf) ;
 				}
+
+				if (cf.getName().equals(new Path(job.get(DumpExtractor.KEY_SENTENCE_MODEL)).getName())) {
+					sentenceExtractor = new PageSentenceExtractor(cf) ;
+				}
 			}
 
 			if (siteInfo == null) 
@@ -75,7 +100,7 @@ public class InitialMapper extends MapReduceBase implements Mapper<LongWritable,
 			pageParser = new DumpPageParser(languageConfig, siteInfo) ;
 			linkParser = new DumpLinkParser(languageConfig, siteInfo) ;
 
-			rootCategoryTitle = Util.normaliseTitle(languageConfig.getRootCategoryName()) ;
+			//rootCategoryTitle = Util.normaliseTitle(languageConfig.getRootCategoryName()) ;
 
 		} catch (Exception e) {
 
@@ -103,42 +128,32 @@ public class InitialMapper extends MapReduceBase implements Mapper<LongWritable,
 		if (parsedPage == null)
 			return ;
 
-
-
-
-
-
-
-		//page.setIsRedirect(parsedPage.getType() == PageType.redirect);
-
-
-
 		switch (parsedPage.getType()) {
 
 		case article :
 			reporter.incrCounter(PageType.article, 1);
-			handleArticle(parsedPage, collector, reporter) ;
+			handleArticleOrCategory(parsedPage, collector, reporter) ;
 
 			break ;
 		case category :
 			reporter.incrCounter(PageType.category, 1);
-			handleCategory(parsedPage, collector, reporter) ;
+			handleArticleOrCategory(parsedPage, collector, reporter) ;
 
 			break ;
 		case disambiguation :
 			reporter.incrCounter(PageType.disambiguation, 1);
 
 			//apart from the counting, don't treat disambig pages any different from ordinary articles
-			handleArticle(parsedPage, collector, reporter) ;
+			handleArticleOrCategory(parsedPage, collector, reporter) ;
 
 			break ;
 		case redirect :
 			if (parsedPage.getNamespace() == SiteInfo.MAIN_KEY)
 				reporter.incrCounter(PageType.articleRedirect, 1);
-			
+
 			if (parsedPage.getNamespace() == SiteInfo.CATEGORY_KEY)
 				reporter.incrCounter(PageType.categoryRedirect, 1);
-			
+
 			handleRedirect(parsedPage, collector, reporter) ;
 
 			break ;
@@ -167,10 +182,13 @@ public class InitialMapper extends MapReduceBase implements Mapper<LongWritable,
 
 		if (parsedPage.getLastEdited() != null)
 			page.setLastEdited(parsedPage.getLastEdited().getTime());
+		
+		
 
 		return page ;
 	}
 
+	/*
 	private void handleCategory(DumpPage parsedPage, OutputCollector<AvroKey<PageKey>, AvroValue<PageDetail>> collector, Reporter reporter) throws IOException {
 
 		PageDetail page = buildBasePageDetails(parsedPage) ;
@@ -181,16 +199,41 @@ public class InitialMapper extends MapReduceBase implements Mapper<LongWritable,
 		}
 
 		handleLinks(page,  parsedPage.getMarkup(), collector, reporter) ;
-	}
+	}*/
 
-	private void handleArticle(DumpPage parsedPage, OutputCollector<AvroKey<PageKey>, AvroValue<PageDetail>> collector, Reporter reporter) throws IOException {
+	private void handleArticleOrCategory(DumpPage parsedPage, OutputCollector<AvroKey<PageKey>, AvroValue<PageDetail>> collector, Reporter reporter) throws IOException {
 
+		boolean debug = false ;
+		for(String debugTitle:debugTitles) {
+			if (parsedPage.getTitle().equalsIgnoreCase(debugTitle))
+				debug = true ;
+		}
+		
 		PageDetail page = buildBasePageDetails(parsedPage) ;
+		
+		try {
+			List<Integer> sentenceSplits = sentenceExtractor.getSentenceSplits(parsedPage) ;
+			
+			//logger.info("splits for " + parsedPage.getTitle() + ": [" + StringUtils.join(sentenceSplits, ",") + "]") ;
+					
+			page.setSentenceSplits(sentenceSplits);
+		} catch (Exception e) {
+			logger.warn("Could not gather sentence splits for " + page.getTitle(), e) ;	
+			logger.info(parsedPage.getMarkup());
+		}
+	
 		collect(new PageKey(page.getNamespace(), page.getTitle()), page, collector) ;
 
 		handleLinks(page,  parsedPage.getMarkup(), collector, reporter) ;
 
+		if (debug)
+			logger.info(page);
+		
+		
 	}
+
+	
+
 
 	private void handleRedirect(DumpPage parsedPage, OutputCollector<AvroKey<PageKey>, AvroValue<PageDetail>> collector, Reporter reporter) throws IOException {
 
@@ -232,6 +275,8 @@ public class InitialMapper extends MapReduceBase implements Mapper<LongWritable,
 		Vector<int[]> linkRegions = stripper.gatherComplexRegions(strippedMarkup, "\\[\\[", "\\]\\]") ;
 
 		for(int[] linkRegion: linkRegions) {
+			
+			
 			String linkMarkup = strippedMarkup.substring(linkRegion[0]+2, linkRegion[1]-2) ;
 
 			DumpLink link = null ;
@@ -253,13 +298,15 @@ public class InitialMapper extends MapReduceBase implements Mapper<LongWritable,
 				handleCategoryLink(page, link, collector) ;
 
 			if (link.getTargetNamespace()==SiteInfo.MAIN_KEY) 
-				handleArticleLink(page, link, collector) ;
+				handleArticleLink(page, link, linkRegion[0], collector) ;
 
 
 
 			//TODO: how do we get translations now?
 		}			
 	}
+
+
 
 
 
@@ -274,23 +321,50 @@ public class InitialMapper extends MapReduceBase implements Mapper<LongWritable,
 	 * @param collector
 	 * @throws IOException 
 	 */
-	private void handleArticleLink(PageDetail currPage, DumpLink link, OutputCollector<AvroKey<PageKey>, AvroValue<PageDetail>> collector) throws IOException {
+	private void handleArticleLink(PageDetail currPage, DumpLink link, int linkStart, OutputCollector<AvroKey<PageKey>, AvroValue<PageDetail>> collector) throws IOException {
 
-		//emit details of this link, so it can be picked up by target
-		//the two details we want to emit are the fact that the current page is the source of the link, and the link anchor
-
-
-
-		PageSummary source = new PageSummary() ;
+		/*
+		emit details of this link, so it can be picked up by target
+		the details we want to emit are 
+			* that the current page is the source of the link,
+			* the sentence index within the current page that this link is found
+			* the link anchor text used for the link (i.e. the label)
+		 */
+		
+		//basics about the link source
+		
+		LinkSummary source = new LinkSummary() ;
 		source.setId(currPage.getId());
 		source.setTitle(currPage.getTitle());
 		source.setNamespace(currPage.getNamespace()) ;
 		source.setForwarded(false) ;
+		
+		
+		//sentence index of the link
+		
+		int sentenceIndex = Collections.binarySearch(currPage.getSentenceSplits(), linkStart) ;
+		if (sentenceIndex < 0)
+			sentenceIndex = ((1-sentenceIndex) - 1) ;
+		
+		List<Integer> sentenceIndexes = new ArrayList<Integer>() ;
+		sentenceIndexes.add(sentenceIndex) ;
+		
+		source.setSentenceIndexes(sentenceIndexes);
+		
+		
+		//the anchor text of the link
 
 		LabelCount labelCount = new LabelCount() ;
 		labelCount.setLabel(link.getAnchor()) ;
 		labelCount.setCount(1) ;
 
+		
+		
+		
+		
+		
+		
+		//associate everything with target of link
 		PageDetail target = PageSummaryStep.buildEmptyPageDetail() ;
 		target.getLinksIn().add(source) ;
 		target.getLabelCounts().add(labelCount) ;
@@ -335,6 +409,7 @@ public class InitialMapper extends MapReduceBase implements Mapper<LongWritable,
 	}
 
 
+	
 
 	private void collect(PageKey key, PageDetail value, OutputCollector<AvroKey<PageKey>, AvroValue<PageDetail>> collector) throws IOException {
 

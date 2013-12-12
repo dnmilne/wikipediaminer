@@ -1,4 +1,4 @@
-package steps2;
+package org.wikipedia.miner.extract;
 
 import java.io.IOException;
 

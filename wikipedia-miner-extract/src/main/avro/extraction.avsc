@@ -10,6 +10,24 @@
         {"name": "forwarded", "type": "boolean"}
       ]
     },
+   {
+      "type": "record",
+      "name": "LinkSummary",
+      "namespace": "org.wikipedia.miner.extract.model.struct",
+      "fields": [
+        {"name": "id", "type": "int"},
+        {"name": "title", "type": "string"},
+        {"name": "namespace", "type": "int"},
+        {"name": "forwarded", "type": "boolean"},
+        {
+          "name": "sentenceIndexes", 
+          "type": {
+            "type": "array",
+            "items": "int"
+          }
+        }
+      ]
+    },   
     {
       "type": "record",
       "name": "PageKey",
@@ -37,6 +55,13 @@
          {"name": "title", "type": ["string", "null"]},
          {"name": "namespace", "type": ["int", "null"]},
          {"name": "lastEdited", "type": ["long","null"]},
+         {
+          "name": "sentenceSplits", 
+          "type": {
+            "type": "array",
+            "items": "int"
+          }
+         },
          {"name": "redirectsTo", "type": ["PageSummary","null"]},
          {
           "name": "redirects", 
@@ -49,14 +74,14 @@
           "name": "linksOut", 
           "type": {
             "type": "array",
-            "items": "PageSummary"
+            "items": "LinkSummary"
           }
          },
          {
           "name": "linksIn", 
           "type": {
             "type": "array",
-            "items": "PageSummary"
+            "items": "LinkSummary"
           }
          },
          {
