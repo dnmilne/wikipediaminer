@@ -25,8 +25,8 @@ package org.wikipedia.miner.util.text;
  */
 public class PorterStemmer extends TextProcessor {  
 
-	private Cleaner cleaner ;
-	private Stemmer stemmer ;
+	private final Cleaner cleaner ;
+	private final Stemmer stemmer ;
 
 	/**
 	 * Initializes a newly created PorterStemmer.  
@@ -42,13 +42,14 @@ public class PorterStemmer extends TextProcessor {
 	 * @param text	the text to be processed.
 	 * @return	the processed version of this text.
 	 */
+        @Override
 	public String processText(String text) {
 
 		String processedText = "" ;
 		String[] terms = text.split(" ") ;
 
 		for (String term: terms) {
-			if (term != "") {
+			if (!"".equals(term)) {
 				stemmer.add(term.toCharArray(), term.length()) ;
 				stemmer.stem();
 				processedText = processedText + " " + cleaner.processText(stemmer.toString()) ;			
