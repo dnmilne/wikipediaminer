@@ -87,13 +87,13 @@ public abstract class DocumentPreprocessor {
 	 * @throws IOException if there is a problem reading the file
 	 */
 	public static String getContent(File file) throws IOException {
-		StringBuffer sb = new StringBuffer() ;
+		StringBuilder sb = new StringBuilder() ;
 		
 		BufferedReader reader = new BufferedReader(new FileReader(file)) ;
 		String line ;
 		
 		while ((line=reader.readLine()) != null) {
-			sb.append(line + "\n") ;
+			sb.append(line).append("\n") ;
 		}
 		return sb.toString() ;
 	}
@@ -103,7 +103,7 @@ public abstract class DocumentPreprocessor {
 		Matcher m = p.matcher(text) ;
 		
 		int lastPos = 0 ;
-		StringBuffer sb = new StringBuffer() ;
+		StringBuilder sb = new StringBuilder() ;
 		
 		while(m.find()) {
 			sb.append(text.substring(lastPos, m.start())) ;
@@ -116,7 +116,7 @@ public abstract class DocumentPreprocessor {
 	}
 	
 	protected String getSpaceString(int length) {
-		StringBuffer sb = new StringBuffer() ;
+		StringBuilder sb = new StringBuilder() ;
 		
 		for (int i=0;i<length;i++)
 			sb.append(" ") ;

@@ -22,6 +22,7 @@ package org.wikipedia.miner.annotation.preprocessing;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Vector;
 import java.util.regex.*;
 
@@ -35,7 +36,7 @@ import org.wikipedia.miner.model.*;
  */
 public class WikiPreprocessor extends DocumentPreprocessor {
 
-	private Wikipedia wikipedia ;
+	private final Wikipedia wikipedia ;
 
 	/**
 	 * Initializes a new WikiPreprocessor. This will treat all section headers (==header==) as separate regions, and
@@ -48,6 +49,7 @@ public class WikiPreprocessor extends DocumentPreprocessor {
 		this.wikipedia = wikipedia ;
 	}
 
+        @Override
 	public PreprocessedDocument preprocess(String content) {
 
 		StringBuffer context = new StringBuffer() ;
@@ -87,7 +89,7 @@ public class WikiPreprocessor extends DocumentPreprocessor {
 		Matcher m = p.matcher(markup) ;
 		
 		int lastPos = 0 ;
-		StringBuffer sb = new StringBuffer() ;
+		StringBuilder sb = new StringBuilder() ;
 		
 		while(m.find()) {
 			sb.append(markup.substring(lastPos, m.start())) ;
@@ -96,7 +98,7 @@ public class WikiPreprocessor extends DocumentPreprocessor {
 			String title = m.group(2).trim() ;
 			
 			if (!title.equalsIgnoreCase("see also") && !title.equalsIgnoreCase("external links") && !title.equalsIgnoreCase("references") && !title.equalsIgnoreCase("further reading"))
-				context.append("\n" + title) ;
+				context.append("\n").append(title) ;
 			
 			lastPos = m.end() ;		
 		}
@@ -106,12 +108,12 @@ public class WikiPreprocessor extends DocumentPreprocessor {
 	}
 
 	private String blankTemplates(String markup) {
-		Vector<Integer> templateStack = new Vector<Integer>() ; 
+		List<Integer> templateStack = new ArrayList<Integer>() ; 
 
 		Pattern p = Pattern.compile("(\\{\\{|\\}\\})") ;
 		Matcher m = p.matcher(markup) ;
 
-		StringBuffer sb = new StringBuffer() ;
+		StringBuilder sb = new StringBuilder() ;
 		int lastIndex = 0 ;
 
 		while (m.find()) {
@@ -122,7 +124,7 @@ public class WikiPreprocessor extends DocumentPreprocessor {
 				templateStack.add(m.start()) ;
 			else {
 				if (!templateStack.isEmpty()) {
-					int templateStart = templateStack.lastElement() ;
+					int templateStart = templateStack.size()-1;
 					templateStack.remove(templateStack.size()-1) ;
 
 					if (templateStack.isEmpty()) {
@@ -146,12 +148,12 @@ public class WikiPreprocessor extends DocumentPreprocessor {
 	}
 
 	private String blankTables(String markup) {	
-		Vector<Integer> tableStack = new Vector<Integer>() ; 
+		List<Integer> tableStack = new ArrayList<Integer>() ; 
 
 		Pattern p = Pattern.compile("(\\{\\||\\|\\})") ;
 		Matcher m = p.matcher(markup) ;
 
-		StringBuffer sb = new StringBuffer() ;
+		StringBuilder sb = new StringBuilder() ;
 		int lastIndex = 0 ;
 
 		while (m.find()) {
@@ -162,9 +164,8 @@ public class WikiPreprocessor extends DocumentPreprocessor {
 				tableStack.add(m.start()) ;
 			else {
 				if (!tableStack.isEmpty()) {
-					int templateStart = tableStack.lastElement() ;
+					int templateStart = tableStack.size()-1 ;
 					tableStack.remove(tableStack.size()-1) ;
-
 					if (tableStack.isEmpty()) {
 						sb.append(markup.substring(lastIndex, templateStart)) ;
 
@@ -189,12 +190,12 @@ public class WikiPreprocessor extends DocumentPreprocessor {
 
 	private String blankLinks(String markup, StringBuffer context, HashSet<Integer> bannedTopics) {
 
-		Vector<Integer> linkStack = new Vector<Integer>() ; 
+		List<Integer> linkStack = new ArrayList<Integer>() ; 
 
 		Pattern p = Pattern.compile("(\\[\\[|\\]\\])") ;
 		Matcher m = p.matcher(markup) ;
 
-		StringBuffer sb = new StringBuffer() ;
+		StringBuilder sb = new StringBuilder() ;
 		int lastIndex = 0 ;
 
 		while (m.find()) {
@@ -204,7 +205,7 @@ public class WikiPreprocessor extends DocumentPreprocessor {
 				linkStack.add(m.start()) ;
 			else {
 				if (!linkStack.isEmpty()) {
-					int linkStart = linkStack.lastElement() ;
+					int linkStart = linkStack.size()-1 ;
 					linkStack.remove(linkStack.size()-1) ;
 
 					if (linkStack.isEmpty()) {
@@ -236,7 +237,7 @@ public class WikiPreprocessor extends DocumentPreprocessor {
 		Matcher m = p.matcher(text) ;
 		
 		int lastPos = 0 ;
-		StringBuffer sb = new StringBuffer() ;
+		StringBuilder sb = new StringBuilder() ;
 		
 		while(m.find()) {
 			sb.append(text.substring(lastPos, m.start())) ;
@@ -271,7 +272,7 @@ public class WikiPreprocessor extends DocumentPreprocessor {
 			dest = markup.substring(0, pos) ;
 		}
 
-		context.append("\n" + anchor) ;
+		context.append("\n").append(anchor) ;
 
 		Article art = wikipedia.getArticleByTitle(dest) ;
 		if (art != null) {

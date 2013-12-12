@@ -62,10 +62,10 @@ public class HtmlPreprocessor extends DocumentPreprocessor{
 	 * @param content the html to be preprocessed
 	 * @return the preprocessedString
 	 */
+        @Override
 	public PreprocessedDocument preprocess(final String content) {
 		
-		StringBuffer context = new StringBuffer() ;
-		//HashSet<Integer> encounteredIds = new HashSet<Integer>() ;
+		StringBuilder context = new StringBuilder() ;
 		
 		String temp = content.toLowerCase() ;
 		
@@ -113,7 +113,7 @@ public class HtmlPreprocessor extends DocumentPreprocessor{
 		m = p.matcher(temp) ;
 		
 		int lastPos = 0 ;
-		StringBuffer sbTemp = new StringBuffer() ;
+		StringBuilder sbTemp = new StringBuilder() ;
 
 		while(m.find()) {
 			sbTemp.append(temp.substring(lastPos, m.start())) ;
@@ -169,10 +169,10 @@ public class HtmlPreprocessor extends DocumentPreprocessor{
 		if (tags.length == 1)
 			return Pattern.compile("<" + tags[0] + "[^>]*>", Pattern.CASE_INSENSITIVE) ;
 		
-		StringBuffer regex = new StringBuffer() ;
+		StringBuilder regex = new StringBuilder() ;
 		
 		for (String tag:tags) 
-			regex.append(tag + "|") ;	
+			regex.append(tag).append("|") ;	
 
 		regex.deleteCharAt(regex.length()-1) ;
 		
@@ -192,10 +192,10 @@ public class HtmlPreprocessor extends DocumentPreprocessor{
 		if (tags.length == 1)
 			return Pattern.compile("</" + tags[0] + "[^>]*>", Pattern.CASE_INSENSITIVE) ;
 		
-		StringBuffer regex = new StringBuffer() ;
+		StringBuilder regex = new StringBuilder() ;
 		
 		for (String tag:tags) 
-			regex.append(tag + "|") ;	
+			regex.append(tag).append("|") ;	
 
 		regex.deleteCharAt(regex.length()-1) ;
 		
@@ -216,10 +216,10 @@ public class HtmlPreprocessor extends DocumentPreprocessor{
 		if (tags.length == 1)
 			return Pattern.compile("</*" + tags[0] + "[^>]*>", Pattern.CASE_INSENSITIVE) ;
 		
-		StringBuffer regex = new StringBuffer() ;
+		StringBuilder regex = new StringBuilder() ;
 		
 		for (String tag:tags) 
-			regex.append(tag + "|") ;	
+			regex.append(tag).append("|") ;	
 
 		regex.deleteCharAt(regex.length()-1) ;
 		
