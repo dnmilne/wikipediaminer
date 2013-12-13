@@ -31,7 +31,6 @@ import org.dmilne.xjsf.param.FloatParameter;
 import org.dmilne.xjsf.param.StringParameter;
 
 import com.google.gson.annotations.Expose;
-import opennlp.tools.util.StringList;
 import org.wikipedia.miner.web.util.xjsfParameters.StringListParameter;
 
 /**
@@ -69,7 +68,7 @@ public class SearchService extends WMService {
 
         prmQuery = new StringParameter("query", "Your query", null);
         addGlobalParameter(prmQuery);
-
+        
         prmQueryList = new StringListParameter("queryList", "The simple queries you want to run using ',' as separator", null);
 
         prmComplex = new BooleanParameter("complex", "<b>true</b> if your query might reference multiple topics, otherwise <b>false</b>", false);
