@@ -23,7 +23,7 @@ import org.apache.hadoop.mapred.RunningJob;
 import org.wikipedia.miner.extract.DumpExtractor;
 import org.wikipedia.miner.extract.DumpExtractor2;
 import org.wikipedia.miner.extract.Step;
-import org.wikipedia.miner.extract.model.struct.LabelCount;
+import org.wikipedia.miner.extract.model.struct.LabelSummary;
 import org.wikipedia.miner.extract.model.struct.LinkSummary;
 import org.wikipedia.miner.extract.model.struct.PageDetail;
 import org.wikipedia.miner.extract.model.struct.PageKey;
@@ -90,11 +90,16 @@ public class PageSummaryStep extends Step {
 
 		return LinkSummary.newBuilder(summary).build() ;
 	}
+	
+	public static PageDetail clone(PageDetail pageDetail) {
+
+		return PageDetail.newBuilder(pageDetail).build() ;
+	}
 
 	public static PageDetail buildEmptyPageDetail() {
 
 		PageDetail p = new PageDetail() ;
-
+		p.setDepthForwarded(false);
 		p.setSentenceSplits(new ArrayList<Integer>());
 		p.setRedirects(new ArrayList<PageSummary>()) ;
 		p.setLinksIn(new ArrayList<LinkSummary>());
@@ -102,7 +107,7 @@ public class PageSummaryStep extends Step {
 		p.setParentCategories(new ArrayList<PageSummary>());
 		p.setChildCategories(new ArrayList<PageSummary>());
 		p.setChildArticles(new ArrayList<PageSummary>());
-		p.setLabelCounts(new ArrayList<LabelCount>()) ;
+		p.setLabels(new HashMap<CharSequence,LabelSummary>()) ;
 
 		return p ;
 	}

@@ -1,13 +1,13 @@
 package org.wikipedia.miner.extract.pageSummary;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.apache.avro.mapred.AvroCollector;
 import org.apache.avro.mapred.AvroMapper;
 import org.apache.avro.mapred.Pair;
 import org.apache.hadoop.mapred.Reporter;
-import org.wikipedia.miner.extract.model.struct.LabelCount;
+import org.wikipedia.miner.extract.model.struct.LabelSummary;
 import org.wikipedia.miner.extract.model.struct.LinkSummary;
 import org.wikipedia.miner.extract.model.struct.PageDetail;
 import org.wikipedia.miner.extract.model.struct.PageKey;
@@ -106,12 +106,11 @@ public class SubsequentMapper extends AvroMapper<Pair<PageKey, PageDetail>, Pair
 			
 			//redirects should not get any links out or parent relations, so do nothing with those
 			
-			//immediately pass on any label counts to target 
-			for (LabelCount labelCount:page.getLabelCounts()) {
-				target.getLabelCounts().add(labelCount) ;
-			}
+			//immediately pass on any label counts to target
+			target.setLabels(page.getLabels());
+			
 			//and remove them from here (otherwise they will get counted multiple times)
-			page.setLabelCounts(new ArrayList<LabelCount>()) ;
+			page.setLabels(new HashMap<CharSequence,LabelSummary>()) ;
 			
 			//emit the details of the target that we have built up
 			collector.collect(new Pair<PageKey,PageDetail>(targetKey, target));

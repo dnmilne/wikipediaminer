@@ -7,7 +7,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -35,7 +37,7 @@ import org.wikipedia.miner.extract.model.DumpLink;
 import org.wikipedia.miner.extract.model.DumpLinkParser;
 import org.wikipedia.miner.extract.model.DumpPage;
 import org.wikipedia.miner.extract.model.DumpPageParser;
-import org.wikipedia.miner.extract.model.struct.LabelCount;
+import org.wikipedia.miner.extract.model.struct.LabelSummary;
 import org.wikipedia.miner.extract.model.struct.LinkSummary;
 import org.wikipedia.miner.extract.model.struct.PageDetail;
 import org.wikipedia.miner.extract.model.struct.PageKey;
@@ -274,6 +276,9 @@ public class InitialMapper extends MapReduceBase implements Mapper<LongWritable,
 
 		Vector<int[]> linkRegions = stripper.gatherComplexRegions(strippedMarkup, "\\[\\[", "\\]\\]") ;
 
+		Map<String,PageDetail> linkTargets = new HashMap<String,PageDetail>() ;
+		Map<String,PageDetail> categoryParents = new HashMap<String,PageDetail>() ;
+		
 		for(int[] linkRegion: linkRegions) {
 			
 			
@@ -291,37 +296,56 @@ public class InitialMapper extends MapReduceBase implements Mapper<LongWritable,
 
 			if (link.getTargetLanguage() != null) {
 				logger.info("Language link: " + linkMarkup);
+				
+				//TODO: how do we get translations now?
 				continue ;
 			}
 
-			if (link.getTargetNamespace()==SiteInfo.CATEGORY_KEY) 
-				handleCategoryLink(page, link, collector) ;
+			if (link.getTargetNamespace()==SiteInfo.CATEGORY_KEY) {
+				String parentTitle = Util.normaliseTitle(link.getTargetTitle()) ;
+				PageDetail parent = buildCategoryParent(page, link) ;
+				
+				if (parent != null)
+					categoryParents.put(parentTitle, parent) ;	
+			}
 
-			if (link.getTargetNamespace()==SiteInfo.MAIN_KEY) 
-				handleArticleLink(page, link, linkRegion[0], collector) ;
+			if (link.getTargetNamespace()==SiteInfo.MAIN_KEY) {
+				String targetTitle = Util.normaliseTitle(link.getTargetTitle()) ;
+				
+				PageDetail target = linkTargets.get(targetTitle) ;
+				if (target == null)
+					target = PageSummaryStep.buildEmptyPageDetail() ;
+				
+				target = buildLinkTarget(page, link, linkRegion[0], target) ;
 
+				linkTargets.put(targetTitle, target) ;
+				
+			}
+				
 
-
-			//TODO: how do we get translations now?
-		}			
+			
+		}
+		
+		//emit collected link targets
+		for (Map.Entry<String,PageDetail> e:linkTargets.entrySet()) {
+			PageKey targetKey = new PageKey(SiteInfo.MAIN_KEY, e.getKey()) ;
+			collect(targetKey, e.getValue(), collector) ;
+		}
+		
+		//emit collected category parents
+		for (Map.Entry<String,PageDetail> e:categoryParents.entrySet()) {
+			PageKey parentKey = new PageKey(SiteInfo.CATEGORY_KEY, e.getKey()) ;
+			collect(parentKey, e.getValue(), collector) ;
+		}
+		
+		
 	}
 
+	
 
 
 
-
-
-	/**
-	 * This will emit a pair that will associate this current page as the source of an in-link to the target article.
-	 * The link will need to be backtracked before we can register the target as a out link from the source. 
-	 * It may also need to be forwarded via any redirects 
-	 * 
-	 * @param currPage
-	 * @param link
-	 * @param collector
-	 * @throws IOException 
-	 */
-	private void handleArticleLink(PageDetail currPage, DumpLink link, int linkStart, OutputCollector<AvroKey<PageKey>, AvroValue<PageDetail>> collector) throws IOException {
+	private PageDetail buildLinkTarget(PageDetail currPage, DumpLink link, int linkStart, PageDetail targetPage) {
 
 		/*
 		emit details of this link, so it can be picked up by target
@@ -333,45 +357,47 @@ public class InitialMapper extends MapReduceBase implements Mapper<LongWritable,
 		
 		//basics about the link source
 		
-		LinkSummary source = new LinkSummary() ;
-		source.setId(currPage.getId());
-		source.setTitle(currPage.getTitle());
-		source.setNamespace(currPage.getNamespace()) ;
-		source.setForwarded(false) ;
+		LinkSummary source ;
+		if (targetPage.getLinksIn().isEmpty()) {
 		
+			source = new LinkSummary() ;
+			source.setId(currPage.getId());
+			source.setTitle(currPage.getTitle());
+			source.setNamespace(currPage.getNamespace()) ;
+			source.setForwarded(false) ;
+			source.setSentenceIndexes(new ArrayList<Integer>());
+		
+			targetPage.getLinksIn().add(source) ;
+		} else {
+			source = targetPage.getLinksIn().get(0) ;
+		}
 		
 		//sentence index of the link
-		
 		int sentenceIndex = Collections.binarySearch(currPage.getSentenceSplits(), linkStart) ;
 		if (sentenceIndex < 0)
 			sentenceIndex = ((1-sentenceIndex) - 1) ;
 		
-		List<Integer> sentenceIndexes = new ArrayList<Integer>() ;
-		sentenceIndexes.add(sentenceIndex) ;
-		
-		source.setSentenceIndexes(sentenceIndexes);
-		
+		source.getSentenceIndexes().add(sentenceIndex) ;
 		
 		//the anchor text of the link
-
-		LabelCount labelCount = new LabelCount() ;
-		labelCount.setLabel(link.getAnchor()) ;
-		labelCount.setCount(1) ;
-
+		LabelSummary label = targetPage.getLabels().get(link.getAnchor()) ;
 		
-		
-		
-		
-		
+		if (label == null) {
+			label = new LabelSummary() ;
+			label.setDocCount(1) ;
+			label.setOccCount(1) ;	
+			
+			targetPage.getLabels().put(link.getAnchor(), label) ;
+		} else {
+			label.setOccCount(label.getOccCount() + 1);
+		}
 		
 		//associate everything with target of link
-		PageDetail target = PageSummaryStep.buildEmptyPageDetail() ;
-		target.getLinksIn().add(source) ;
-		target.getLabelCounts().add(labelCount) ;
+		//PageDetail target = PageSummaryStep.buildEmptyPageDetail() ;
+		//target.getLinksIn().add(source) ;
+		//target.getLabels().add(label) ;
 
-		PageKey targetKey = new PageKey(link.getTargetNamespace(), Util.normaliseTitle(link.getTargetTitle())) ;
-
-		collect(targetKey, target, collector) ;
+		return targetPage ;
 	}
 
 	/**
@@ -381,10 +407,9 @@ public class InitialMapper extends MapReduceBase implements Mapper<LongWritable,
 	 * 
 	 * @param currPage
 	 * @param link
-	 * @param collector
 	 * @throws IOException 
 	 */
-	private void handleCategoryLink(PageDetail currPage, DumpLink link, OutputCollector<AvroKey<PageKey>, AvroValue<PageDetail>> collector) throws IOException {
+	private PageDetail buildCategoryParent(PageDetail currPage, DumpLink link) {
 
 		//emit details of this link, so it can be picked up by target
 		PageSummary child = new PageSummary() ;
@@ -401,11 +426,9 @@ public class InitialMapper extends MapReduceBase implements Mapper<LongWritable,
 		else if (currPage.getNamespace() == SiteInfo.MAIN_KEY)
 			parent.getChildArticles().add(child);
 		else
-			return ;
+			return null ;
 
-		PageKey parentKey = new PageKey(link.getTargetNamespace(), Util.normaliseTitle(link.getTargetTitle())) ;
-
-		collect(parentKey, parent, collector) ;
+		return parent ;
 	}
 
 

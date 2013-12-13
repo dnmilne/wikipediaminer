@@ -13,7 +13,7 @@ import org.apache.avro.mapred.AvroReducer;
 import org.apache.avro.mapred.Pair;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.log4j.Logger;
-import org.wikipedia.miner.extract.model.struct.LabelCount;
+import org.wikipedia.miner.extract.model.struct.LabelSummary;
 import org.wikipedia.miner.extract.model.struct.LinkSummary;
 import org.wikipedia.miner.extract.model.struct.PageDetail;
 import org.wikipedia.miner.extract.model.struct.PageKey;
@@ -51,7 +51,7 @@ public abstract class CombinerOrReducer extends AvroReducer<PageKey, PageDetail,
 		SortedMap<Integer,PageSummary> childCategories = new TreeMap<Integer, PageSummary>() ;
 		SortedMap<Integer,PageSummary> childArticles = new TreeMap<Integer, PageSummary>() ;
 
-		SortedMap<CharSequence,Integer> labelCounts = new TreeMap<CharSequence,Integer>() ;
+		SortedMap<CharSequence,LabelSummary> labels = new TreeMap<CharSequence,LabelSummary>() ;
 
 		boolean debug = false ;
 		for(String debugTitle:debugTitles) {
@@ -105,20 +105,19 @@ public abstract class CombinerOrReducer extends AvroReducer<PageKey, PageDetail,
 			childCategories = addToPageMap(pagePartial.getChildCategories(), childCategories) ;
 			childArticles = addToPageMap(pagePartial.getChildArticles(), childArticles) ;
 
-			for (LabelCount lc:pagePartial.getLabelCounts()) {
+			for (Map.Entry<CharSequence, LabelSummary> e:pagePartial.getLabels().entrySet()) {
+				
+				CharSequence label = e.getKey() ;
+				
+				LabelSummary labelStats = labels.get(label) ;
+				
+				if (labelStats == null) 
+					labelStats = new LabelSummary(0,0) ;
+				
+				labelStats.setDocCount(labelStats.getDocCount() + e.getValue().getDocCount());
+				labelStats.setOccCount(labelStats.getOccCount() + e.getValue().getOccCount());
 
-				//the clone is needed because avro seems to reuse these instances.
-				//if we don't clone it, it will get overwritten
-				LabelCount lcCopy = LabelCount.newBuilder(lc).build() ;
-
-				Integer count = labelCounts.get(lcCopy.getLabel()) ;
-
-				if (count == null)
-					count = 0 ;
-
-				count = count + lcCopy.getCount() ;
-
-				labelCounts.put(lcCopy.getLabel(), count) ;
+				labels.put(label, labelStats) ;
 			}
 
 		}
@@ -167,9 +166,8 @@ public abstract class CombinerOrReducer extends AvroReducer<PageKey, PageDetail,
 		combinedPage.setChildCategories(convertPagesToList(childCategories, true));
 		combinedPage.setChildArticles(convertPagesToList(childArticles, true));
 
-		for (Map.Entry<CharSequence,Integer> e:labelCounts.entrySet()) 
-			combinedPage.getLabelCounts().add(new LabelCount(e.getKey(), e.getValue())) ;
-
+		combinedPage.setLabels(labels);
+		
 
 		//count stuff that needs to be forwarded, so we know wheither another iteration is needed
 

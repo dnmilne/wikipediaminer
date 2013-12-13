@@ -39,11 +39,11 @@
     },
     {
     	"type": "record",
-    	"name": "LabelCount",
+    	"name": "LabelSummary",
     	"namespace": "org.wikipedia.miner.extract.model.struct",
     	"fields": [
-         	{"name": "label", "type": "string"},
-         	{"name": "count", "type": "int"}
+         	{"name": "docCount", "type": "int"},
+         	{"name": "occCount", "type": "int"}
       	]   
     },
     {
@@ -55,6 +55,8 @@
          {"name": "title", "type": ["string", "null"]},
          {"name": "namespace", "type": ["int", "null"]},
          {"name": "lastEdited", "type": ["long","null"]},
+         {"name": "depth", "type": ["int","null"]},
+         {"name": "depthForwarded", "type": "boolean"},
          {
           "name": "sentenceSplits", 
           "type": {
@@ -106,10 +108,10 @@
           }
          },
          {
-          "name": "labelCounts", 
+          "name": "labels", 
           "type": {
-            "type": "array",
-            "items": "LabelCount"
+            "type": "map",
+            "values": "LabelSummary"
           }
          }
       ]

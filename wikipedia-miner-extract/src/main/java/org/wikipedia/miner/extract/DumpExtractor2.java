@@ -18,6 +18,7 @@ import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.util.GenericOptionsParser;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
+import org.wikipedia.miner.extract.pageDepth.PageDepthStep;
 import org.wikipedia.miner.extract.pageSummary.PageSummaryStep;
 import org.wikipedia.miner.extract.util.LanguageConfiguration;
 
@@ -32,7 +33,6 @@ import org.wikipedia.miner.extract.util.LanguageConfiguration;
  * 
  *  
  */
-@SuppressWarnings("deprecation")
 public class DumpExtractor2 {
 
 	private Configuration conf ;
@@ -199,12 +199,12 @@ public class DumpExtractor2 {
 
 		
 		//extract basic page summaries
-		int iteration = 0 ;
+		int summaryIteration = 0 ;
 		while (true) {
 			
 			//long startTime = System.currentTimeMillis() ;
 			
-			PageSummaryStep step = new PageSummaryStep(workingDir, iteration) ;
+			PageSummaryStep step = new PageSummaryStep(workingDir, summaryIteration) ;
 			ToolRunner.run(new Configuration(), step, args);
 			
 			//System.out.println("intitial step completed in " + timeFormat.format(System.currentTimeMillis()-startTime)) ;
@@ -212,7 +212,21 @@ public class DumpExtractor2 {
 			if (!step.furtherIterationsRequired())
 				break ;
 			else
-				iteration++ ;
+				summaryIteration++ ;
+		}
+		
+		
+		//calculate page depths
+		int depthIteration = 0 ;
+		while (true) {
+			
+			PageDepthStep step = new PageDepthStep(workingDir, depthIteration, summaryIteration) ;
+			ToolRunner.run(new Configuration(), step, args);
+			
+			if (!step.furtherIterationsRequired())
+				break ;
+			else
+				depthIteration++ ;
 		}
 		
 			
