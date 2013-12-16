@@ -68,9 +68,11 @@ public class TestMarkupHandling {
 		assertEquals(markup.length(), strippedMarkup.length()) ;
 		
 		List<Integer> sentenceSplits = sentenceExtractor.getSentenceSplits(page) ;
-		System.out.println(StringUtils.join(sentenceSplits, ",")) ;
+		//System.out.println(StringUtils.join(sentenceSplits, ",")) ;
 		
+		assertEquals(sentenceSplits.size(), 34) ;
 		
+		/*
 		int lastSplit = 0 ;
 		for (int split : sentenceSplits) {
 			
@@ -78,6 +80,7 @@ public class TestMarkupHandling {
 			
 			lastSplit = split ;
 		}
+		*/
 	}
 
 	

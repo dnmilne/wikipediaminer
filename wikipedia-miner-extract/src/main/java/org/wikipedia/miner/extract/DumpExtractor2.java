@@ -18,6 +18,7 @@ import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.util.GenericOptionsParser;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
+import org.wikipedia.miner.extract.labelSenses.LabelSensesStep;
 import org.wikipedia.miner.extract.pageDepth.PageDepthStep;
 import org.wikipedia.miner.extract.pageSummary.PageSummaryStep;
 import org.wikipedia.miner.extract.util.LanguageConfiguration;
@@ -221,14 +222,18 @@ public class DumpExtractor2 {
 		int depthIteration = 0 ;
 		while (true) {
 			
-			PageDepthStep step = new PageDepthStep(workingDir, depthIteration, summaryStep) ;
-			ToolRunner.run(new Configuration(), step, args);
+			PageDepthStep depthStep = new PageDepthStep(workingDir, depthIteration, summaryStep) ;
+			ToolRunner.run(new Configuration(), depthStep, args);
 			
-			if (!step.furtherIterationsRequired())
+			if (!depthStep.furtherIterationsRequired())
 				break ;
 			else
 				depthIteration++ ;
 		}
+		
+		//gather senses
+		LabelSensesStep sensesStep = new LabelSensesStep(workingDir, summaryStep) ;
+		ToolRunner.run(new Configuration(), sensesStep, args);
 		
 			
 		return 0 ;

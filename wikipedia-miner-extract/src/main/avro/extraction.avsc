@@ -130,5 +130,36 @@
           }
          }
       ]
+    },
+    
+    {
+      "type": "record",
+      "name": "LabelSense",
+      "namespace": "org.wikipedia.miner.extract.model.struct",
+      "fields": [
+      	{"name": "id", "type": "int"},
+      	{"name": "docCount", "type": "int"},
+      	{"name": "occCount", "type": "int"},
+        {"name": "fromTitle", "type": "boolean"},
+        {"name": "fromRedirect", "type": "boolean"}
+      ]
+    },
+    
+    {
+      "type": "record",
+      "name": "LabelSenseList",
+      "namespace": "org.wikipedia.miner.extract.model.struct",
+      "fields": [
+      	{
+          "name": "senses", 
+          "type": {
+            "type": "array",
+            "items": "LabelSense"
+          }
+        }
+      ]
     }
+    
+    
+    
   ]
