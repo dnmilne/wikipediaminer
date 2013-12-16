@@ -19,6 +19,7 @@ public abstract class WMService extends Service {
 
 	protected StringArrayParameter prmWikipedia ;
 
+        @Override
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
 

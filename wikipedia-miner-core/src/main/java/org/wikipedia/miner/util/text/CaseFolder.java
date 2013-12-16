@@ -19,6 +19,8 @@
 
 package org.wikipedia.miner.util.text;
 
+import org.wikipedia.miner.util.text.TextProcessor;
+
 /**
  * @author dnk2
  *
@@ -27,6 +29,7 @@ package org.wikipedia.miner.util.text;
 public class CaseFolder extends TextProcessor {
 
 
+        @Override
 	public String processText(String text) {
 		return text.toLowerCase() ;
 	}

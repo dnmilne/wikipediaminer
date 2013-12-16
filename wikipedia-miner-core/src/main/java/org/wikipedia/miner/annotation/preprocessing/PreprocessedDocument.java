@@ -29,14 +29,14 @@ import java.util.* ;
  */
 public class PreprocessedDocument {
 
-	private String originalText ;
-	private String preprocessedText ;
-	private String contextText ;
+	private final String originalText ;
+	private final String preprocessedText ;
+	private final String contextText ;
 	private HashSet<Integer> bannedTopics ;
-	private ArrayList<RegionTag> regionTags ;
+	private final ArrayList<RegionTag> regionTags ;
 
 	//region tracking
-	private Vector<HashSet<Integer>> doneIdsStack ;
+	private List<HashSet<Integer>> doneIdsStack ;
 	private HashSet<Integer> doneIds ;
 	private int nextTagIndex ;
 
@@ -68,7 +68,7 @@ public class PreprocessedDocument {
 	 * This should only be used by the document tagger. 
 	 */
 	public void resetRegionTracking() {
-		doneIdsStack = new Vector<HashSet<Integer>>() ;
+		doneIdsStack = new ArrayList<HashSet<Integer>>() ;
 		doneIds = new HashSet<Integer>() ;
 		nextTagIndex = 0 ;
 	}
@@ -157,7 +157,7 @@ public class PreprocessedDocument {
 					if (doneIdsStack.isEmpty()) 
 						doneIds = new HashSet<Integer>() ;	
 					else {
-						doneIds = doneIdsStack.lastElement() ;
+						doneIds = doneIdsStack.get(doneIdsStack.size()-1);
 						doneIdsStack.remove(doneIdsStack.size()-1) ;
 					}
 				}
@@ -194,8 +194,8 @@ public class PreprocessedDocument {
 		 */
 		public static final int REGION_SPLIT = 3 ;
 
-		private int pos ;
-		private int type ;
+		private final int pos ;
+		private final int type ;
 
 		/**
 		 * Initializes a region tag with the given type and location
@@ -222,10 +222,12 @@ public class PreprocessedDocument {
 			return type ;
 		}
 
+                @Override
 		public int compareTo(RegionTag rt) {
 			return new Integer(pos).compareTo(rt.getPosition()) ;
 		}
 
+                @Override
 		public String toString() {
 			switch(type) {
 			case REGION_OPEN: return "(" + pos + ",OPEN)" ;
