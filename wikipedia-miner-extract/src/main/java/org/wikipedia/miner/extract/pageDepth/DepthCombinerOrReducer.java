@@ -1,20 +1,23 @@
 package org.wikipedia.miner.extract.pageDepth;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.avro.mapred.AvroCollector;
 import org.apache.avro.mapred.AvroReducer;
 import org.apache.avro.mapred.Pair;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.log4j.Logger;
+import org.wikipedia.miner.extract.model.struct.PageDepthSummary;
 import org.wikipedia.miner.extract.model.struct.PageDetail;
 import org.wikipedia.miner.extract.model.struct.PageKey;
 import org.wikipedia.miner.extract.pageSummary.PageSummaryStep;
 import org.wikipedia.miner.extract.util.SiteInfo;
 
-public abstract class DepthCombinerOrReducer extends AvroReducer<PageKey, PageDetail, Pair<PageKey, PageDetail>> {
+public abstract class DepthCombinerOrReducer extends AvroReducer<Integer, PageDepthSummary, Pair<Integer, PageDepthSummary>> {
 
-	public enum Counts {unforwarded, categoriesWithDepth, categoriesWithoutDepth, articlesWithDepth, articlesWithoutDepth} ;
+	public enum Counts {unforwarded, withDepth,withoutDepth} ;
 	
 	private static Logger logger = Logger.getLogger(DepthCombinerOrReducer.class) ;
 
@@ -22,78 +25,60 @@ public abstract class DepthCombinerOrReducer extends AvroReducer<PageKey, PageDe
 	
 
 	@Override
-	public void reduce(PageKey key, Iterable<PageDetail> pagePartials,
-			AvroCollector<Pair<PageKey, PageDetail>> collector,
+	public void reduce(Integer pageId, Iterable<PageDepthSummary> partials,
+			AvroCollector<Pair<Integer, PageDepthSummary>> collector,
 			Reporter reporter) throws IOException {
 		
 		Integer minDepth = null ;
 		boolean depthForwarded = false ;
 		
-		PageDetail pageDetail = null ;
+		List<Integer> childIds = new ArrayList<Integer>();
 		
 		
-		for (PageDetail pagePartial:pagePartials) {
-			
-			//if we know the id, then this partial must have the rest of the detail
-			
-			if (pagePartial.getId() != null)
-				pageDetail = PageSummaryStep.clone(pagePartial) ;
-			
-			if (pagePartial.getDepth() != null) {
-				if (minDepth == null || minDepth > pagePartial.getDepth())  {
-					minDepth = pagePartial.getDepth().intValue() ;
-					depthForwarded = pagePartial.getDepthForwarded() ;
+		for (PageDepthSummary partial:partials) {
+				
+			if (partial.getDepth() != null) {
+				if (minDepth == null || minDepth > partial.getDepth())  {
+					minDepth = partial.getDepth().intValue() ;
+					depthForwarded = partial.getDepthForwarded() ;
 				}
 			}
-
-		}
-		
-		if (pageDetail == null) {
-			if (isReducer())
-				throw new IOException("Could not retrieve full details of " + key);
-			else
-				pageDetail = PageSummaryStep.buildEmptyPageDetail() ;			
-		}
-		
-		if (pageDetail.getRedirectsTo() != null || (key.getNamespace() != SiteInfo.CATEGORY_KEY && key.getNamespace() != SiteInfo.MAIN_KEY)) {
 			
-			//if this is a redirect or neither article nor category, just pass directly along
-			collector.collect(new Pair<PageKey,PageDetail>(key,pageDetail));	
+			if (!partial.getChildIds().isEmpty())
+				childIds.addAll(partial.getChildIds()) ;
+		}
+		
+		
+		
+		
+		//if we haven't reached this node yet, just pass on as it is
+		if (minDepth == null) {
+			
+			if (isReducer())
+				reporter.getCounter(Counts.withoutDepth).increment(1);
+			
+			InitialDepthMapper.collect(pageId, new PageDepthSummary(minDepth, depthForwarded, childIds), collector);
 			return ;
 		}
-		
-
-		//depth forwarding is only required for categories
-		if (key.getNamespace() != SiteInfo.CATEGORY_KEY)
-			depthForwarded = true ;
-		
-		
-		//count stuff
+	
 		if (isReducer() ) {
-		
-			if (minDepth == null) {
+			
+			//depth forwarding is only required for pages with children
+			if (childIds.isEmpty())
+				depthForwarded = true ;
+			
+			//if we have already forwarded all details to children, then we don't need to keep track of them any more
+			if (depthForwarded)
+				childIds = new ArrayList<Integer>() ;
+			
+			//count stuff
+			reporter.getCounter(Counts.withDepth).increment(1);
 				
-				if (key.getNamespace() == SiteInfo.CATEGORY_KEY)
-					reporter.getCounter(Counts.categoriesWithoutDepth).increment(1);
-				else
-					reporter.getCounter(Counts.articlesWithoutDepth).increment(1);
-				
-			} else {
-				
-				if (!depthForwarded) 
-					reporter.getCounter(Counts.unforwarded).increment(1);
-				
-				if (key.getNamespace() == SiteInfo.CATEGORY_KEY)
-					reporter.getCounter(Counts.categoriesWithDepth).increment(1);
-				else
-					reporter.getCounter(Counts.articlesWithDepth).increment(1);
-			}			
+			if (!depthForwarded) 
+				reporter.getCounter(Counts.unforwarded).increment(1);		
 		}
 		
-		pageDetail.setDepth(minDepth);
-		pageDetail.setDepthForwarded(depthForwarded);
-			
-		collector.collect(new Pair<PageKey,PageDetail>(key,pageDetail));	
+		InitialDepthMapper.collect(pageId, new PageDepthSummary(minDepth, depthForwarded, childIds), collector);	
 		
 	}
 	

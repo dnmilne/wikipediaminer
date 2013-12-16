@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.avro.Schema;
+import org.apache.avro.Schema.Type;
 import org.apache.avro.mapred.AvroJob;
 import org.apache.avro.mapred.Pair;
 import org.apache.hadoop.filecache.DistributedCache;
@@ -19,30 +21,30 @@ import org.apache.hadoop.mapred.JobStatus;
 import org.apache.hadoop.mapred.RunningJob;
 import org.wikipedia.miner.extract.DumpExtractor;
 import org.wikipedia.miner.extract.DumpExtractor2;
+import org.wikipedia.miner.extract.IterativeStep;
 import org.wikipedia.miner.extract.Step;
+import org.wikipedia.miner.extract.model.struct.PageDepthSummary;
 import org.wikipedia.miner.extract.model.struct.PageDetail;
 import org.wikipedia.miner.extract.model.struct.PageKey;
 import org.wikipedia.miner.extract.pageDepth.DepthCombinerOrReducer.DepthCombiner;
 import org.wikipedia.miner.extract.pageDepth.DepthCombinerOrReducer.DepthReducer;
 import org.wikipedia.miner.extract.pageDepth.DepthCombinerOrReducer.Counts;
-import org.wikipedia.miner.extract.pageSummary.PageSummaryStep.Unforwarded;
+import org.wikipedia.miner.extract.pageSummary.PageSummaryStep;
 import org.wikipedia.miner.extract.util.UncompletedStepException;
 
 
-public class PageDepthStep extends Step {
+public class PageDepthStep extends IterativeStep {
 
-	private int iteration ;
-	private int finalSummaryIteration ;
+	private PageSummaryStep finalPageSummaryStep ;
 
 	private Map<Counts,Long> counts ;
 
 
 
-	public PageDepthStep(Path workingDir, int iteration, int finalSummaryIteration) throws IOException {
-		super(workingDir);
+	public PageDepthStep(Path workingDir, int iteration, PageSummaryStep finalPageSummaryStep) throws IOException {
+		super(workingDir, iteration);
 
-		this.iteration = iteration ;
-		this.finalSummaryIteration = finalSummaryIteration ;
+		this.finalPageSummaryStep = finalPageSummaryStep ;
 	}
 
 	@Override
@@ -58,20 +60,27 @@ public class PageDepthStep extends Step {
 		JobConf conf = new JobConf(PageDepthStep.class);
 		DumpExtractor2.configureJob(conf, args) ;
 
-		conf.setJobName("WM: page depth (" + iteration + ")");
+		conf.setJobName("WM: page depth (" + getIteration() + ")");
 		
-		if (iteration == 0) 
-			FileInputFormat.setInputPaths(conf, getWorkingDir() + Path.SEPARATOR + "pageSummary_" + finalSummaryIteration);
-		else
-			FileInputFormat.setInputPaths(conf, getWorkingDir() + Path.SEPARATOR + "pageDepth_" + (iteration-1));
+		if (getIteration() == 0) {
 		
-		AvroJob.setInputSchema(conf, Pair.getPairSchema(PageKey.getClassSchema(),PageDetail.getClassSchema()));
-		AvroJob.setOutputSchema(conf, Pair.getPairSchema(PageKey.getClassSchema(),PageDetail.getClassSchema()));
-		
-		
-		DistributedCache.addCacheFile(new Path(conf.get(DumpExtractor.KEY_LANG_FILE)).toUri(), conf);
-		
-		AvroJob.setMapperClass(conf, DepthMapper.class);
+			FileInputFormat.setInputPaths(conf, getWorkingDir() + Path.SEPARATOR + finalPageSummaryStep.getDirName());
+			AvroJob.setInputSchema(conf, Pair.getPairSchema(PageKey.getClassSchema(),PageDetail.getClassSchema()));
+			
+			DistributedCache.addCacheFile(new Path(conf.get(DumpExtractor.KEY_LANG_FILE)).toUri(), conf);
+			
+			AvroJob.setMapperClass(conf, InitialDepthMapper.class);
+			
+		} else {
+			
+			FileInputFormat.setInputPaths(conf, getWorkingDir() + Path.SEPARATOR + getDirName(getIteration()-1));
+			AvroJob.setInputSchema(conf, Pair.getPairSchema(Schema.create(Type.INT),PageDepthSummary.getClassSchema()));
+			
+			AvroJob.setMapperClass(conf, SubsequentDepthMapper.class);
+		}
+			
+		AvroJob.setOutputSchema(conf, Pair.getPairSchema(Schema.create(Type.INT),PageDepthSummary.getClassSchema()));
+				
 		AvroJob.setCombinerClass(conf, DepthCombiner.class) ;
 		AvroJob.setReducerClass(conf, DepthReducer.class);
 		
@@ -93,10 +102,8 @@ public class PageDepthStep extends Step {
 
 
 	@Override
-	public String getDirName() {
-		// TODO Auto-generated method stub
+	public String getDirName(int iteration) {
 		return "pageDepth_" + iteration ;
-
 	}
 
 	private Path getCountsPath() {

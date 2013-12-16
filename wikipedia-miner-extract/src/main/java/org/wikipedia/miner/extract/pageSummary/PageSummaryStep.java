@@ -22,7 +22,7 @@ import org.apache.hadoop.mapred.JobStatus;
 import org.apache.hadoop.mapred.RunningJob;
 import org.wikipedia.miner.extract.DumpExtractor;
 import org.wikipedia.miner.extract.DumpExtractor2;
-import org.wikipedia.miner.extract.Step;
+import org.wikipedia.miner.extract.IterativeStep;
 import org.wikipedia.miner.extract.model.struct.LabelSummary;
 import org.wikipedia.miner.extract.model.struct.LinkSummary;
 import org.wikipedia.miner.extract.model.struct.PageDetail;
@@ -49,24 +49,22 @@ import org.wikipedia.miner.extract.util.XmlInputFormat;
  * Subsequent iterations read from the results of the previous iteration.
  *
  */
-public class PageSummaryStep extends Step {
+public class PageSummaryStep extends IterativeStep {
 
 	
 
 	public enum PageType {article, category, disambiguation, articleRedirect, categoryRedirect, unparseable} ; 
 	public enum Unforwarded {redirect,linkIn,linkOut,parentCategory,childCategory,childArticle} ; 
 
-	
-	private int iteration ;
+
 	private Map<Unforwarded,Long> unforwardedCounts ;
 
 
 	
 	public PageSummaryStep(Path workingDir, int iteration) throws IOException {
-		super(workingDir);
+		super(workingDir, iteration);
 		
-		this.iteration = iteration ;
-		
+
 	}
 	
 
@@ -99,7 +97,6 @@ public class PageSummaryStep extends Step {
 	public static PageDetail buildEmptyPageDetail() {
 
 		PageDetail p = new PageDetail() ;
-		p.setDepthForwarded(false);
 		p.setSentenceSplits(new ArrayList<Integer>());
 		p.setRedirects(new ArrayList<PageSummary>()) ;
 		p.setLinksIn(new ArrayList<LinkSummary>());
@@ -127,9 +124,9 @@ public class PageSummaryStep extends Step {
 		JobConf conf = new JobConf(PageSummaryStep.class);
 		DumpExtractor2.configureJob(conf, args) ;
 
-		conf.setJobName("WM: page summary (" + iteration + ")");
+		conf.setJobName("WM: page summary (" + getIteration() + ")");
 		
-		if (iteration == 0) {
+		if (getIteration() == 0) {
 			
 			conf.setMapperClass(InitialMapper.class);
 
@@ -150,7 +147,7 @@ public class PageSummaryStep extends Step {
 			AvroJob.setMapperClass(conf, SubsequentMapper.class);
 			AvroJob.setInputSchema(conf, Pair.getPairSchema(PageKey.getClassSchema(),PageDetail.getClassSchema()));
 		
-			FileInputFormat.setInputPaths(conf, getWorkingDir() + Path.SEPARATOR + "pageSummary_" + (iteration-1));
+			FileInputFormat.setInputPaths(conf, getWorkingDir() + Path.SEPARATOR + "pageSummary_" + (getIteration()-1));
 			
 		}
 		
@@ -176,10 +173,9 @@ public class PageSummaryStep extends Step {
 
 
 	@Override
-	public String getDirName() {
-		// TODO Auto-generated method stub
-		return "pageSummary_" + iteration ;
+	public String getDirName(int iteration) {
 		
+		return "pageSummary_" + iteration ;
 	}
 	
 	private Path getUnforwardedCountsPath() {

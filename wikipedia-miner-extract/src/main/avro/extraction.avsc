@@ -55,8 +55,6 @@
          {"name": "title", "type": ["string", "null"]},
          {"name": "namespace", "type": ["int", "null"]},
          {"name": "lastEdited", "type": ["long","null"]},
-         {"name": "depth", "type": ["int","null"]},
-         {"name": "depthForwarded", "type": "boolean"},
          {
           "name": "sentenceSplits", 
           "type": {
@@ -112,6 +110,23 @@
           "type": {
             "type": "map",
             "values": "LabelSummary"
+          }
+         }
+      ]
+    },
+    
+    {
+      "type": "record",
+      "name": "PageDepthSummary",
+      "namespace": "org.wikipedia.miner.extract.model.struct",
+      "fields": [
+      	{"name": "depth", "type": ["int","null"]},
+        {"name": "depthForwarded", "type": "boolean"},
+        {
+          "name": "childIds", 
+          "type": {
+            "type": "array",
+            "items": "int"
           }
          }
       ]

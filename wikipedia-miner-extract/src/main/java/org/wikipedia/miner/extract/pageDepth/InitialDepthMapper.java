@@ -1,6 +1,7 @@
 package org.wikipedia.miner.extract.pageDepth;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import org.apache.avro.mapred.AvroCollector;
 import org.apache.avro.mapred.AvroMapper;
@@ -11,17 +12,17 @@ import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.log4j.Logger;
 import org.wikipedia.miner.extract.DumpExtractor;
+import org.wikipedia.miner.extract.model.struct.PageDepthSummary;
 import org.wikipedia.miner.extract.model.struct.PageDetail;
 import org.wikipedia.miner.extract.model.struct.PageKey;
 import org.wikipedia.miner.extract.model.struct.PageSummary;
-import org.wikipedia.miner.extract.pageSummary.PageSummaryStep;
 import org.wikipedia.miner.extract.util.LanguageConfiguration;
 import org.wikipedia.miner.extract.util.SiteInfo;
 import org.wikipedia.miner.extract.util.Util;
 
-public class DepthMapper extends AvroMapper<Pair<PageKey, PageDetail>, Pair<PageKey, PageDetail>> {
+public class InitialDepthMapper extends AvroMapper<Pair<PageKey, PageDetail>, Pair<Integer, PageDepthSummary>> {
 
-	private static Logger logger = Logger.getLogger(DepthMapper.class) ;
+	private static Logger logger = Logger.getLogger(SubsequentDepthMapper.class) ;
 	
 	private String rootCategoryTitle ;
 	
@@ -61,7 +62,7 @@ public class DepthMapper extends AvroMapper<Pair<PageKey, PageDetail>, Pair<Page
 	
 	@Override
 	public void map(Pair<PageKey, PageDetail> pair,
-			AvroCollector<Pair<PageKey, PageDetail>> collector,
+			AvroCollector<Pair<Integer, PageDepthSummary>> collector,
 			Reporter reporter) throws IOException {
 		
 		if (rootCategoryTitle == null)
@@ -70,31 +71,34 @@ public class DepthMapper extends AvroMapper<Pair<PageKey, PageDetail>, Pair<Page
 		PageKey pageKey = pair.key() ;
 		PageDetail page = pair.value() ;
 		
-		if (!pageKey.getNamespace().equals(SiteInfo.CATEGORY_KEY)) {
-			//this only effects categories, just pass other page types along directly
-			collect(pageKey, page, collector);
+		if (!pageKey.getNamespace().equals(SiteInfo.CATEGORY_KEY) && !pageKey.getNamespace().equals(SiteInfo.MAIN_KEY)) {
+			//this only effects articles and categories, just discard other page types
 			return ;
 		}
 		
-		if (page.getDepthForwarded()) {
-			//if we have already processed this in previous iterations, just pass it along directly
-			collect(pageKey, page, collector);
+		if (page.getRedirectsTo() != null) {
+			//this doesn't effect redirects, so just discard them
 			return ;
 		}
 		
-	
-		if (page.getDepth() != null) {
-			shareDepth(page, collector, reporter) ;
-		} else if (rootCategoryTitle.equals(pageKey.getTitle().toString())) {
-				
-			page.setDepth(0) ;
-			shareDepth(page, collector, reporter) ;
+		PageDepthSummary depthSummary = new PageDepthSummary() ;
+		depthSummary.setChildIds(new ArrayList<Integer>()) ;
+		
+		for (PageSummary childCat:page.getChildCategories()) 
+			depthSummary.getChildIds().add(childCat.getId()) ;
+		
+		for (PageSummary childArt:page.getChildArticles())
+			depthSummary.getChildIds().add(childArt.getId()) ;
+		
+		if (rootCategoryTitle.equals(pageKey.getTitle().toString())) {
+			depthSummary.setDepth(0) ;
+			shareDepth(depthSummary, collector, reporter) ;
 		} 
 		
-		collect(pageKey, page, collector);		
+		collect(page.getId(), depthSummary, collector);		
 	}
 	
-	private void shareDepth(PageDetail page, AvroCollector<Pair<PageKey, PageDetail>> collector, Reporter reporter) throws IOException {
+	public static void shareDepth(PageDepthSummary page, AvroCollector<Pair<Integer, PageDepthSummary>> collector, Reporter reporter) throws IOException {
 		
 		if (page.getDepth() == null)
 			return ;
@@ -102,36 +106,22 @@ public class DepthMapper extends AvroMapper<Pair<PageKey, PageDetail>, Pair<Page
 		if (page.getDepthForwarded())
 			return ;
 		
-		if (page.getNamespace() != SiteInfo.CATEGORY_KEY)
-			return ;
-		
-		logger.info("sharing depths for " + page.getTitle() + ": " + page.getDepth());
-		
-		for (PageSummary cc: page.getChildCategories()) {
+		//logger.info("sharing depths for " + page.getTitle() + ": " + page.getDepth());
+		for (Integer childId:page.getChildIds()) {
 			
-			PageDetail child = PageSummaryStep.buildEmptyPageDetail() ;
+			PageDepthSummary child = new PageDepthSummary() ;
 			child.setDepth(page.getDepth() + 1);
 			child.setDepthForwarded(false);
+			child.setChildIds(new ArrayList<Integer>());
 			
-			PageKey childKey = new PageKey(SiteInfo.CATEGORY_KEY, cc.getTitle()) ;
-			collect(childKey, child, collector) ;
+			collect(childId, child, collector) ;
 		}
 		
-		for (PageSummary ca: page.getChildArticles()) {
-			
-			PageDetail child = PageSummaryStep.buildEmptyPageDetail() ;
-			child.setDepth(page.getDepth() + 1);
-			child.setDepthForwarded(false);
-			
-			PageKey childKey = new PageKey(SiteInfo.MAIN_KEY, ca.getTitle()) ;
-			collect(childKey, child, collector) ;
-		}
-				
 		page.setDepthForwarded(true);
 	}
 	
-	private void collect(PageKey key, PageDetail page, AvroCollector<Pair<PageKey, PageDetail>> collector) throws IOException {
-		collector.collect(new Pair<PageKey,PageDetail>(key,page));
+	public static void collect(Integer pageId, PageDepthSummary pageDepth, AvroCollector<Pair<Integer, PageDepthSummary>> collector) throws IOException {
+		collector.collect(new Pair<Integer,PageDepthSummary>(pageId,pageDepth));
 	}
 		
 	

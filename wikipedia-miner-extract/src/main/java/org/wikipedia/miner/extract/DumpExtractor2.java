@@ -200,16 +200,17 @@ public class DumpExtractor2 {
 		
 		//extract basic page summaries
 		int summaryIteration = 0 ;
+		PageSummaryStep summaryStep ; 
 		while (true) {
 			
 			//long startTime = System.currentTimeMillis() ;
 			
-			PageSummaryStep step = new PageSummaryStep(workingDir, summaryIteration) ;
-			ToolRunner.run(new Configuration(), step, args);
+			summaryStep = new PageSummaryStep(workingDir, summaryIteration) ;
+			ToolRunner.run(new Configuration(), summaryStep, args);
 			
 			//System.out.println("intitial step completed in " + timeFormat.format(System.currentTimeMillis()-startTime)) ;
 			
-			if (!step.furtherIterationsRequired())
+			if (!summaryStep.furtherIterationsRequired())
 				break ;
 			else
 				summaryIteration++ ;
@@ -220,7 +221,7 @@ public class DumpExtractor2 {
 		int depthIteration = 0 ;
 		while (true) {
 			
-			PageDepthStep step = new PageDepthStep(workingDir, depthIteration, summaryIteration) ;
+			PageDepthStep step = new PageDepthStep(workingDir, depthIteration, summaryStep) ;
 			ToolRunner.run(new Configuration(), step, args);
 			
 			if (!step.furtherIterationsRequired())
