@@ -10,7 +10,7 @@ import org.wikipedia.miner.extract.model.struct.LabelOccurrences;
 
 public abstract class CombinerOrReducer extends AvroReducer<CharSequence, LabelOccurrences, Pair<CharSequence, LabelOccurrences>> {
 	
-	public enum Counts {falsePositives} ;
+	public enum Counts {falsePositives, truePositives} ;
 	
 	public abstract boolean isReducer() ;
 	
@@ -33,8 +33,9 @@ public abstract class CombinerOrReducer extends AvroReducer<CharSequence, LabelO
 			if (allOccurrences.getLinkOccCount() == 0) {
 				reporter.getCounter(Counts.falsePositives).increment(1L);
 				return ; 
+			} else {
+				reporter.getCounter(Counts.truePositives).increment(1L);
 			}
-			
 		}
 
 		collector.collect(new Pair<CharSequence, LabelOccurrences>(label, allOccurrences));

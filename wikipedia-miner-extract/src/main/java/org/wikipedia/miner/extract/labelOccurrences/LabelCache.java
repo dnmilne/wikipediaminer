@@ -32,6 +32,9 @@ public class LabelCache {
 	//this is a singleton, so that it can be retrieved by multiple mappers within the same JVM
 	private static Logger logger = Logger.getLogger(LabelCache.class) ;
 	
+	private static final double falsePositiveProbability = 0.005 ;
+	private static final double desiredLabelPopulation = 0.995 ;
+	
 	private static LabelCache labelCache ;
 	
 	
@@ -77,8 +80,7 @@ public class LabelCache {
 		Runtime r = Runtime.getRuntime() ;
 		long memBefore = r.totalMemory() ;
 		
-		Funnel<CharSequence> funnel = Funnels.stringFunnel(Charset.forName("UTF-8")) ;
-		labels = BloomFilter.create(funnel,totalLabels) ;
+		labels = BloomFilter.create(Funnels.unencodedCharsFunnel(),totalLabels, falsePositiveProbability) ;
 		int labelsInserted = 0 ;
 		
 		
@@ -164,7 +166,7 @@ public class LabelCache {
 			
 			double popProportion = (double)total/totalLabels ;
 			
-			if (popProportion > 0.99)
+			if (popProportion > desiredLabelPopulation)
 				break ;
 		}
 		
