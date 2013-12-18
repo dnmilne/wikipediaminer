@@ -20,7 +20,6 @@ import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.JobStatus;
 import org.apache.hadoop.mapred.RunningJob;
-import org.wikipedia.miner.extract.DumpExtractor;
 import org.wikipedia.miner.extract.DumpExtractor2;
 import org.wikipedia.miner.extract.IterativeStep;
 import org.wikipedia.miner.extract.model.struct.LabelSummary;
@@ -138,8 +137,8 @@ public class PageSummaryStep extends IterativeStep {
 			conf.set(XmlInputFormat.START_TAG_KEY, "<page>") ;
 			conf.set(XmlInputFormat.END_TAG_KEY, "</page>") ;
 			
-			FileInputFormat.setInputPaths(conf, conf.get(DumpExtractor.KEY_INPUT_FILE));
-			DistributedCache.addCacheFile(new Path(conf.get(DumpExtractor.KEY_SENTENCE_MODEL)).toUri(), conf);
+			FileInputFormat.setInputPaths(conf, conf.get(DumpExtractor2.KEY_INPUT_FILE));
+			DistributedCache.addCacheFile(new Path(conf.get(DumpExtractor2.KEY_SENTENCE_MODEL)).toUri(), conf);
 			
 			
 		} else {
@@ -151,8 +150,8 @@ public class PageSummaryStep extends IterativeStep {
 			
 		}
 		
-		DistributedCache.addCacheFile(new Path(conf.get(DumpExtractor.KEY_OUTPUT_DIR) + "/" + DumpExtractor.OUTPUT_SITEINFO).toUri(), conf);
-		DistributedCache.addCacheFile(new Path(conf.get(DumpExtractor.KEY_LANG_FILE)).toUri(), conf);
+		DistributedCache.addCacheFile(new Path(conf.get(DumpExtractor2.KEY_OUTPUT_DIR) + "/" + DumpExtractor2.OUTPUT_SITEINFO).toUri(), conf);
+		DistributedCache.addCacheFile(new Path(conf.get(DumpExtractor2.KEY_LANG_FILE)).toUri(), conf);
 		
 		AvroJob.setCombinerClass(conf, Combiner.class) ;
 		AvroJob.setReducerClass(conf, Reducer.class);

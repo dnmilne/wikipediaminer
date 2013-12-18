@@ -12,6 +12,7 @@ import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.log4j.Logger;
 import org.wikipedia.miner.extract.DumpExtractor;
+import org.wikipedia.miner.extract.DumpExtractor2;
 import org.wikipedia.miner.extract.model.struct.PageDepthSummary;
 import org.wikipedia.miner.extract.model.struct.PageDetail;
 import org.wikipedia.miner.extract.model.struct.PageKey;
@@ -38,14 +39,14 @@ public class InitialDepthMapper extends AvroMapper<Pair<PageKey, PageDetail>, Pa
 
 			for (Path cf:cacheFiles) {
 
-				if (cf.getName().equals(new Path(job.get(DumpExtractor.KEY_LANG_FILE)).getName())) {
-					languageConfig = new LanguageConfiguration(job.get(DumpExtractor.KEY_LANG_CODE), cf) ;
+				if (cf.getName().equals(new Path(job.get(DumpExtractor2.KEY_LANG_FILE)).getName())) {
+					languageConfig = new LanguageConfiguration(job.get(DumpExtractor2.KEY_LANG_CODE), cf) ;
 				}
 
 			}
 
 			if (languageConfig == null) 
-				throw new Exception("Could not locate '" + job.get(DumpExtractor.KEY_LANG_FILE) + "' in DistributedCache") ;
+				throw new Exception("Could not locate '" + job.get(DumpExtractor2.KEY_LANG_FILE) + "' in DistributedCache") ;
 
 			rootCategoryTitle = Util.normaliseTitle(languageConfig.getRootCategoryName()) ;
 

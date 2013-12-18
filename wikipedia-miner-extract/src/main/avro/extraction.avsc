@@ -158,6 +158,18 @@
           }
         }
       ]
+    },
+    
+    {
+      "type": "record",
+      "name": "LabelOccurrences",
+      "namespace": "org.wikipedia.miner.extract.model.struct",
+      "fields": [
+      	{"name": "linkDocCount", "type": "int"},
+      	{"name": "linkOccCount", "type": "int"},
+        {"name": "textDocCount", "type": "int"},
+      	{"name": "textOccCount", "type": "int"}
+      ]
     }
     
     

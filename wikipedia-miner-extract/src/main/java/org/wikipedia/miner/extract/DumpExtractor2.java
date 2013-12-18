@@ -18,6 +18,7 @@ import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.util.GenericOptionsParser;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
+import org.wikipedia.miner.extract.labelOccurrences.LabelOccurrenceStep;
 import org.wikipedia.miner.extract.labelSenses.LabelSensesStep;
 import org.wikipedia.miner.extract.pageDepth.PageDepthStep;
 import org.wikipedia.miner.extract.pageSummary.PageSummaryStep;
@@ -217,7 +218,7 @@ public class DumpExtractor2 {
 				summaryIteration++ ;
 		}
 		
-		
+		/*
 		//calculate page depths
 		int depthIteration = 0 ;
 		while (true) {
@@ -230,17 +231,18 @@ public class DumpExtractor2 {
 			else
 				depthIteration++ ;
 		}
+		*/
 		
-		//gather senses
+		//gather label senses
 		LabelSensesStep sensesStep = new LabelSensesStep(workingDir, summaryStep) ;
 		ToolRunner.run(new Configuration(), sensesStep, args);
 		
-			
+		//gather label occurrences
+		LabelOccurrenceStep occurrencesStep = new LabelOccurrenceStep(workingDir, sensesStep) ;
+		ToolRunner.run(new Configuration(), occurrencesStep, args);
+		
 		return 0 ;
 	}
-	
-	
-
 
 	private void extractSiteInfo() throws IOException {
 

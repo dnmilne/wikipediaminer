@@ -26,7 +26,6 @@ import org.apache.hadoop.util.GenericOptionsParser;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.*;
 import org.wikipedia.miner.db.struct.*;
-import org.wikipedia.miner.extract.steps.*;
 import org.wikipedia.miner.extract.util.LanguageConfiguration;
 import org.wikipedia.miner.extract.model.struct.ExLabel;
 import org.wikipedia.miner.extract.model.struct.ExSenseForLabel;
@@ -47,6 +46,7 @@ import org.wikipedia.miner.util.ProgressTracker;
 @SuppressWarnings("deprecation")
 public class DumpExtractor {
 
+	/*
 	private Configuration conf ;
 
 	private String[] args ;
@@ -1052,4 +1052,5 @@ public class DumpExtractor {
 
 		return s.toString();
 	}
+	*/
 }

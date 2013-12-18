@@ -3,27 +3,34 @@
 <WikipediaLanguageList>
 
 
-        <Language code="en" name="English" localName="English">
+	<Language code="en" name="English" localName="English">
 
-                <RootCategory>Fundamental categories</RootCategory>
-                
-                <DisambiguationCategory>Disambiguation</DisambiguationCategory>
-                
-                <DisambiguationTemplate>disambiguation</DisambiguationTemplate>
-                <DisambiguationTemplate>disambig</DisambiguationTemplate>
-                <DisambiguationTemplate>geodis</DisambiguationTemplate>
-                <DisambiguationTemplate>hndis</DisambiguationTemplate>
-                <DisambiguationTemplate>hospitaldis</DisambiguationTemplate>
-                <DisambiguationTemplate>mathdab</DisambiguationTemplate>
-                <DisambiguationTemplate>mountianindex</DisambiguationTemplate>
-                <DisambiguationTemplate>numberdis</DisambiguationTemplate>
-                <DisambiguationTemplate>roaddis</DisambiguationTemplate>
-                <DisambiguationTemplate>schooldis</DisambiguationTemplate>
-                <DisambiguationTemplate>shipindex</DisambiguationTemplate>
-                <DisambiguationTemplate>SIA</DisambiguationTemplate>
+		<RootCategory>Fundamental categories</RootCategory>
 
-				<RedirectIdentifier>REDIRECT</RedirectIdentifier>
-        </Language>
+		<DisambiguationCategory>Disambiguation</DisambiguationCategory>
+
+		<DisambiguationTemplate>disambiguation</DisambiguationTemplate>
+		<DisambiguationTemplate>disambig</DisambiguationTemplate>
+		<DisambiguationTemplate>geodis</DisambiguationTemplate>
+		<DisambiguationTemplate>hndis</DisambiguationTemplate>
+		<DisambiguationTemplate>hospitaldis</DisambiguationTemplate>
+		<DisambiguationTemplate>mathdab</DisambiguationTemplate>
+		<DisambiguationTemplate>mountianindex</DisambiguationTemplate>
+		<DisambiguationTemplate>numberdis</DisambiguationTemplate>
+		<DisambiguationTemplate>roaddis</DisambiguationTemplate>
+		<DisambiguationTemplate>schooldis</DisambiguationTemplate>
+		<DisambiguationTemplate>shipindex</DisambiguationTemplate>
+		<DisambiguationTemplate>SIA</DisambiguationTemplate>
+
+		<RedirectIdentifier>REDIRECT</RedirectIdentifier>
+
+		<NamespaceAlias from='WP' to='Wikipedia' />
+		<NamespaceAlias from='WT' to='Wikipedia talk' />
+		<NamespaceAlias from='Image' to='File' />
+		<NamespaceAlias from='Image talk' to='File talk' />
+		<NamespaceAlias from='Project' to='Wikipedia' />
+		<NamespaceAlias from='Project talk' to='Wikipedia talk' />
+	</Language>
 
 
 
@@ -38,11 +45,18 @@
 		<DisambiguationTemplate>2CC</DisambiguationTemplate>
 		<DisambiguationTemplate>3CC</DisambiguationTemplate>
 		<DisambiguationTemplate>hndis</DisambiguationTemplate>
-		
+
 		<RedirectIdentifier>REDIRECT</RedirectIdentifier>
-		
+
+		<NamespaceAlias from='WP' to='Wikipedia' />
+		<NamespaceAlias from='WT' to='Wikipedia talk' />
+		<NamespaceAlias from='Image' to='File' />
+		<NamespaceAlias from='Image talk' to='File talk' />
+		<NamespaceAlias from='Project' to='Wikipedia' />
+		<NamespaceAlias from='Project talk' to='Wikipedia talk' />
+
 	</Language>
-	
+
 	<Language code="de" name="German" localName="Deutsch">
 
 		<RootCategory>!Hauptkategorie</RootCategory>
@@ -50,10 +64,10 @@
 		<DisambiguationCategory>Begriffsklärung</DisambiguationCategory>
 
 		<DisambiguationTemplate>Begriffsklärung</DisambiguationTemplate>
-		
+
 		<RedirectIdentifier>REDIRECT</RedirectIdentifier>
 		<RedirectIdentifier>WEITERLEITUNG</RedirectIdentifier>
-		
+
 	</Language>
 
 </WikipediaLanguageList>

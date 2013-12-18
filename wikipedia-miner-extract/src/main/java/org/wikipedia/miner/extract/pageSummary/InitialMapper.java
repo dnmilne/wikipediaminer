@@ -33,6 +33,7 @@ import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.log4j.Logger;
 import org.wikipedia.miner.extract.DumpExtractor;
+import org.wikipedia.miner.extract.DumpExtractor2;
 import org.wikipedia.miner.extract.model.DumpLink;
 import org.wikipedia.miner.extract.model.DumpLinkParser;
 import org.wikipedia.miner.extract.model.DumpPage;
@@ -44,6 +45,8 @@ import org.wikipedia.miner.extract.model.struct.PageKey;
 import org.wikipedia.miner.extract.model.struct.PageSummary;
 import org.wikipedia.miner.extract.pageSummary.PageSummaryStep.PageType;
 import org.wikipedia.miner.extract.util.LanguageConfiguration;
+import org.wikipedia.miner.extract.util.Languages;
+import org.wikipedia.miner.extract.util.Languages.Language;
 import org.wikipedia.miner.extract.util.PageSentenceExtractor;
 import org.wikipedia.miner.extract.util.SiteInfo;
 import org.wikipedia.miner.extract.util.Util;
@@ -54,7 +57,7 @@ public class InitialMapper extends MapReduceBase implements Mapper<LongWritable,
 
 	private static Logger logger = Logger.getLogger(InitialMapper.class) ;
 
-	private LanguageConfiguration languageConfig ;
+	private Language language ;
 	private SiteInfo siteInfo ;
 
 	private DumpPageParser pageParser ;
@@ -73,34 +76,34 @@ public class InitialMapper extends MapReduceBase implements Mapper<LongWritable,
 
 		try {
 
-			languageConfig = null ;
+			language = null ;
 			siteInfo = null ;
 
 			Path[] cacheFiles = DistributedCache.getLocalCacheFiles(job);
 
 			for (Path cf:cacheFiles) {
 
-				if (cf.getName().equals(new Path(DumpExtractor.OUTPUT_SITEINFO).getName())) {
-					siteInfo = new SiteInfo(cf) ;
+				if (cf.getName().equals(new Path(DumpExtractor2.OUTPUT_SITEINFO).getName())) {
+					siteInfo = SiteInfo.load(new File(cf.toString())) ;
 				}
 
-				if (cf.getName().equals(new Path(job.get(DumpExtractor.KEY_LANG_FILE)).getName())) {
-					languageConfig = new LanguageConfiguration(job.get(DumpExtractor.KEY_LANG_CODE), cf) ;
+				if (cf.getName().equals(new Path(job.get(DumpExtractor2.KEY_LANG_FILE)).getName())) {
+					language = Languages.load(new File(cf.toString())).get(job.get(DumpExtractor2.KEY_LANG_CODE)) ;
 				}
 
-				if (cf.getName().equals(new Path(job.get(DumpExtractor.KEY_SENTENCE_MODEL)).getName())) {
+				if (cf.getName().equals(new Path(job.get(DumpExtractor2.KEY_SENTENCE_MODEL)).getName())) {
 					sentenceExtractor = new PageSentenceExtractor(cf) ;
 				}
 			}
 
 			if (siteInfo == null) 
-				throw new Exception("Could not locate '" + DumpExtractor.OUTPUT_SITEINFO + "' in DistributedCache") ;
+				throw new Exception("Could not locate '" + DumpExtractor2.OUTPUT_SITEINFO + "' in DistributedCache") ;
 
-			if (languageConfig == null) 
-				throw new Exception("Could not locate '" + job.get(DumpExtractor.KEY_LANG_FILE) + "' in DistributedCache") ;
+			if (language == null) 
+				throw new Exception("Could not locate '" + job.get(DumpExtractor2.KEY_LANG_FILE) + "' in DistributedCache") ;
 
-			pageParser = new DumpPageParser(languageConfig, siteInfo) ;
-			linkParser = new DumpLinkParser(languageConfig, siteInfo) ;
+			pageParser = new DumpPageParser(language, siteInfo) ;
+			linkParser = new DumpLinkParser(language, siteInfo) ;
 
 			//rootCategoryTitle = Util.normaliseTitle(languageConfig.getRootCategoryName()) ;
 
@@ -150,10 +153,10 @@ public class InitialMapper extends MapReduceBase implements Mapper<LongWritable,
 
 			break ;
 		case redirect :
-			if (parsedPage.getNamespace() == SiteInfo.MAIN_KEY)
+			if (parsedPage.getNamespace().getKey() == SiteInfo.MAIN_KEY)
 				reporter.incrCounter(PageType.articleRedirect, 1);
 
-			if (parsedPage.getNamespace() == SiteInfo.CATEGORY_KEY)
+			if (parsedPage.getNamespace().getKey() == SiteInfo.CATEGORY_KEY)
 				reporter.incrCounter(PageType.categoryRedirect, 1);
 
 			handleRedirect(parsedPage, collector, reporter) ;
@@ -175,7 +178,7 @@ public class InitialMapper extends MapReduceBase implements Mapper<LongWritable,
 		PageDetail page = PageSummaryStep.buildEmptyPageDetail() ;
 
 
-		page.setNamespace(parsedPage.getNamespace());
+		page.setNamespace(parsedPage.getNamespace().getKey());
 		page.setId(parsedPage.getId());
 		page.setTitle(Util.normaliseTitle(parsedPage.getTitle())) ;
 
@@ -286,7 +289,7 @@ public class InitialMapper extends MapReduceBase implements Mapper<LongWritable,
 
 			DumpLink link = null ;
 			try {
-				link = linkParser.parseLink(linkMarkup) ;
+				link = linkParser.parseLink(linkMarkup, page.getTitle().toString()) ;
 			} catch (Exception e) {
 				logger.warn("Could not parse link markup '" + linkMarkup + "'") ;
 			}
@@ -295,13 +298,13 @@ public class InitialMapper extends MapReduceBase implements Mapper<LongWritable,
 				continue ;
 
 			if (link.getTargetLanguage() != null) {
-				logger.info("Language link: " + linkMarkup);
+				//logger.info("Language link: " + linkMarkup);
 				
 				//TODO: how do we get translations now?
 				continue ;
 			}
 
-			if (link.getTargetNamespace()==SiteInfo.CATEGORY_KEY) {
+			if (link.getTargetNamespace().getKey()==SiteInfo.CATEGORY_KEY) {
 				String parentTitle = Util.normaliseTitle(link.getTargetTitle()) ;
 				PageDetail parent = buildCategoryParent(page, link) ;
 				
@@ -309,7 +312,7 @@ public class InitialMapper extends MapReduceBase implements Mapper<LongWritable,
 					categoryParents.put(parentTitle, parent) ;	
 			}
 
-			if (link.getTargetNamespace()==SiteInfo.MAIN_KEY) {
+			if (link.getTargetNamespace().getKey()==SiteInfo.MAIN_KEY) {
 				String targetTitle = Util.normaliseTitle(link.getTargetTitle()) ;
 				
 				PageDetail target = linkTargets.get(targetTitle) ;
@@ -319,6 +322,9 @@ public class InitialMapper extends MapReduceBase implements Mapper<LongWritable,
 				target = buildLinkTarget(page, link, linkRegion[0], target) ;
 
 				linkTargets.put(targetTitle, target) ;
+				
+				if (link.getAnchor().contains("|"))
+					logger.warn("weird link in " + page.getTitle() + ": \"" + linkMarkup + "\"");
 				
 			}
 				

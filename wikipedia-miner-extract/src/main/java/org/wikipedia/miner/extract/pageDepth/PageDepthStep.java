@@ -67,7 +67,7 @@ public class PageDepthStep extends IterativeStep {
 			FileInputFormat.setInputPaths(conf, getWorkingDir() + Path.SEPARATOR + finalPageSummaryStep.getDirName());
 			AvroJob.setInputSchema(conf, Pair.getPairSchema(PageKey.getClassSchema(),PageDetail.getClassSchema()));
 			
-			DistributedCache.addCacheFile(new Path(conf.get(DumpExtractor.KEY_LANG_FILE)).toUri(), conf);
+			DistributedCache.addCacheFile(new Path(conf.get(DumpExtractor2.KEY_LANG_FILE)).toUri(), conf);
 			
 			AvroJob.setMapperClass(conf, InitialDepthMapper.class);
 			

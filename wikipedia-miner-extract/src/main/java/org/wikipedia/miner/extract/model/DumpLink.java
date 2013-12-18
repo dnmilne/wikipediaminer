@@ -2,17 +2,19 @@ package org.wikipedia.miner.extract.model;
 
 import java.util.regex.*;
 
+import org.wikipedia.miner.extract.util.SiteInfo.Namespace;
+
 public class DumpLink {
 	
 	
 	private String targetTitle ;
 	private String targetSection ;
-	private int targetNamespace ;
+	private Namespace targetNamespace ;
 	private String targetLanguage ;
 	
 	private String anchor ;
 	
-	public DumpLink(String targetLanguage, int targetNamespace, String targetTitle, String targetSection, String anchor) {
+	public DumpLink(String targetLanguage, Namespace targetNamespace, String targetTitle, String targetSection, String anchor) {
 		
 		this.targetLanguage = targetLanguage ;
 		this.targetNamespace = targetNamespace ;
@@ -29,7 +31,7 @@ public class DumpLink {
 		return targetLanguage;
 	}
 
-	public int getTargetNamespace() {
+	public Namespace getTargetNamespace() {
 		return targetNamespace;
 	}
 

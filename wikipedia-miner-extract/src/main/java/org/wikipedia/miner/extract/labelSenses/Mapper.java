@@ -27,8 +27,7 @@ import org.wikipedia.miner.extract.util.SiteInfo;
 
 public class Mapper extends AvroMapper<Pair<PageKey, PageDetail>, Pair<CharSequence, LabelSenseList>> {
 
-	private static Logger logger = Logger.getLogger(SubsequentDepthMapper.class) ;
-	
+
 	@Override
 	public void map(Pair<PageKey, PageDetail> pair,
 			AvroCollector<Pair<CharSequence, LabelSenseList>> collector,

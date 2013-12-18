@@ -1,101 +1,119 @@
 package org.wikipedia.miner.extract.util;
 
-import java.util.HashMap ;
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.InputStreamReader;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
+import org.simpleframework.xml.Attribute;
+import org.simpleframework.xml.Element;
+import org.simpleframework.xml.ElementList;
+import org.simpleframework.xml.Root;
+import org.simpleframework.xml.Serializer;
+import org.simpleframework.xml.Text;
+import org.simpleframework.xml.Transient;
+import org.simpleframework.xml.core.Persister;
 
-import org.apache.hadoop.fs.Path;
-
+@Root
 public class SiteInfo {
-
-	private String siteName ;
-	private String base ;
-	private String generator ;
-	private String caseRule ;
-	
-	private HashMap<String, Integer> namespaceKeysByNamespace = new HashMap<String, Integer>() ;
 	
 	public static final int MAIN_KEY = 0 ;
-	public static final int IMAGE_KEY = 6 ;
+	public static final int SPECIAL_KEY = -1 ;
+	public static final int FILE_KEY = 6 ;
 	public static final int TEMPLATE_KEY = 10 ;
 	public static final int CATEGORY_KEY = 14 ;
 	
-	public SiteInfo(Path siteInfoFile) throws FileNotFoundException, XMLStreamException {
+	@Element(name="sitename")
+	private String siteName ;
+	
+	@Element
+	private String base ;
+	
+	@Element
+	private String generator ;
+	
+	@Element(name="case") 
+	private String caseRule ;
+	
+	@ElementList(name="namespaces",entry="namespace")
+	private List<Namespace> namespaces ;
+	
+	@Transient
+	private Map<String, Namespace> namespacesByName  ;
+	
+	@Transient
+	private Map<Integer, Namespace> namespacesByKey ;
+	
+	public static SiteInfo load(File file) throws Exception {
 		
-		init(new FileReader(siteInfoFile.toString())) ;
+		Serializer serializer = new Persister();
+		return serializer.read(SiteInfo.class, file);
+		
 	}
+	
+	public static SiteInfo load(InputStream input) throws Exception {
+		
+		Serializer serializer = new Persister();
+		return serializer.read(SiteInfo.class, input) ;
+		
+	}
+	
+	public static SiteInfo loadFromDump(File file) throws Exception {
+		
+		final int maxBeforeLines = 100 ;
+		final int maxDuringLines = 100 ;
+		
+		StringBuffer sb = new StringBuffer() ;
+		
+		BufferedReader reader = new BufferedReader(new FileReader(file)) ;
+		
+		boolean started = false ;
+		String line ;
+		int beforeLineCount = 0 ;
+		int duringLineCount = 0 ;
+		
+		while ((line=reader.readLine()) != null) {
 			
-	public SiteInfo(File siteInfoFile) throws FileNotFoundException, XMLStreamException {
-		init(new FileReader(siteInfoFile)) ;
-	}
-	
-	public SiteInfo(InputStreamReader input) throws FileNotFoundException, XMLStreamException {
-		
-		init(input) ;
-	}
+			if (line.contains("<siteinfo>"))
+				started = true ;
 			
-	public void init(InputStreamReader input) throws XMLStreamException, FileNotFoundException {
-		
-		XMLStreamReader xmlStreamReader = XMLInputFactory.newInstance().createXMLStreamReader(input) ;
-	
-		Integer currNamespaceKey = null ;
-		StringBuffer characters = new StringBuffer() ;
-	
-		while (xmlStreamReader.hasNext()) {
-	
-			int eventCode = xmlStreamReader.next();
-	
-			switch (eventCode) {
-	
-			case XMLStreamReader.START_ELEMENT :
-					
-				if (xmlStreamReader.getLocalName().equals("namespace")) 
-					currNamespaceKey = Integer.parseInt(xmlStreamReader.getAttributeValue(null, "key")) ;
-				
-				characters = new StringBuffer() ;	
-				break;
-	
-			case XMLStreamReader.END_ELEMENT :
-				
-				if (xmlStreamReader.getLocalName().equals("sitename")) 
-					siteName = characters.toString().trim() ;
-				
-				if (xmlStreamReader.getLocalName().equals("base")) 
-					base = characters.toString().trim() ;
-				
-				if (xmlStreamReader.getLocalName().equals("generator")) 
-					generator = characters.toString().trim() ;
-				
-				if (xmlStreamReader.getLocalName().equals("caseRule")) 
-					caseRule = characters.toString().trim() ;
-				
-				if (xmlStreamReader.getLocalName().equals("namespace")) {
-					namespaceKeysByNamespace.put(characters.toString().trim(), currNamespaceKey) ;
-					currNamespaceKey = null ;
-				}
-				
-				characters = new StringBuffer() ;
-				break;
-	
-			case XMLStreamReader.CHARACTERS :
-				characters.append(xmlStreamReader.getText()) ;
-				break ;
+			if (started) {
+				duringLineCount++ ;
+				sb.append(line + "\n") ;
+			} else {
+				beforeLineCount++ ;
 			}
+			
+			if (line.contains("</siteinfo>"))
+				break ;
+			
+			if (beforeLineCount > maxBeforeLines)
+				break ;
+			
+			if (duringLineCount > maxDuringLines)
+				break ;
+			
 		}
-	
-		xmlStreamReader.close() ;
-	
+		reader.close() ;
+		
+		if (beforeLineCount > maxBeforeLines)
+			throw new Exception("Could not detect start of site info element") ;
+		
+		if (duringLineCount > maxDuringLines)
+			throw new Exception("Could not detect end of site info element") ;
+		
+		Serializer serializer = new Persister();
+		return serializer.read(SiteInfo.class, sb.toString()) ;
+				
 	}
 	
+	public String getSiteName() {
+		return siteName;
+	}
 	
-	
-
 	public String getBase() {
 		return base;
 	}
@@ -108,16 +126,78 @@ public class SiteInfo {
 		return generator;
 	}
 
-	public HashMap<String, Integer> getNamespaceKeysByNamespace() {
-		return namespaceKeysByNamespace;
+	public List<Namespace> getNamespaces() {
+		return namespaces ;
 	}
 	
-	public Integer getNamespaceKey(String namespace) {
-		return namespaceKeysByNamespace.get(namespace) ;
+	public Namespace getNamespace(String name) {
+		
+		return getNamespacesByName().get(name.toLowerCase().trim()) ;
+	}
+	
+	public Namespace getNamespace(int key) {
+		
+		return getNamespacesByKey().get(key) ;
+	}
+	
+	public Namespace getMainNamespace() {
+		return getNamespacesByKey().get(MAIN_KEY) ;
 	}
 
-	public String getSiteName() {
-		return siteName;
+	private Map<String,Namespace> getNamespacesByName() {
+		if (namespacesByName != null)
+			return namespacesByName ;
+		
+		namespacesByName = new HashMap<String,Namespace>() ;
+		
+		for (Namespace namespace:namespaces) 
+			namespacesByName.put(namespace.getName().toLowerCase(), namespace) ;
+		
+			
+		return namespacesByName ;
 	}
+	
+	private Map<Integer,Namespace> getNamespacesByKey() {
+		if (namespacesByKey != null)
+			return namespacesByKey ;
+		
+		namespacesByKey = new HashMap<Integer,Namespace>() ;
+		
+		for (Namespace namespace:namespaces) 
+			namespacesByKey.put(namespace.getKey(), namespace) ;
+		
+		return namespacesByKey ;
+	}
+	
+	public static class Namespace {
+		
+		@Attribute
+		private int key ;
+		
+		@Attribute(name="case") 
+		private String caseRule ;
+		
+		@Text(required=false)
+		private String name ;
+		
+		
+		public int getKey() {
+			return key;
+		}
+		
+		public String getCaseRule() {
+			return caseRule;
+		}
+		
+		public String getName() {
+			if (name == null)
+				return "" ;
+			else
+				return name;
+		}
+		
+	}
+	
+	
 	
 }

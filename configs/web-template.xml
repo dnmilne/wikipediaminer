@@ -246,7 +246,7 @@
 
   <filter-mapping>
     <filter-name>CharsetFilter</filter-name>
-    <url-pattern>/*</url-pattern>
+    <url-pattern>/service/*</url-pattern>
   </filter-mapping>
 
 

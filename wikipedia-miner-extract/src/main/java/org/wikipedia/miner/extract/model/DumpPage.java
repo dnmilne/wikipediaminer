@@ -2,12 +2,13 @@ package org.wikipedia.miner.extract.model;
 
 import java.util.Date;
 
+import org.wikipedia.miner.extract.util.SiteInfo.Namespace;
 import org.wikipedia.miner.model.Page.PageType;
 
 public class DumpPage {
 
 	private int id ;
-	private int namespace ;
+	private Namespace namespace ;
 	private PageType type ;
 
 	private String title ;
@@ -15,7 +16,7 @@ public class DumpPage {
 	private String target ;
 	private Date lastEdited ;
 	
-	public DumpPage(int id, int namespace, PageType type, String title, String markup, String target, Date lastEdited) {
+	public DumpPage(int id, Namespace namespace, PageType type, String title, String markup, String target, Date lastEdited) {
 		
 		this.id = id ;
 		this.namespace = namespace ;
@@ -37,7 +38,7 @@ public class DumpPage {
 		return markup;
 	}
 
-	public int getNamespace() {
+	public Namespace getNamespace() {
 		return namespace;
 	}
 

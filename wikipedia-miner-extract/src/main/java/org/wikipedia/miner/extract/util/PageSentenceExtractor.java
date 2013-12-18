@@ -69,19 +69,24 @@ public class PageSentenceExtractor {
 
 	public List<Integer> getSentenceSplits(DumpPage page) {
 
-		List<Integer> sentenceSplits = new ArrayList<Integer>() ;
-
+	
 		String maskedMarkup = stripper.stripAllButInternalLinksAndEmphasis(page.getMarkup(), ' ') ;
 		maskedMarkup = stripper.stripNonArticleInternalLinks(maskedMarkup, 'a') ;
 
 		//mask links so that it is impossible to split on any punctuation within a link.
 		maskedMarkup = stripper.stripRegions(maskedMarkup, stripper.gatherComplexRegions(maskedMarkup, "\\[\\[", "\\]\\]"), 'a') ;
 
-		//also mask content in brackets, so it is impossible to split within these. 
-		maskedMarkup = stripper.stripRegions(maskedMarkup, stripper.gatherComplexRegions(maskedMarkup, "\\(", "\\)"), 'a') ;
+		return getSentenceSplits(maskedMarkup) ;
 		
-		//System.out.println(maskedMarkup) ;
-
+	}
+	
+	public List<Integer> getSentenceSplits(String strippedMarkup) {
+		
+		List<Integer> sentenceSplits = new ArrayList<Integer>() ;
+		
+		//also mask content in brackets, so it is impossible to split within these. 
+		String maskedMarkup = stripper.stripRegions(strippedMarkup, stripper.gatherComplexRegions(strippedMarkup, "\\(", "\\)"), 'a') ;
+		
 		Matcher paragraphMatcher = paragraphSplitPattern.matcher(maskedMarkup) ;
 
 		int lastParagraphEnd = 0;
@@ -102,6 +107,7 @@ public class PageSentenceExtractor {
 		sentenceSplits = handleParagraph(maskedMarkup.substring(lastParagraphEnd), lastParagraphEnd, sentenceSplits) ;
 		
 		return sentenceSplits ;
+				
 	}
 	
 	public List<Integer> handleParagraph(String paragraph, int paragraphStart, List<Integer> sentenceSplits) {

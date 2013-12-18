@@ -5,12 +5,15 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.regex.* ;
 import java.io.*;
+
 import javax.xml.stream.*;
 
 import org.apache.log4j.*;
-
 import org.wikipedia.miner.extract.util.LanguageConfiguration;
+import org.wikipedia.miner.extract.util.Languages.Language;
+import org.wikipedia.miner.extract.util.Languages.NamespaceAlias;
 import org.wikipedia.miner.extract.util.SiteInfo;
+import org.wikipedia.miner.extract.util.SiteInfo.Namespace;
 import org.wikipedia.miner.model.Page.PageType ;
 
 /**
@@ -20,22 +23,22 @@ import org.wikipedia.miner.model.Page.PageType ;
  */
 public class DumpPageParser {
 	
-	private Logger log = Logger.getLogger(DumpPageParser.class);
+	private Logger logger = Logger.getLogger(DumpPageParser.class);
 
 
 	private XMLInputFactory xmlStreamFactory = XMLInputFactory.newInstance() ;
 
 	private enum DumpTag {page, id, title, text, timestamp, ignorable} ;
 	
-	private LanguageConfiguration languageConfiguration ;
+	private Language language ;
 	private SiteInfo siteInfo ;
 	
 	//private Pattern redirectPattern ; 
 	private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'") ;
 	
 
-	public DumpPageParser(LanguageConfiguration lc, SiteInfo si) {
-		this.languageConfiguration = lc ;
+	public DumpPageParser(Language lc, SiteInfo si) {
+		this.language = lc ;
 		this.siteInfo = si ;
 
 	}
@@ -95,21 +98,22 @@ public class DumpPageParser {
 		
 		
 		//identify namespace - assume 0 (main) if there is no prefix, or if prefix doesn't match any known namespaces
-		Integer namespaceKey = 0 ;
+		Namespace namespace ;
 		int pos = title.indexOf(":") ;
 		if (pos > 0) {
-			String namespace = title.substring(0, pos) ;
-			namespaceKey = siteInfo.getNamespaceKey(namespace) ;
+			namespace = getNamespace(title.substring(0, pos)) ;
 			
-			if (namespaceKey == null) 
-				namespaceKey = 0 ;
+			if (namespace == null) 
+				namespace = siteInfo.getMainNamespace() ;
 			else 
 				title = title.substring(pos+1) ;	
+		} else {
+			namespace = siteInfo.getMainNamespace() ;
 		}
 		
 		
 		//ignore anything that isn't in main, category or template namespace
-		if (namespaceKey != SiteInfo.CATEGORY_KEY && namespaceKey != SiteInfo.MAIN_KEY && namespaceKey != SiteInfo.TEMPLATE_KEY) {
+		if (namespace.getKey() != SiteInfo.CATEGORY_KEY && namespace.getKey() != SiteInfo.MAIN_KEY && namespace.getKey() != SiteInfo.TEMPLATE_KEY) {
 			Logger.getLogger(DumpPageParser.class).info("Ignoring page " + id + ":" + title) ;
 			return null ;
 		}
@@ -119,7 +123,7 @@ public class DumpPageParser {
 		String redirectTarget = null ;
 		
 		
-		Matcher redirectMatcher = languageConfiguration.getRedirectPattern().matcher(text) ;
+		Matcher redirectMatcher = language.getRedirectPattern().matcher(text) ;
 		if (redirectMatcher.find()) {
 			
 			type = PageType.redirect ;
@@ -129,13 +133,13 @@ public class DumpPageParser {
 			else
 				redirectTarget = redirectMatcher.group(3) ;
 			
-		} else if (namespaceKey == SiteInfo.CATEGORY_KEY) {
+		} else if (namespace.getKey() == SiteInfo.CATEGORY_KEY) {
 			type = PageType.category ;
-		} else if (namespaceKey == SiteInfo.TEMPLATE_KEY) {
+		} else if (namespace.getKey() == SiteInfo.TEMPLATE_KEY) {
 			type = PageType.template ;
-		} else if (namespaceKey == SiteInfo.MAIN_KEY){
+		} else if (namespace.getKey() == SiteInfo.MAIN_KEY){
 			
-			Matcher disambigMatcher = languageConfiguration.getDisambiguationPattern().matcher(text) ;
+			Matcher disambigMatcher = language.getDisambigPattern().matcher(text) ;
 			if (disambigMatcher.find()) {
 				type = PageType.disambiguation ;
 			} else {
@@ -145,7 +149,7 @@ public class DumpPageParser {
 			type = PageType.invalid ;
 		}
 		
-		return new DumpPage(id, namespaceKey, type, title, text, redirectTarget, lastEdited) ;
+		return new DumpPage(id, namespace, type, title, text, redirectTarget, lastEdited) ;
 		
 	}
 
@@ -159,4 +163,15 @@ public class DumpPageParser {
 		}
 	}
 
+private Namespace getNamespace(String name) {
+		
+		NamespaceAlias alias = language.getAlias(name) ;
+		
+		if (alias == null)
+			return siteInfo.getNamespace(name) ;
+		else
+			return siteInfo.getNamespace(alias.getTo()) ;
+	
+	}
+	
 }

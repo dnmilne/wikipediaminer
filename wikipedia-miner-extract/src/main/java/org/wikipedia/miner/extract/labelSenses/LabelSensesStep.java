@@ -144,4 +144,8 @@ public class LabelSensesStep extends Step {
 
 	}
 
+	public long getTotalLabels() {
+		return counts.get(Counts.ambiguous) + counts.get(Counts.unambiguous) ;
+	}
+	
 }

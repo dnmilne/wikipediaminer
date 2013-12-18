@@ -20,6 +20,8 @@ import org.wikipedia.miner.util.ProgressTracker;
 import gnu.trove.set.hash.THashSet;
 
 public class LabelCache {
+	
+	private static Logger logger = Logger.getLogger(LabelCache.class) ;
 
 	private static LabelCache cache ;
 
@@ -95,7 +97,7 @@ public class LabelCache {
 
 
 				} catch (Exception e) {
-					Logger.getLogger(getClass()).error("Caught exception while gathering label from '" + line + "' in '" + path + "'", e);
+					logger.error("Caught exception while gathering label from '" + line + "' in '" + path + "'", e);
 				}
 
 				reporter.progress() ;
@@ -106,9 +108,11 @@ public class LabelCache {
 		}
 		
 		long memAfter = r.totalMemory() ;
-		Logger.getLogger(getClass()).info("Memory Used: " + (memAfter - memBefore) / (1024*1024) + "Mb") ;
+		logger.info("Memory Used: " + (memAfter - memBefore) / (1024*1024) + "Mb") ;
 		
 		isLoaded = true ;
+		
+		
 		
 	}
 
