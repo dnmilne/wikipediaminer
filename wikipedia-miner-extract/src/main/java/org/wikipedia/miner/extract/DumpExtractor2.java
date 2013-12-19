@@ -18,10 +18,12 @@ import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.util.GenericOptionsParser;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
+import org.wikipedia.miner.extract.finalSummary.FinalSummaryStep;
 import org.wikipedia.miner.extract.labelOccurrences.LabelOccurrenceStep;
 import org.wikipedia.miner.extract.labelSenses.LabelSensesStep;
 import org.wikipedia.miner.extract.pageDepth.PageDepthStep;
 import org.wikipedia.miner.extract.pageSummary.PageSummaryStep;
+import org.wikipedia.miner.extract.sortedPages.PageSortingStep;
 import org.wikipedia.miner.extract.util.LanguageConfiguration;
 
 
@@ -218,12 +220,16 @@ public class DumpExtractor2 {
 				summaryIteration++ ;
 		}
 		
-		/*
+		PageSortingStep sortingStep = new PageSortingStep(workingDir, summaryStep) ;
+		ToolRunner.run(new Configuration(), sortingStep, args);
+		
+		
 		//calculate page depths
 		int depthIteration = 0 ;
+		PageDepthStep depthStep ;
 		while (true) {
 			
-			PageDepthStep depthStep = new PageDepthStep(workingDir, depthIteration, summaryStep) ;
+			depthStep = new PageDepthStep(workingDir, depthIteration, sortingStep) ;
 			ToolRunner.run(new Configuration(), depthStep, args);
 			
 			if (!depthStep.furtherIterationsRequired())
@@ -231,15 +237,20 @@ public class DumpExtractor2 {
 			else
 				depthIteration++ ;
 		}
-		*/
+		
 		
 		//gather label senses
-		LabelSensesStep sensesStep = new LabelSensesStep(workingDir, summaryStep) ;
+		LabelSensesStep sensesStep = new LabelSensesStep(workingDir, sortingStep) ;
 		ToolRunner.run(new Configuration(), sensesStep, args);
 		
 		//gather label occurrences
 		LabelOccurrenceStep occurrencesStep = new LabelOccurrenceStep(workingDir, sensesStep) ;
 		ToolRunner.run(new Configuration(), occurrencesStep, args);
+		
+		
+		FinalSummaryStep finalStep = new FinalSummaryStep(finalDir, sortingStep, depthStep) ;
+		finalStep.run() ;
+		
 		
 		return 0 ;
 	}

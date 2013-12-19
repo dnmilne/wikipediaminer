@@ -27,7 +27,7 @@ public abstract class CombinerOrReducer extends AvroReducer<PageKey, PageDetail,
 
 	public abstract boolean isReducer() ;
 
-	private String[] debugTitles = {"Atheist","Atheism","Atheists","Athiest","People by religion"} ;
+	private CharSequence[] debugTitles = {"Atheist","Atheism","Atheists","Athiest","People by religion"} ;
 
 	@Override
 	public void reduce(PageKey key, Iterable<PageDetail> pagePartials,
@@ -35,8 +35,8 @@ public abstract class CombinerOrReducer extends AvroReducer<PageKey, PageDetail,
 			Reporter reporter) throws IOException {
 
 		Integer id = null;
-		Integer namespace = key.getNamespace() ;
-		String title = key.getTitle().toString() ;
+		//Integer namespace = key.getNamespace() ;
+		CharSequence title = key.getTitle() ;
 		Long lastEdited = null ;
 		
 		List<Integer> sentenceSplits = new ArrayList<Integer>() ;
@@ -54,8 +54,8 @@ public abstract class CombinerOrReducer extends AvroReducer<PageKey, PageDetail,
 		SortedMap<CharSequence,LabelSummary> labels = new TreeMap<CharSequence,LabelSummary>() ;
 
 		boolean debug = false ;
-		for(String debugTitle:debugTitles) {
-			if (title.equalsIgnoreCase(debugTitle))
+		for(CharSequence debugTitle:debugTitles) {
+			if (title.equals(debugTitle))
 				debug = true ;
 		}
 
@@ -94,7 +94,6 @@ public abstract class CombinerOrReducer extends AvroReducer<PageKey, PageDetail,
 			
 			//we cant to do a straight copy, because avro seems to reuse these instances.
 			sentenceSplits.addAll(pagePartial.getSentenceSplits()) ;
-			
 				
 			redirects = addToPageMap(pagePartial.getRedirects(), redirects) ;
 
@@ -141,8 +140,8 @@ public abstract class CombinerOrReducer extends AvroReducer<PageKey, PageDetail,
 
 		PageDetail combinedPage = PageSummaryStep.buildEmptyPageDetail() ;
 		combinedPage.setId(id)	;
-		combinedPage.setTitle(title);
-		combinedPage.setNamespace(namespace);
+		//combinedPage.setTitle(title);
+		//combinedPage.setNamespace(namespace);
 		combinedPage.setLastEdited(lastEdited) ;
 		combinedPage.setSentenceSplits(sentenceSplits);
 

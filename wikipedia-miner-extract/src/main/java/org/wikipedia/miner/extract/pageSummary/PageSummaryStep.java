@@ -36,7 +36,7 @@ import org.wikipedia.miner.extract.util.XmlInputFormat;
 /**
  * @author dmilne
  *
- * This step produces PageDetail structures with all details completed except for page depth. 
+ * This step produces PageDetail structures. 
  * It needs to be run multiple times for the PageDetail structures to be completed (they get built gradually). 
  * 
  * Completion is indicated when all Unforwarded counters reach 0. 
@@ -46,11 +46,11 @@ import org.wikipedia.miner.extract.util.XmlInputFormat;
  * 
  * The first iteration reads directly from the xml dump. 
  * Subsequent iterations read from the results of the previous iteration.
+ * 
+ * The page summaries will be missing namespace and title fields, because they are found in the page keys (so repeating them would be wasteful)
  *
  */
 public class PageSummaryStep extends IterativeStep {
-
-	
 
 	public enum PageType {article, category, disambiguation, articleRedirect, categoryRedirect, unparseable} ; 
 	public enum Unforwarded {redirect,linkIn,linkOut,parentCategory,childCategory,childArticle} ; 

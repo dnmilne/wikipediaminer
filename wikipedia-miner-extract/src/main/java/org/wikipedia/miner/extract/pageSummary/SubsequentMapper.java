@@ -32,7 +32,7 @@ public class SubsequentMapper extends AvroMapper<Pair<PageKey, PageDetail>, Pair
 			
 			CharSequence targetTitle = page.getRedirectsTo().getTitle() ;
 			
-			PageKey targetKey = new PageKey(page.getNamespace(), targetTitle) ;
+			PageKey targetKey = new PageKey(pageKey.getNamespace(), targetTitle) ;
 			PageDetail target = PageSummaryStep.buildEmptyPageDetail() ;
 			
 			
@@ -125,7 +125,7 @@ public class SubsequentMapper extends AvroMapper<Pair<PageKey, PageDetail>, Pair
 				//backtrack, so the redirect knows what the resolved target is
 				PageKey redirectKey = new PageKey(redirect.getNamespace(), redirect.getTitle()) ;
 				PageDetail redirectDetail = PageSummaryStep.buildEmptyPageDetail() ;
-				redirectDetail.setRedirectsTo(new PageSummary(page.getId(), page.getTitle(), page.getNamespace(), false));
+				redirectDetail.setRedirectsTo(new PageSummary(page.getId(), pageKey.getTitle(), pageKey.getNamespace(), false));
 				
 				collector.collect(new Pair<PageKey,PageDetail>(redirectKey, redirectDetail));
 				
@@ -141,7 +141,7 @@ public class SubsequentMapper extends AvroMapper<Pair<PageKey, PageDetail>, Pair
 				//backtrack, so the source of this link knows what the resolved target is
 				PageKey sourceKey = new PageKey(linkIn.getNamespace(), linkIn.getTitle()) ;
 				PageDetail sourceDetail = PageSummaryStep.buildEmptyPageDetail() ;
-				sourceDetail.getLinksOut().add(new LinkSummary(page.getId(), page.getTitle(), page.getNamespace(), false, linkIn.getSentenceIndexes()));
+				sourceDetail.getLinksOut().add(new LinkSummary(page.getId(), pageKey.getTitle(), pageKey.getNamespace(), false, linkIn.getSentenceIndexes()));
 				
 				collector.collect(new Pair<PageKey,PageDetail>(sourceKey, sourceDetail));
 				
@@ -163,7 +163,7 @@ public class SubsequentMapper extends AvroMapper<Pair<PageKey, PageDetail>, Pair
 				//backtrack, so the child knows what the resolved parent is
 				PageKey childKey = new PageKey(childCategory.getNamespace(), childCategory.getTitle()) ;
 				PageDetail childDetail = PageSummaryStep.buildEmptyPageDetail() ;
-				childDetail.getParentCategories().add(new PageSummary(page.getId(), page.getTitle(), page.getNamespace(), false));
+				childDetail.getParentCategories().add(new PageSummary(page.getId(), pageKey.getTitle(), pageKey.getNamespace(), false));
 				
 				collector.collect(new Pair<PageKey,PageDetail>(childKey, childDetail));
 				
@@ -179,7 +179,7 @@ public class SubsequentMapper extends AvroMapper<Pair<PageKey, PageDetail>, Pair
 				//backtrack, so the child knows what the resolved parent is
 				PageKey childKey = new PageKey(childArticle.getNamespace(), childArticle.getTitle()) ;
 				PageDetail childDetail = PageSummaryStep.buildEmptyPageDetail() ;
-				childDetail.getParentCategories().add(new PageSummary(page.getId(), page.getTitle(), page.getNamespace(), false));
+				childDetail.getParentCategories().add(new PageSummary(page.getId(), pageKey.getTitle(), pageKey.getNamespace(), false));
 				
 				collector.collect(new Pair<PageKey,PageDetail>(childKey, childDetail));
 				

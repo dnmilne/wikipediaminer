@@ -12,6 +12,7 @@ import org.wikipedia.miner.extract.util.Languages.Language;
 import org.wikipedia.miner.extract.util.Languages.NamespaceAlias;
 import org.wikipedia.miner.extract.util.SiteInfo;
 import org.wikipedia.miner.extract.util.LanguageConfiguration;
+import org.wikipedia.miner.extract.util.Util;
 import org.wikipedia.miner.extract.util.SiteInfo.Namespace;
 
 public class DumpLinkParser {
@@ -119,6 +120,8 @@ public class DumpLinkParser {
 		//handle pipe trick
 		if (anchor.length() == 0)
 			anchor = target ;
+		
+		target = Util.normaliseTitle(target) ;
 
 		return new DumpLink(lang, namespace, target, section, anchor) ;
 	}

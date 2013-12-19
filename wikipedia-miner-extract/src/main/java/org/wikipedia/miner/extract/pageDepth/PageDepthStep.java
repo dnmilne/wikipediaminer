@@ -30,18 +30,19 @@ import org.wikipedia.miner.extract.pageDepth.DepthCombinerOrReducer.DepthCombine
 import org.wikipedia.miner.extract.pageDepth.DepthCombinerOrReducer.DepthReducer;
 import org.wikipedia.miner.extract.pageDepth.DepthCombinerOrReducer.Counts;
 import org.wikipedia.miner.extract.pageSummary.PageSummaryStep;
+import org.wikipedia.miner.extract.sortedPages.PageSortingStep;
 import org.wikipedia.miner.extract.util.UncompletedStepException;
 
 
 public class PageDepthStep extends IterativeStep {
 
-	private PageSummaryStep finalPageSummaryStep ;
+	private PageSortingStep finalPageSummaryStep ;
 
 	private Map<Counts,Long> counts ;
 
 
 
-	public PageDepthStep(Path workingDir, int iteration, PageSummaryStep finalPageSummaryStep) throws IOException {
+	public PageDepthStep(Path workingDir, int iteration, PageSortingStep finalPageSummaryStep) throws IOException {
 		super(workingDir, iteration);
 
 		this.finalPageSummaryStep = finalPageSummaryStep ;
@@ -65,7 +66,7 @@ public class PageDepthStep extends IterativeStep {
 		if (getIteration() == 0) {
 		
 			FileInputFormat.setInputPaths(conf, getWorkingDir() + Path.SEPARATOR + finalPageSummaryStep.getDirName());
-			AvroJob.setInputSchema(conf, Pair.getPairSchema(PageKey.getClassSchema(),PageDetail.getClassSchema()));
+			AvroJob.setInputSchema(conf, Pair.getPairSchema(Schema.create(Type.INT),PageDetail.getClassSchema()));
 			
 			DistributedCache.addCacheFile(new Path(conf.get(DumpExtractor2.KEY_LANG_FILE)).toUri(), conf);
 			

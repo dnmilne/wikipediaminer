@@ -10,6 +10,7 @@ import javax.xml.stream.*;
 
 import org.apache.log4j.*;
 import org.wikipedia.miner.extract.util.LanguageConfiguration;
+import org.wikipedia.miner.extract.util.Util;
 import org.wikipedia.miner.extract.util.Languages.Language;
 import org.wikipedia.miner.extract.util.Languages.NamespaceAlias;
 import org.wikipedia.miner.extract.util.SiteInfo;
@@ -148,6 +149,8 @@ public class DumpPageParser {
 		} else {
 			type = PageType.invalid ;
 		}
+		
+		title = Util.normaliseTitle(title) ;
 		
 		return new DumpPage(id, namespace, type, title, text, redirectTarget, lastEdited) ;
 		

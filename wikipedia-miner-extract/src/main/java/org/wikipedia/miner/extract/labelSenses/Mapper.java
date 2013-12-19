@@ -25,20 +25,19 @@ import org.wikipedia.miner.extract.pageDepth.InitialDepthMapper;
 import org.wikipedia.miner.extract.pageDepth.SubsequentDepthMapper;
 import org.wikipedia.miner.extract.util.SiteInfo;
 
-public class Mapper extends AvroMapper<Pair<PageKey, PageDetail>, Pair<CharSequence, LabelSenseList>> {
+public class Mapper extends AvroMapper<Pair<Integer, PageDetail>, Pair<CharSequence, LabelSenseList>> {
 
 
 	@Override
-	public void map(Pair<PageKey, PageDetail> pair,
+	public void map(Pair<Integer, PageDetail> pair,
 			AvroCollector<Pair<CharSequence, LabelSenseList>> collector,
 			Reporter reporter) throws IOException {
 		
 	
-		PageKey pageKey = pair.key() ;
 		PageDetail page = pair.value() ;
 		
 		//we only care about articles
-		if (!pageKey.getNamespace().equals(SiteInfo.MAIN_KEY))
+		if (!page.getNamespace().equals(SiteInfo.MAIN_KEY))
 			return ;
 		
 		//we don't care about redirects

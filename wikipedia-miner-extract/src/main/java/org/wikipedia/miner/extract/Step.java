@@ -40,7 +40,9 @@ public abstract class Step extends Configured implements Tool {
 	
 	public void finish(RunningJob job) throws IOException {
 		
-		counters = job.getCounters() ;
+		
+		if (job != null)
+			counters = job.getCounters() ;
 		
 		FSDataOutputStream out = hdfs.create(getFinishPath());
 		

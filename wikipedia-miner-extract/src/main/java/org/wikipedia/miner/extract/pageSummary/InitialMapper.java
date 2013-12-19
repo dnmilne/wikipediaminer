@@ -1,27 +1,16 @@
 package org.wikipedia.miner.extract.pageSummary;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import opennlp.tools.sentdetect.SentenceDetectorME;
-import opennlp.tools.sentdetect.SentenceModel;
-import opennlp.tools.util.InvalidFormatException;
-import opennlp.tools.util.Span;
 
 import org.apache.avro.mapred.AvroKey;
 import org.apache.avro.mapred.AvroValue;
-import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.filecache.DistributedCache;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
@@ -32,7 +21,6 @@ import org.apache.hadoop.mapred.Mapper;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.log4j.Logger;
-import org.wikipedia.miner.extract.DumpExtractor;
 import org.wikipedia.miner.extract.DumpExtractor2;
 import org.wikipedia.miner.extract.model.DumpLink;
 import org.wikipedia.miner.extract.model.DumpLinkParser;
@@ -44,12 +32,10 @@ import org.wikipedia.miner.extract.model.struct.PageDetail;
 import org.wikipedia.miner.extract.model.struct.PageKey;
 import org.wikipedia.miner.extract.model.struct.PageSummary;
 import org.wikipedia.miner.extract.pageSummary.PageSummaryStep.PageType;
-import org.wikipedia.miner.extract.util.LanguageConfiguration;
 import org.wikipedia.miner.extract.util.Languages;
 import org.wikipedia.miner.extract.util.Languages.Language;
 import org.wikipedia.miner.extract.util.PageSentenceExtractor;
 import org.wikipedia.miner.extract.util.SiteInfo;
-import org.wikipedia.miner.extract.util.Util;
 import org.wikipedia.miner.util.MarkupStripper;
 
 
@@ -169,28 +155,44 @@ public class InitialMapper extends MapReduceBase implements Mapper<LongWritable,
 
 	}
 
-
+	private PageKey buildKey(DumpPage parsedPage) {
+		
+		PageKey key = new PageKey() ;
+		
+		key.setNamespace(parsedPage.getNamespace().getKey());
+		key.setTitle(parsedPage.getTitle());
+		
+		return key ;
+	}
 
 
 	private PageDetail buildBasePageDetails(DumpPage parsedPage) {
 
 
 		PageDetail page = PageSummaryStep.buildEmptyPageDetail() ;
-
-
-		page.setNamespace(parsedPage.getNamespace().getKey());
+		
 		page.setId(parsedPage.getId());
-		page.setTitle(Util.normaliseTitle(parsedPage.getTitle())) ;
+		
+		//note: we don't set namespace or title, because these will be found in page keys (so it would be wasteful to repeat them)
 
 		if (parsedPage.getTarget() != null)
-			page.setRedirectsTo(new PageSummary(-1,Util.normaliseTitle(parsedPage.getTarget()), page.getNamespace(), false));
+			page.setRedirectsTo(new PageSummary(-1,parsedPage.getTarget(), parsedPage.getNamespace().getKey(), false));
 
 		if (parsedPage.getLastEdited() != null)
 			page.setLastEdited(parsedPage.getLastEdited().getTime());
 		
-		
 
 		return page ;
+	}
+	
+	private PageSummary buildPageSummary(DumpPage parsedPage) {
+		
+		PageSummary summary = new PageSummary() ;
+		summary.setId(parsedPage.getId());
+		summary.setNamespace(parsedPage.getNamespace().getKey());
+		summary.setTitle(parsedPage.getTitle());
+		
+		return summary ;
 	}
 
 	/*
@@ -214,22 +216,20 @@ public class InitialMapper extends MapReduceBase implements Mapper<LongWritable,
 				debug = true ;
 		}
 		
+		PageKey key = buildKey(parsedPage) ;
 		PageDetail page = buildBasePageDetails(parsedPage) ;
 		
 		try {
-			List<Integer> sentenceSplits = sentenceExtractor.getSentenceSplits(parsedPage) ;
-			
-			//logger.info("splits for " + parsedPage.getTitle() + ": [" + StringUtils.join(sentenceSplits, ",") + "]") ;
-					
+			List<Integer> sentenceSplits = sentenceExtractor.getSentenceSplits(parsedPage) ;	
 			page.setSentenceSplits(sentenceSplits);
 		} catch (Exception e) {
-			logger.warn("Could not gather sentence splits for " + page.getTitle(), e) ;	
+			logger.warn("Could not gather sentence splits for " + parsedPage.getTitle(), e) ;	
 			logger.info(parsedPage.getMarkup());
 		}
 	
-		collect(new PageKey(page.getNamespace(), page.getTitle()), page, collector) ;
+		collect(key, page, collector) ;
 
-		handleLinks(page,  parsedPage.getMarkup(), collector, reporter) ;
+		handleLinks(key, page,  parsedPage.getMarkup(), collector, reporter) ;
 
 		if (debug)
 			logger.info(page);
@@ -244,26 +244,23 @@ public class InitialMapper extends MapReduceBase implements Mapper<LongWritable,
 
 
 		PageDetail page = buildBasePageDetails(parsedPage) ;
-		collect(new PageKey(page.getNamespace(), page.getTitle()), page, collector) ;
+		collect(buildKey(parsedPage), page, collector) ;
 
-		String targetTitle = Util.normaliseTitle(parsedPage.getTarget()) ;
+		String targetTitle = parsedPage.getTarget() ;
 
 		// emit a pair to associate this redirect with target
 
-		PageSummary source = new PageSummary() ;
-		source.setId(page.getId());
-		source.setTitle(page.getTitle());
-		source.setNamespace(page.getNamespace()) ;
+		PageSummary source = buildPageSummary(parsedPage) ;
 		source.setForwarded(false) ;
 
 		PageDetail target = PageSummaryStep.buildEmptyPageDetail() ;
 		target.getRedirects().add(source);
 
-		collect(new PageKey(page.getNamespace(), targetTitle), target, collector) ;
+		collect(new PageKey(parsedPage.getNamespace().getKey(), targetTitle), target, collector) ;
 	}
 
 
-	public void handleLinks(PageDetail page, String markup, OutputCollector<AvroKey<PageKey>, AvroValue<PageDetail>> collector, Reporter reporter) throws IOException {
+	public void handleLinks(PageKey key, PageDetail page, String markup, OutputCollector<AvroKey<PageKey>, AvroValue<PageDetail>> collector, Reporter reporter) throws IOException {
 
 		String strippedMarkup = null ;
 
@@ -273,7 +270,7 @@ public class InitialMapper extends MapReduceBase implements Mapper<LongWritable,
 
 		} catch (Exception e) {
 
-			logger.warn("Could not process link markup for " + page.getId() + ":" + page.getTitle());
+			logger.warn("Could not process link markup for " + page.getId() + ":" + key.getTitle());
 			return ;
 		}
 
@@ -289,7 +286,7 @@ public class InitialMapper extends MapReduceBase implements Mapper<LongWritable,
 
 			DumpLink link = null ;
 			try {
-				link = linkParser.parseLink(linkMarkup, page.getTitle().toString()) ;
+				link = linkParser.parseLink(linkMarkup, key.getTitle().toString()) ;
 			} catch (Exception e) {
 				logger.warn("Could not parse link markup '" + linkMarkup + "'") ;
 			}
@@ -305,26 +302,26 @@ public class InitialMapper extends MapReduceBase implements Mapper<LongWritable,
 			}
 
 			if (link.getTargetNamespace().getKey()==SiteInfo.CATEGORY_KEY) {
-				String parentTitle = Util.normaliseTitle(link.getTargetTitle()) ;
-				PageDetail parent = buildCategoryParent(page, link) ;
+				String parentTitle = link.getTargetTitle() ;
+				PageDetail parent = buildCategoryParent(key, page, link) ;
 				
 				if (parent != null)
 					categoryParents.put(parentTitle, parent) ;	
 			}
 
 			if (link.getTargetNamespace().getKey()==SiteInfo.MAIN_KEY) {
-				String targetTitle = Util.normaliseTitle(link.getTargetTitle()) ;
+				String targetTitle = link.getTargetTitle() ;
 				
 				PageDetail target = linkTargets.get(targetTitle) ;
 				if (target == null)
 					target = PageSummaryStep.buildEmptyPageDetail() ;
 				
-				target = buildLinkTarget(page, link, linkRegion[0], target) ;
+				target = buildLinkTarget(key, page, link, linkRegion[0], target) ;
 
 				linkTargets.put(targetTitle, target) ;
 				
 				if (link.getAnchor().contains("|"))
-					logger.warn("weird link in " + page.getTitle() + ": \"" + linkMarkup + "\"");
+					logger.warn("weird link in " + key.getTitle() + ": \"" + linkMarkup + "\"");
 				
 			}
 				
@@ -351,7 +348,7 @@ public class InitialMapper extends MapReduceBase implements Mapper<LongWritable,
 
 
 
-	private PageDetail buildLinkTarget(PageDetail currPage, DumpLink link, int linkStart, PageDetail targetPage) {
+	private PageDetail buildLinkTarget(PageKey currKey, PageDetail currPage, DumpLink link, int linkStart, PageDetail targetPage) {
 
 		/*
 		emit details of this link, so it can be picked up by target
@@ -368,8 +365,8 @@ public class InitialMapper extends MapReduceBase implements Mapper<LongWritable,
 		
 			source = new LinkSummary() ;
 			source.setId(currPage.getId());
-			source.setTitle(currPage.getTitle());
-			source.setNamespace(currPage.getNamespace()) ;
+			source.setTitle(currKey.getTitle());
+			source.setNamespace(currKey.getNamespace()) ;
 			source.setForwarded(false) ;
 			source.setSentenceIndexes(new ArrayList<Integer>());
 		
@@ -415,21 +412,21 @@ public class InitialMapper extends MapReduceBase implements Mapper<LongWritable,
 	 * @param link
 	 * @throws IOException 
 	 */
-	private PageDetail buildCategoryParent(PageDetail currPage, DumpLink link) {
+	private PageDetail buildCategoryParent(PageKey currKey, PageDetail currPage, DumpLink link) {
 
 		//emit details of this link, so it can be picked up by target
 		PageSummary child = new PageSummary() ;
 		child.setId(currPage.getId());
-		child.setTitle(currPage.getTitle());
-		child.setNamespace(currPage.getNamespace()) ;
+		child.setTitle(currKey.getTitle());
+		child.setNamespace(currKey.getNamespace()) ;
 		child.setForwarded(false) ; 
 
 
 		PageDetail parent = PageSummaryStep.buildEmptyPageDetail() ;
 
-		if (currPage.getNamespace() == SiteInfo.CATEGORY_KEY) 
+		if (currKey.getNamespace() == SiteInfo.CATEGORY_KEY) 
 			parent.getChildCategories().add(child);
-		else if (currPage.getNamespace() == SiteInfo.MAIN_KEY)
+		else if (currKey.getNamespace() == SiteInfo.MAIN_KEY)
 			parent.getChildArticles().add(child);
 		else
 			return null ;
