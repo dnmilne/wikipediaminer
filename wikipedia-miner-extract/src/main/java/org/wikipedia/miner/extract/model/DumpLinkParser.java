@@ -2,7 +2,6 @@ package org.wikipedia.miner.extract.model;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -11,9 +10,8 @@ import org.apache.log4j.Logger;
 import org.wikipedia.miner.extract.util.Languages.Language;
 import org.wikipedia.miner.extract.util.Languages.NamespaceAlias;
 import org.wikipedia.miner.extract.util.SiteInfo;
-import org.wikipedia.miner.extract.util.LanguageConfiguration;
-import org.wikipedia.miner.extract.util.Util;
 import org.wikipedia.miner.extract.util.SiteInfo.Namespace;
+import org.wikipedia.miner.extract.util.Util;
 
 public class DumpLinkParser {
 

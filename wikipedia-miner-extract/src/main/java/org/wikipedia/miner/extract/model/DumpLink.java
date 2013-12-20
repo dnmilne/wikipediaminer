@@ -1,7 +1,5 @@
 package org.wikipedia.miner.extract.model;
 
-import java.util.regex.*;
-
 import org.wikipedia.miner.extract.util.SiteInfo.Namespace;
 
 public class DumpLink {

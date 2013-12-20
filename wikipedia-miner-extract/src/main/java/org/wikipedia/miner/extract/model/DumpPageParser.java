@@ -9,7 +9,6 @@ import java.io.*;
 import javax.xml.stream.*;
 
 import org.apache.log4j.*;
-import org.wikipedia.miner.extract.util.LanguageConfiguration;
 import org.wikipedia.miner.extract.util.Util;
 import org.wikipedia.miner.extract.util.Languages.Language;
 import org.wikipedia.miner.extract.util.Languages.NamespaceAlias;
@@ -24,9 +23,6 @@ import org.wikipedia.miner.model.Page.PageType ;
  */
 public class DumpPageParser {
 	
-	private Logger logger = Logger.getLogger(DumpPageParser.class);
-
-
 	private XMLInputFactory xmlStreamFactory = XMLInputFactory.newInstance() ;
 
 	private enum DumpTag {page, id, title, text, timestamp, ignorable} ;
@@ -34,7 +30,6 @@ public class DumpPageParser {
 	private Language language ;
 	private SiteInfo siteInfo ;
 	
-	//private Pattern redirectPattern ; 
 	private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'") ;
 	
 

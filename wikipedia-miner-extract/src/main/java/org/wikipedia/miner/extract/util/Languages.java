@@ -1,6 +1,7 @@
 package org.wikipedia.miner.extract.util;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,6 +56,12 @@ public class Languages {
 		
 	}
 	
+	public static Languages load(InputStream input) throws Exception {
+		
+		Serializer serializer = new Persister();
+		return serializer.read(Languages.class, input) ;
+		
+	}
 	
 
 	public static class Language {

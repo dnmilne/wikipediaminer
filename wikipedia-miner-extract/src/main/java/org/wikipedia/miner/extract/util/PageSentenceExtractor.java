@@ -2,7 +2,6 @@ package org.wikipedia.miner.extract.util;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -10,15 +9,15 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.hadoop.fs.Path;
-import org.apache.log4j.Logger;
-import org.wikipedia.miner.extract.model.DumpPage;
-import org.wikipedia.miner.util.MarkupStripper;
-
 import opennlp.tools.sentdetect.SentenceDetectorME;
 import opennlp.tools.sentdetect.SentenceModel;
 import opennlp.tools.util.InvalidFormatException;
 import opennlp.tools.util.Span;
+
+import org.apache.hadoop.fs.Path;
+import org.apache.log4j.Logger;
+import org.wikipedia.miner.extract.model.DumpPage;
+import org.wikipedia.miner.util.MarkupStripper;
 
 public class PageSentenceExtractor {
 	
@@ -111,11 +110,7 @@ public class PageSentenceExtractor {
 	}
 	
 	public List<Integer> handleParagraph(String paragraph, int paragraphStart, List<Integer> sentenceSplits) {
-		
-		//System.out.println(" " + paragraphStart + "," + (paragraphStart+paragraph.length())) ;
-		
-		//System.out.println(paragraph.replace('\n', '^'));
-		
+	
 		if (paragraphStart > 0)
 			sentenceSplits.add(paragraphStart) ;
 		
@@ -131,6 +126,5 @@ public class PageSentenceExtractor {
 		return sentenceSplits ;
 	}
 	
-	//public void checkSentenceIndexes
 	
 }
