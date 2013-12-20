@@ -171,6 +171,20 @@
         {"name": "textDocCount", "type": "int"},
       	{"name": "textOccCount", "type": "int"}
       ]
+    },
+    {
+      "type": "record",
+      "name": "PrimaryLabels",
+      "namespace": "org.wikipedia.miner.extract.model.struct",
+      "fields": [
+      	{
+          "name": "labels", 
+          "type": {
+            "type": "array",
+            "items": "string"
+          }
+        }
+      ]
     }
     
     

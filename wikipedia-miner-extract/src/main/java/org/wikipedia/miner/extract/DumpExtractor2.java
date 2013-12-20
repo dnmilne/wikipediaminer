@@ -23,6 +23,7 @@ import org.wikipedia.miner.extract.labelOccurrences.LabelOccurrenceStep;
 import org.wikipedia.miner.extract.labelSenses.LabelSensesStep;
 import org.wikipedia.miner.extract.pageDepth.PageDepthStep;
 import org.wikipedia.miner.extract.pageSummary.PageSummaryStep;
+import org.wikipedia.miner.extract.primaryLabel.PrimaryLabelStep;
 import org.wikipedia.miner.extract.sortedPages.PageSortingStep;
 import org.wikipedia.miner.extract.util.LanguageConfiguration;
 
@@ -243,12 +244,18 @@ public class DumpExtractor2 {
 		LabelSensesStep sensesStep = new LabelSensesStep(workingDir, sortingStep) ;
 		ToolRunner.run(new Configuration(), sensesStep, args);
 		
+		//gather primary labels
+		PrimaryLabelStep primaryLabelStep = new PrimaryLabelStep(workingDir, sensesStep) ;
+		ToolRunner.run(new Configuration(), primaryLabelStep, args);
+		
 		//gather label occurrences
 		LabelOccurrenceStep occurrencesStep = new LabelOccurrenceStep(workingDir, sensesStep) ;
 		ToolRunner.run(new Configuration(), occurrencesStep, args);
 		
 		
-		FinalSummaryStep finalStep = new FinalSummaryStep(finalDir, sortingStep, depthStep, sensesStep, occurrencesStep) ;
+		
+		
+		FinalSummaryStep finalStep = new FinalSummaryStep(finalDir, sortingStep, depthStep, primaryLabelStep, sensesStep, occurrencesStep) ;
 		finalStep.run() ;
 		
 		

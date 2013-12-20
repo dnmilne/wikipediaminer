@@ -51,7 +51,9 @@ import org.wikipedia.miner.extract.model.struct.LinkSummary;
 import org.wikipedia.miner.extract.model.struct.PageDepthSummary;
 import org.wikipedia.miner.extract.model.struct.PageDetail;
 import org.wikipedia.miner.extract.model.struct.PageSummary;
+import org.wikipedia.miner.extract.model.struct.PrimaryLabels;
 import org.wikipedia.miner.extract.pageDepth.PageDepthStep;
+import org.wikipedia.miner.extract.primaryLabel.PrimaryLabelStep;
 import org.wikipedia.miner.extract.sortedPages.PageSortingStep;
 import org.wikipedia.miner.extract.util.SiteInfo;
 import org.wikipedia.miner.model.Page.PageType;
@@ -60,6 +62,8 @@ public class FinalSummaryStep extends LocalStep {
 
 	private PageSortingStep pageSortingStep ;
 	private PageDepthStep pageDepthStep ;
+	private PrimaryLabelStep primaryLabelStep ;
+	
 	private LabelSensesStep labelSensesStep ;
 	private LabelOccurrenceStep labelOccurrenceStep ;
 
@@ -83,10 +87,11 @@ public class FinalSummaryStep extends LocalStep {
 
 
 
-	public FinalSummaryStep(Path workingDir, PageSortingStep pageSortingStep, PageDepthStep pageDepthStep, LabelSensesStep labelSensesStep, LabelOccurrenceStep labelOccurrenceStep) throws IOException {
+	public FinalSummaryStep(Path workingDir, PageSortingStep pageSortingStep, PageDepthStep pageDepthStep, PrimaryLabelStep primaryLabelStep, LabelSensesStep labelSensesStep, LabelOccurrenceStep labelOccurrenceStep) throws IOException {
 		super(workingDir);
 		this.pageSortingStep = pageSortingStep ;
 		this.pageDepthStep = pageDepthStep ;
+		this.primaryLabelStep = primaryLabelStep ;
 
 		this.labelSensesStep = labelSensesStep ;
 		this.labelOccurrenceStep = labelOccurrenceStep ;
@@ -144,6 +149,14 @@ public class FinalSummaryStep extends LocalStep {
 		Schema pageDepthsSchema = Pair.getPairSchema(Schema.create(Type.INT),PageDepthSummary.getClassSchema()) ;
 		DatumReader<Pair<Integer,PageDepthSummary>> pageDepthsDatumReader = new SpecificDatumReader<Pair<Integer,PageDepthSummary>>(pageDepthsSchema);
 		FileReader<Pair<Integer,PageDepthSummary>> pageDepthsReader = DataFileReader.openReader(pageDepthsInput, pageDepthsDatumReader) ;
+		
+		
+		Path primaryLabelPath = getMainAvroResultPath(primaryLabelStep) ;
+		SeekableInput primaryLabelInput = new FsInput(primaryLabelPath, new Configuration());
+
+		Schema primaryLabelSchema = Pair.getPairSchema(Schema.create(Type.INT),PrimaryLabels.getClassSchema()) ;
+		DatumReader<Pair<Integer,PrimaryLabels>> primaryLabelDatumReader = new SpecificDatumReader<Pair<Integer,PrimaryLabels>>(primaryLabelSchema);
+		FileReader<Pair<Integer,PrimaryLabels>> primaryLabelReader = DataFileReader.openReader(primaryLabelInput, primaryLabelDatumReader) ;
 
 
 		//read through pageDetail and pageDepth files simultaneously.
@@ -151,20 +164,34 @@ public class FinalSummaryStep extends LocalStep {
 
 		Pair<Integer,PageDetail> detailPair = null ;
 		Pair<Integer,PageDepthSummary> depthPair = null ;
+		Pair<Integer,PrimaryLabels> primaryLabelPair = null ;
 		while (pageDetailReader.hasNext()) {
 
 			detailPair = pageDetailReader.next();
-
-			while ((depthPair == null || depthPair.key() < detailPair.key()) && pageDepthsReader.hasNext())
-				depthPair = pageDepthsReader.next();
-
 			PageDetail detail = detailPair.value() ;
 
+			//identify page depth summary, if there is one
+			while ((depthPair == null || depthPair.key() < detailPair.key()) && pageDepthsReader.hasNext())
+				depthPair = pageDepthsReader.next();
+			
 			PageDepthSummary depth = null ;
 			if (depthPair.key().equals(detailPair.key()))
 				depth = depthPair.value() ;
+			
+			//identify primary label summary, if there is one
+			while ((primaryLabelPair == null || primaryLabelPair.key() < detailPair.key()) && primaryLabelReader.hasNext())
+				primaryLabelPair = primaryLabelReader.next();
 
+			Set<CharSequence> primaryLabels = new HashSet<CharSequence>() ;
+			if (primaryLabelPair.key().equals(detailPair.key())) 
+				primaryLabels.addAll(primaryLabelPair.value().getLabels()) ;
+			
 
+			
+
+			
+			
+			
 			//now we definitely have a page. If we have a depth, then it is synchonized with page
 
 			DbPage page = buildPage(detail, depth) ;
@@ -194,7 +221,7 @@ public class FinalSummaryStep extends LocalStep {
 					DbIntList sentenceSplits = buildIntList(detail.getSentenceSplits()) ;
 					write(detail.getId(),sentenceSplits, sentenceSplitsWriter) ;
 
-					DbLabelForPageList labels = buildLabelList(detail) ;
+					DbLabelForPageList labels = buildLabelList(detail, primaryLabels) ;
 					write(detail.getId(), labels, pageLabelWriter) ;
 
 
@@ -382,7 +409,7 @@ public class FinalSummaryStep extends LocalStep {
 		return new DbIntList(ints) ;
 	}
 
-	private DbLabelForPageList buildLabelList(PageDetail page) {
+	private DbLabelForPageList buildLabelList(PageDetail page, Set<CharSequence> primaryLabels) {
 
 		ArrayList<DbLabelForPage> dbLabels = new ArrayList<DbLabelForPage>() ;
 
@@ -402,10 +429,10 @@ public class FinalSummaryStep extends LocalStep {
 
 			label.setFromRedirect(redirectTitles.contains(text));
 			label.setFromTitle(page.getTitle().equals(text));
+			
+			label.setIsPrimary(primaryLabels.contains(text));
 
 			dbLabels.add(label) ;
-			//TODO: no idea how we do isPrimary (whether the current page is the most common destination for the given label)
-
 		}
 
 		Collections.sort(dbLabels, labelComparator) ;
