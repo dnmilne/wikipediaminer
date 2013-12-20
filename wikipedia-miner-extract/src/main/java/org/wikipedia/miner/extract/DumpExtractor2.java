@@ -248,7 +248,7 @@ public class DumpExtractor2 {
 		ToolRunner.run(new Configuration(), occurrencesStep, args);
 		
 		
-		FinalSummaryStep finalStep = new FinalSummaryStep(finalDir, sortingStep, depthStep) ;
+		FinalSummaryStep finalStep = new FinalSummaryStep(finalDir, sortingStep, depthStep, sensesStep, occurrencesStep) ;
 		finalStep.run() ;
 		
 		
