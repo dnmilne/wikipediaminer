@@ -165,9 +165,13 @@ public class FinalSummaryStep extends LocalStep {
 				depth = depthPair.value() ;
 
 
-			//now we definitely have a page. If we have a depth, then it is synchonised with page
+			//now we definitely have a page. If we have a depth, then it is synchonized with page
 
 			DbPage page = buildPage(detail, depth) ;
+			
+			if (page.getType() == PageType.invalid.ordinal())
+				continue ;
+			
 			write(detail.getId(), page, pageWriter) ;
 
 			if (detail.getNamespace() == SiteInfo.MAIN_KEY) {
@@ -433,8 +437,10 @@ public class FinalSummaryStep extends LocalStep {
 
 			if (detail.getRedirectsTo() == null) {
 
-				//TODO: disambig pages
-				return PageType.article ;
+				if (detail.getIsDisambiguation())
+					return PageType.disambiguation ;
+				else
+					return PageType.article ;
 
 			} else {
 				return PageType.redirect ;

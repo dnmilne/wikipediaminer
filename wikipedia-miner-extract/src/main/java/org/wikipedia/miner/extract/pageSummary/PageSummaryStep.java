@@ -52,7 +52,7 @@ import org.wikipedia.miner.extract.util.XmlInputFormat;
  */
 public class PageSummaryStep extends IterativeStep {
 
-	public enum PageType {article, category, disambiguation, articleRedirect, categoryRedirect, unparseable} ; 
+	public enum SummaryPageType {article, category, disambiguation, articleRedirect, categoryRedirect, unparseable} ; 
 	public enum Unforwarded {redirect,linkIn,linkOut,parentCategory,childCategory,childArticle} ; 
 
 
@@ -96,6 +96,7 @@ public class PageSummaryStep extends IterativeStep {
 	public static PageDetail buildEmptyPageDetail() {
 
 		PageDetail p = new PageDetail() ;
+		p.setIsDisambiguation(false);
 		p.setSentenceSplits(new ArrayList<Integer>());
 		p.setRedirects(new ArrayList<PageSummary>()) ;
 		p.setLinksIn(new ArrayList<LinkSummary>());

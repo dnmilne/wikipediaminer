@@ -31,11 +31,12 @@ import org.wikipedia.miner.extract.model.struct.LinkSummary;
 import org.wikipedia.miner.extract.model.struct.PageDetail;
 import org.wikipedia.miner.extract.model.struct.PageKey;
 import org.wikipedia.miner.extract.model.struct.PageSummary;
-import org.wikipedia.miner.extract.pageSummary.PageSummaryStep.PageType;
+import org.wikipedia.miner.extract.pageSummary.PageSummaryStep.SummaryPageType;
 import org.wikipedia.miner.extract.util.Languages;
 import org.wikipedia.miner.extract.util.Languages.Language;
 import org.wikipedia.miner.extract.util.PageSentenceExtractor;
 import org.wikipedia.miner.extract.util.SiteInfo;
+import org.wikipedia.miner.model.Page.PageType;
 import org.wikipedia.miner.util.MarkupStripper;
 
 
@@ -112,7 +113,7 @@ public class InitialMapper extends MapReduceBase implements Mapper<LongWritable,
 		try {
 			parsedPage = pageParser.parsePage(value.toString()) ;
 		} catch (Exception e) {
-			reporter.incrCounter(PageType.unparseable, 1);
+			reporter.incrCounter(SummaryPageType.unparseable, 1);
 			logger.error("Could not parse dump page " , e) ;
 		}
 
@@ -122,17 +123,17 @@ public class InitialMapper extends MapReduceBase implements Mapper<LongWritable,
 		switch (parsedPage.getType()) {
 
 		case article :
-			reporter.incrCounter(PageType.article, 1);
+			reporter.incrCounter(SummaryPageType.article, 1);
 			handleArticleOrCategory(parsedPage, collector, reporter) ;
 
 			break ;
 		case category :
-			reporter.incrCounter(PageType.category, 1);
+			reporter.incrCounter(SummaryPageType.category, 1);
 			handleArticleOrCategory(parsedPage, collector, reporter) ;
 
 			break ;
 		case disambiguation :
-			reporter.incrCounter(PageType.disambiguation, 1);
+			reporter.incrCounter(SummaryPageType.disambiguation, 1);
 
 			//apart from the counting, don't treat disambig pages any different from ordinary articles
 			handleArticleOrCategory(parsedPage, collector, reporter) ;
@@ -140,10 +141,10 @@ public class InitialMapper extends MapReduceBase implements Mapper<LongWritable,
 			break ;
 		case redirect :
 			if (parsedPage.getNamespace().getKey() == SiteInfo.MAIN_KEY)
-				reporter.incrCounter(PageType.articleRedirect, 1);
+				reporter.incrCounter(SummaryPageType.articleRedirect, 1);
 
 			if (parsedPage.getNamespace().getKey() == SiteInfo.CATEGORY_KEY)
-				reporter.incrCounter(PageType.categoryRedirect, 1);
+				reporter.incrCounter(SummaryPageType.categoryRedirect, 1);
 
 			handleRedirect(parsedPage, collector, reporter) ;
 
@@ -173,6 +174,9 @@ public class InitialMapper extends MapReduceBase implements Mapper<LongWritable,
 		
 		page.setId(parsedPage.getId());
 		
+		if (parsedPage.getType().equals(PageType.disambiguation))
+			page.setIsDisambiguation(true);
+		
 		//note: we don't set namespace or title, because these will be found in page keys (so it would be wasteful to repeat them)
 
 		if (parsedPage.getTarget() != null)
@@ -191,6 +195,7 @@ public class InitialMapper extends MapReduceBase implements Mapper<LongWritable,
 		summary.setId(parsedPage.getId());
 		summary.setNamespace(parsedPage.getNamespace().getKey());
 		summary.setTitle(parsedPage.getTitle());
+		
 		
 		return summary ;
 	}

@@ -54,6 +54,7 @@
          {"name": "id", "type": ["int", "null"]},
          {"name": "title", "type": ["string", "null"]},
          {"name": "namespace", "type": ["int", "null"]},
+         {"name": "isDisambiguation", "type": "boolean"},
          {"name": "lastEdited", "type": ["long","null"]},
          {
           "name": "sentenceSplits", 

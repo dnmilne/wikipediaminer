@@ -38,6 +38,7 @@ public abstract class CombinerOrReducer extends AvroReducer<PageKey, PageDetail,
 		//Integer namespace = key.getNamespace() ;
 		CharSequence title = key.getTitle() ;
 		Long lastEdited = null ;
+		boolean isDisambiguation = false ;
 		
 		List<Integer> sentenceSplits = new ArrayList<Integer>() ;
 
@@ -72,6 +73,9 @@ public abstract class CombinerOrReducer extends AvroReducer<PageKey, PageDetail,
 
 			if (pagePartial.getLastEdited() != null)
 				lastEdited = pagePartial.getLastEdited() ;
+			
+			if (pagePartial.getIsDisambiguation())
+				isDisambiguation = true ;
 
 			if (pagePartial.getRedirectsTo() != null) {
 
@@ -142,6 +146,7 @@ public abstract class CombinerOrReducer extends AvroReducer<PageKey, PageDetail,
 		combinedPage.setId(id)	;
 		//combinedPage.setTitle(title);
 		//combinedPage.setNamespace(namespace);
+		combinedPage.setIsDisambiguation(isDisambiguation);
 		combinedPage.setLastEdited(lastEdited) ;
 		combinedPage.setSentenceSplits(sentenceSplits);
 
