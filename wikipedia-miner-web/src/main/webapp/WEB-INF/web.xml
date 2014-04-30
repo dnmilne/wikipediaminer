@@ -151,24 +151,6 @@
     </servlet-mapping>
 
 
-    
-
-    <servlet>
-        <servlet-name>Disambiguation</servlet-name>
-        <description>
-
-        </description>
-        <servlet-class>
-            org.wikipedia.miner.web.service.DisambiguatorService
-        </servlet-class>
-        <load-on-startup>1</load-on-startup>
-    </servlet>
-
-    <servlet-mapping>
-        <servlet-name>Disambiguation</servlet-name>
-        <url-pattern>/services/Disambiguation</url-pattern>
-    </servlet-mapping>
-    
 
 
     <servlet>
@@ -205,21 +187,7 @@
     </servlet-mapping>
 
 
-    <servlet>
-        <servlet-name>getUsage</servlet-name>
-        <description>
-
-        </description>
-        <servlet-class>
-            org.wikipedia.miner.web.service.UsageService
-        </servlet-class>
-        <load-on-startup>1</load-on-startup>
-    </servlet>
-    
-    <servlet-mapping>
-        <servlet-name>getUsage</servlet-name>
-        <url-pattern>/services/getUsage</url-pattern>
-    </servlet-mapping>
+  
 
 
     <servlet>
