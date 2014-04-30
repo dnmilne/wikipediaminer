@@ -1,7 +1,5 @@
-package org.wikipedia.miner.util.text;
+package org.wikipedia.miner.util.text.english;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.util.Map;
 import java.util.Set;
 import org.wikipedia.miner.util.text.yagoUtils.FinalMap;
@@ -63,6 +61,8 @@ public class PlingStemmer {
     /**
      * Tells whether a word form is singular. Note that a word can be both
      * plural and singular
+     * @param s
+     * @return 
      */
     public boolean isSingular(String s) {
         return (singAndPlur.contains(s.toLowerCase()) || !isPlural(s));
@@ -71,6 +71,8 @@ public class PlingStemmer {
     /**
      * Tells whether a word form is the singular form of one word and at the
      * same time the plural form of another.
+     * @param s
+     * @return 
      */
     public boolean isSingularAndPlural(String s) {
         return (singAndPlur.contains(s.toLowerCase()));
@@ -79,6 +81,9 @@ public class PlingStemmer {
     /**
      * Cuts a suffix from a string (that is the number of chars given by the
      * suffix)
+     * @param s
+     * @param suffix
+     * @return 
      */
     public String cut(String s, String suffix) {
         return (s.substring(0, s.length() - suffix.length()));
@@ -86,6 +91,8 @@ public class PlingStemmer {
 
     /**
      * Returns true if a word is probably not Latin
+     * @param s
+     * @return 
      */
     public boolean noLatin(String s) {
         return (s.indexOf('h') > 0 || s.indexOf('j') > 0 || s.indexOf('k') > 0
@@ -103,6 +110,8 @@ public class PlingStemmer {
 
     /**
      * Stems an English noun to its singular form
+     * @param s
+     * @return 
      */
     public String stem(String s) {
         String stem = s;

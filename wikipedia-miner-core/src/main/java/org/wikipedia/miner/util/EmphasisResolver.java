@@ -20,9 +20,6 @@
 package org.wikipedia.miner.util;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -35,7 +32,7 @@ public class EmphasisResolver {
 
 	public String resolveEmphasis(String text) {
 		
-		StringBuffer sb = new StringBuffer() ;
+		StringBuilder sb = new StringBuilder() ;
 		
 		for (String line:text.split("\n")) {
 			sb.append(resolveLine(line)) ;
@@ -150,9 +147,7 @@ public class EmphasisResolver {
 
 		}
 
-		// Now let's actually convert our apostrophic mush to HTML!
-
-		StringBuffer output = new StringBuffer() ;
+		StringBuilder output = new StringBuilder() ;
 		StringBuffer buffer = new StringBuffer() ;
 		String state = "" ;
 		int i = 0 ;
@@ -284,7 +279,7 @@ public class EmphasisResolver {
 
 
 	private String getFilledString(int length) {
-		StringBuffer sb = new StringBuffer() ;
+		StringBuilder sb = new StringBuilder() ;
 		for (int i=0 ; i<length ; i++)
 			sb.append("'") ;
 

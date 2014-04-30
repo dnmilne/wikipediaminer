@@ -17,7 +17,10 @@
  *    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-package org.wikipedia.miner.util.text;
+package org.wikipedia.miner.util.text.english;
+
+import org.wikipedia.miner.util.text.Cleaner;
+import org.wikipedia.miner.util.text.TextProcessor;
 
 /**
  * A basic stemmer that only performs the first step of the 

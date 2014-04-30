@@ -19,8 +19,6 @@
 
 package org.wikipedia.miner.util.text;
 
-import org.wikipedia.miner.util.text.TextProcessor;
-
 /**
  * @author dnk2
  *

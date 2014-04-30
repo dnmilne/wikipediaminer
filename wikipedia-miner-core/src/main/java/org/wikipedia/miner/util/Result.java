@@ -97,6 +97,7 @@ public class Result<E> {
 	/**
 	 * @return a string representation of the result.
 	 */
+        @Override
 	public String toString() {
 		return "recall: " + f.format(getRecall()) + ", precision:" + f.format(getPrecision()) + ", f-measure:" + f.format(getFMeasure()) ;
 	}

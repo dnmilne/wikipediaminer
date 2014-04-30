@@ -36,7 +36,6 @@ import org.wikipedia.miner.comparison.ArticleComparer;
 import org.wikipedia.miner.comparison.ArticleComparer.DataDependency;
 import org.wikipedia.miner.db.WDatabase.CachePriority;
 import org.wikipedia.miner.db.WDatabase.DatabaseType;
-import org.wikipedia.miner.model.Article;
 import org.wikipedia.miner.util.text.TextProcessor;
 import org.xml.sax.SAXException;
 
@@ -50,7 +49,7 @@ public class WikipediaConfiguration {
 	private File dataDirectory ;
 	private TextProcessor defaultTextProcessor = null ;
 
-	private HashMap<DatabaseType, CachePriority> databasesToCache = new HashMap<DatabaseType, CachePriority>() ;
+	private final HashMap<DatabaseType, CachePriority> databasesToCache = new HashMap<DatabaseType, CachePriority>() ;
 
 	private HashSet<String> stopwords = new HashSet<String>() ;
 	
