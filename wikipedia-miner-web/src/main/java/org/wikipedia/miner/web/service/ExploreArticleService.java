@@ -33,6 +33,7 @@ import org.dmilne.xjsf.param.StringParameter;
 
 import com.google.gson.annotations.Expose;
 import org.dmilne.xjsf.param.IntListParameter;
+import org.wikipedia.miner.model.Redirect;
 
 @SuppressWarnings("serial")
 public class ExploreArticleService extends WMService {
@@ -183,12 +184,11 @@ public class ExploreArticleService extends WMService {
             return new ParameterMissingMessage(request);
         }
 
-        
         List<Article> articleList = new ArrayList<Article>();
         List<Integer> invalidList = new ArrayList<Integer>();
         List<Integer> nullList = new ArrayList<Integer>();
         switch (GroupName.valueOf(grp.getName())) {
-            
+
             case id:
                 Integer id = prmId.getValue(request);
                 org.wikipedia.miner.model.Page page = wikipedia.getPageById(id);
@@ -198,7 +198,7 @@ public class ExploreArticleService extends WMService {
                 switch (page.getType()) {
                     case disambiguation:
                     case article:
-                    case redirect:
+                        //TODO what to do with redirects?
                         articleList.add((Article) page);
                         break;
                     default:
@@ -217,7 +217,6 @@ public class ExploreArticleService extends WMService {
                     switch (pageIds.getType()) {
                         case disambiguation:
                         case article:
-                        case redirect:
                             articleList.add((Article) pageIds);
                             break;
                         default:
@@ -227,13 +226,14 @@ public class ExploreArticleService extends WMService {
                                 nullList.add(integer);
                             }
                     }
+
                 }
                 break;
-            
+
             case title:
                 String title = prmTitle.getValue(request);
                 Article arti = wikipedia.getArticleByTitle(title);
-                
+
                 if (arti == null) {
                     return new InvalidTitleMessage(request, title);
                 } else {
@@ -241,7 +241,7 @@ public class ExploreArticleService extends WMService {
                 }
                 break;
         }
-        
+
         MessageList msge = new MessageList(request, nullList, invalidList);
         for (Article art : articleList) {
             ArticleMsg msg = new ArticleMsg(art);

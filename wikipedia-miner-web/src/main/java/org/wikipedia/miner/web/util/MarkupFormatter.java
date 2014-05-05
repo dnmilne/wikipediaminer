@@ -19,12 +19,12 @@ public class MarkupFormatter {
 	public enum EmphasisFormat{PLAIN,WIKI,HTML} ;
 	public enum LinkFormat{PLAIN,HTML,WIKI,WIKI_ID} ;
 	
-	private EmphasisResolver emphasisResolver = new EmphasisResolver() ;
-	private MarkupStripper stripper = new MarkupStripper() ;
+	private final EmphasisResolver emphasisResolver = new EmphasisResolver() ;
+	private final MarkupStripper stripper = new MarkupStripper() ;
 	
 	
-	private EnumParameter<EmphasisFormat> prmEmphasisFormat ;
-	private EnumParameter<LinkFormat> prmLinkFormat ;
+	private final EnumParameter<EmphasisFormat> prmEmphasisFormat ;
+	private final EnumParameter<LinkFormat> prmLinkFormat ;
 	
 	
 	protected Pattern linkPattern = Pattern.compile("\\[\\[(.*?)\\]\\]", Pattern.DOTALL) ;
@@ -60,7 +60,7 @@ public class MarkupFormatter {
 		Matcher m = linkPattern.matcher(markup) ;
 
 		int lastPos = 0 ;
-		StringBuffer sb = new StringBuffer() ;
+		StringBuilder sb = new StringBuilder() ;
 
 		while(m.find()) {
 

@@ -151,7 +151,6 @@ public class ExploreCategoryService extends WMService {
                         nulllist.add(integer);
                     }
                     switch (pageIds.getType()) {
-                        case disambiguation:
                         case category:
                             list.add((Category) pageIds);
                             break;

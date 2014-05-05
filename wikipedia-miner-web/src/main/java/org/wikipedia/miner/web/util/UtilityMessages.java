@@ -13,7 +13,7 @@ public class UtilityMessages {
 
 		@Expose 
 		@Attribute
-		private Integer invalidId ;
+		private final Integer invalidId ;
 
 		public InvalidIdMessage(HttpServletRequest request, Integer id) {
 			super(request, "'" + id + "' is not a valid id") ;	
@@ -29,7 +29,7 @@ public class UtilityMessages {
 
 		@Expose 
 		@Attribute
-		private String invalidTitle ;
+		private final String invalidTitle ;
 
 		public InvalidTitleMessage(HttpServletRequest request, String title) {
 			super(request, "'" + title + "' is not a valid title") ;	
@@ -46,7 +46,7 @@ public class UtilityMessages {
 		
 		@Expose 
 		@Attribute
-		private String unknownTerm ;
+		private final String unknownTerm ;
 
 		public UnknownTermMessage(HttpServletRequest request, String term) {
 			super(request, "'" + term + "' is not a known term") ;	
