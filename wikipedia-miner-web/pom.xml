@@ -57,7 +57,7 @@
 
             <plugin>
                 <groupId>org.apache.tomcat.maven</groupId>
-                <artifactId>tomcat7-maven-plugin</artifactId>
+                <artifactId>tomcat8-maven-plugin</artifactId>
                 <version>2.0</version>
                 <configuration>
                     <url>http://127.0.0.1/manager/text</url>

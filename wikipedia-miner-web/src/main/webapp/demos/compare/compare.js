@@ -66,7 +66,7 @@ $(document).ready(function() {
 function checkProgress() {
 	
 	$.get(
-		"../../service/getProgress",
+		"../../services/getProgress",
 		{responseFormat:'JSON'},
 		function(data) {
 			
@@ -107,7 +107,7 @@ function ready() {
 		$('#term2').val(term2) ;
 		
 		$.get(
-			"../../service/compare", 
+			"../../services/compare", 
 			{
 				term1: $('#term1').val(), 
 				term2: $('#term2').val(),

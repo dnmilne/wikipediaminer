@@ -97,7 +97,7 @@ $(document).ready(function() {
 function checkProgress() {
 	
 	$.get(
-		"../../service/getProgress",
+		"../../services/getProgress",
 		{responseFormat:'JSON'},
 		function(data) {
 			
@@ -136,7 +136,7 @@ function ready() {
 		
 		
 		$.post(
-			"../../service/wikify", 
+			"../../services/wikify", 
 			{
 				source: source,
 				sourceMode: sourceMode,
