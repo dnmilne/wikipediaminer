@@ -29,6 +29,7 @@ public class WebContentRetriever {
 		
 		if (proxyUser != null && proxyPassword != null) {
 			Authenticator.setDefault(new Authenticator() {
+                                @Override
 				protected PasswordAuthentication getPasswordAuthentication() {
 					return new PasswordAuthentication(proxyUser, proxyPassword.toCharArray());
 				}
@@ -44,11 +45,11 @@ public class WebContentRetriever {
 		BufferedReader input = new BufferedReader(new InputStreamReader(con.getInputStream(), "UTF-8")) ;
 		String line ;
 		
-		StringBuffer content = new StringBuffer() ;
+		StringBuilder content = new StringBuilder() ;
 		
 		while ((line=input.readLine())!=null) {
 			
-			content.append(line + "\n") ;
+			content.append(line).append("\n") ;
 		}
 			
 		return content.toString() ;

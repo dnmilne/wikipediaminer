@@ -30,7 +30,7 @@ package org.wikipedia.miner.util.text;
  */	
 public class Cleaner extends TextProcessor{
 	
-	private boolean disallowInternalPeriods = false ;
+	private final boolean disallowInternalPeriods = false ;
 		
 	/**
 	 * Returns a cleaned copy of the argument text, with capitalization and stopwords removed. 
@@ -38,6 +38,7 @@ public class Cleaner extends TextProcessor{
 	 * @param text	the text to be processed.
 	 * @return	the processed version of this text.
 	 */
+        @Override
 	public String processText(String text) {
 		String t = text ;
 		
@@ -48,7 +49,7 @@ public class Cleaner extends TextProcessor{
 	
 	private String cleanPunctuation(String text) {
 		
-		StringBuffer resultStr = new StringBuffer();
+		StringBuilder resultStr = new StringBuilder();
 		int j = 0;
 		
 		boolean phraseStart = true;

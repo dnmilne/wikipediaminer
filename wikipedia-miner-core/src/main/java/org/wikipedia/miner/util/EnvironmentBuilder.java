@@ -1,14 +1,9 @@
 package org.wikipedia.miner.util;
 
 import java.io.File;
-import java.io.IOException;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.XMLStreamException;
 
 
 import org.wikipedia.miner.db.*;
-import org.wikipedia.miner.util.text.PorterStemmer;
 
 public class EnvironmentBuilder {
 
@@ -28,6 +23,7 @@ public class EnvironmentBuilder {
 		WikipediaConfiguration conf = new WikipediaConfiguration(confFile) ;
 		
 		if (conf.getDataDirectory() == null || !conf.getDataDirectory().isDirectory()) {
+                        System.out.println(conf.getDataDirectory());
 			System.out.println("'" + args[0] + "' does not specify a valid data directory") ;
 			System.exit(1) ;
 		}

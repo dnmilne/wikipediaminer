@@ -22,7 +22,6 @@ package org.wikipedia.miner.util;
 import org.wikipedia.miner.comparison.ArticleComparer;
 import org.wikipedia.miner.model.Article;
 
-import gnu.trove.* ;
 import gnu.trove.map.hash.TLongDoubleHashMap;
 
 /**
@@ -55,6 +54,7 @@ public class RelatednessCache {
 	 * @param art1 
 	 * @param art2
 	 * @return the semantic relatedness of art1 and art2
+     * @throws java.lang.Exception
 	 */
 	public double getRelatedness(Article art1, Article art2) throws Exception {
 		
