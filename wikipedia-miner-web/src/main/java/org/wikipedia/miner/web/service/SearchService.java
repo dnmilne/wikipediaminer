@@ -101,13 +101,13 @@ public class SearchService extends WMService {
             if (queryList == null) 
                 return new ParameterMissingMessage(request);
              else {
+                if(queryList.length==1){
+                  return resolveSimpleQuery(queryList[0], request);
+                }
                 if (queryList.length > 1)
                 return resolveQueryList(queryList, request);
             }
-        }else{
-       
-     
-            
+        }else{                       
             if (prmComplex.getValue(request)) 
                 return resolveComplexQuery(query, request);
              else 
@@ -145,7 +145,7 @@ public class SearchService extends WMService {
     }
 
     private Message resolveQueryList(String[] queryList, HttpServletRequest request) {
-
+        
         Wikipedia wikipedia = getWikipedia(request);
 
         NGrammer nGrammer = new NGrammer(wikipedia.getConfig().getSentenceDetector(), wikipedia.getConfig().getTokenizer());
@@ -153,18 +153,24 @@ public class SearchService extends WMService {
         Message msg = new Message(request);
         float minPriorProb = prmMinPriorProb.getValue(request);
         for (String query : queryList) {
+            try{
             NGramSpan span = nGrammer.ngramPosDetect(query)[0];
             org.wikipedia.miner.model.Label label = wikipedia.getLabel(span, query);
             Label rLabel = new Label(label);
             for (org.wikipedia.miner.model.Label.Sense sense : label.getSenses()) {
-
                 if (sense.getPriorProbability() < minPriorProb) {
                     break;
                 }
                 rLabel.addSense(new Sense(sense));
             }
             msg.addLabel(rLabel);
+            }catch(NullPointerException   ex){
+                
+            }catch(ArrayIndexOutOfBoundsException ex){
+            
+            }
         }
+        
         return msg;
     }
 
