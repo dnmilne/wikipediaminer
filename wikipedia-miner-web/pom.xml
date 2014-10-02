@@ -30,16 +30,21 @@
             <artifactId>simple-xml</artifactId>
             <version>2.7.1</version>
         </dependency>
-
-        <dependency>
-            <groupId>org.dmilne</groupId>
-            <artifactId>xjsf</artifactId>
-            <version>0.0.6</version>
-        </dependency>
         <dependency>
             <groupId>org.dmilne</groupId>
             <artifactId>weka-wrapper</artifactId>
             <version>0.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org</groupId>
+            <artifactId>xjsf</artifactId>
+            <version>0.0.7-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.dmilne</groupId>
+            <artifactId>xjsf</artifactId>
+            <version>0.0.6</version>
+            <type>jar</type>
         </dependency>
     </dependencies>
     <build>

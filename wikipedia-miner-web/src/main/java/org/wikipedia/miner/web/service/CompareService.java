@@ -43,6 +43,7 @@ import org.dmilne.xjsf.param.StringParameter;
 
 import com.google.gson.annotations.Expose;
 import org.dmilne.xjsf.UtilityMessages;
+import org.wikipedia.miner.util.NGrammer;
 import org.wikipedia.miner.web.util.xjsfParameters.StringListParameter;
 
 /**
@@ -273,20 +274,31 @@ public class CompareService extends WMService {
                     return new ParameterMissingMessage(request);
                 }
                 Message mess = new Message(request);
-
-                String[] term1List = prmListTerm1.getValue(request);
                 String[] term2List = prmListTerm2.getValue(request);
+                List<org.wikipedia.miner.model.Label> labels = new ArrayList<org.wikipedia.miner.model.Label>();
+                NGrammer nGrammer = new NGrammer(wikipedia.getConfig().getSentenceDetector(), wikipedia.getConfig().getTokenizer());
+                for (String string2 : term2List) {
+                    NGrammer.NGramSpan span2 = nGrammer.ngramPosDetect(string2)[0];
+                    org.wikipedia.miner.model.Label lab2 = wikipedia.getLabel(span2, string2);
+                    labels.add(lab2);
+                }
+                String[] term1List = prmListTerm1.getValue(request);
                 List<String> invalidTerm = new ArrayList<String>();
                 //TODO use TreeMap? at least for me its better to have the same order as the input
+                
                 for (String string1 : term1List) {
-                    Label lab1 = new Label(wikipedia.getEnvironment(), string1, tp);
+                    NGrammer.NGramSpan span = nGrammer.ngramPosDetect(string1)[0];
+                    org.wikipedia.miner.model.Label lab1 = wikipedia.getLabel(span, string1);
                     Label.Sense[] sen1 = lab1.getSenses();
-                    for (String string2 : term2List) {
-                        Label lab2 = new Label(wikipedia.getEnvironment(), string2, tp);
-                        Label.Sense[] sen2 = lab2.getSenses();
-                        if (sen2.length != 0) {
-                            LabelComparer.ComparisonDetails dets = lbComparer.compare(lab1, lab2);
-                            mess.addDisambiguationDetailsList(dets);                         
+                    if (sen1.length != 0) {
+                        int j=0;
+                        for (Label lab2 : labels) {
+                            Label.Sense[] sen2 = lab2.getSenses();
+                            if (sen2.length != 0) {
+                                LabelComparer.ComparisonDetails dets = lbComparer.compare(lab1, lab2);
+                                mess.addDisambiguationDetailsList(dets, string1,term2List[j]);
+                            }
+                            j++;
                         }
                     }
                 }
@@ -594,7 +606,7 @@ public class CompareService extends WMService {
         @Expose
         @Attribute(required = false)
         private String title2;
-        
+
         @Expose
         @Element(required = false)
         private List<DisambiguationDetails> disambiguationDetailsList;
@@ -621,7 +633,7 @@ public class CompareService extends WMService {
 
         private Message(HttpServletRequest request) {
             super(request);
-            this.relatedness = null;            
+            this.relatedness = null;
         }
 
         private Message(HttpServletRequest request, double relatedness) {
@@ -637,12 +649,19 @@ public class CompareService extends WMService {
         private void addDisambiguationDetails(LabelComparer.ComparisonDetails details) {
             disambiguationDetails = new DisambiguationDetails(details);
         }
-        
+
         private void addDisambiguationDetailsList(LabelComparer.ComparisonDetails details) {
-            if(disambiguationDetailsList==null){
+            if (disambiguationDetailsList == null) {
                 disambiguationDetailsList = new ArrayList<DisambiguationDetails>();
             }
             disambiguationDetailsList.add(new DisambiguationDetails(details));
+        }
+
+        private void addDisambiguationDetailsList(LabelComparer.ComparisonDetails details, String term1, String term2) {
+            if (disambiguationDetailsList == null) {
+                disambiguationDetailsList = new ArrayList<DisambiguationDetails>();
+            }
+            disambiguationDetailsList.add(new DisambiguationDetails(details, term1, term2));
         }
 
         private void addConnection(Connection c) {
@@ -721,6 +740,15 @@ public class CompareService extends WMService {
 
         @Expose
         @Attribute
+        @Element(required = false)
+        private String term1;
+        @Expose
+        @Attribute
+        @Element(required = false)
+        private String term2;
+
+        @Expose
+        @Attribute
         private final int term1Candidates;
 
         @Expose
@@ -740,6 +768,19 @@ public class CompareService extends WMService {
             for (LabelComparer.SensePair sp : details.getCandidateInterpretations()) {
                 interpretations.add(new Interpretation(sp));
             }
+        }
+
+        private DisambiguationDetails(LabelComparer.ComparisonDetails details, String term1, String term2) {
+
+            term1Candidates = details.getLabelA().getSenses().length;
+            term2Candidates = details.getLabelB().getSenses().length;
+
+            interpretations = new ArrayList<Interpretation>();
+            for (LabelComparer.SensePair sp : details.getCandidateInterpretations()) {
+                interpretations.add(new Interpretation(sp));
+            }
+            this.term1 = term1;
+            this.term2 = term2;
         }
 
         public int getTerm1Candidates() {
