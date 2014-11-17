@@ -3,7 +3,7 @@ wikipediaminer
 
 An open source toolkit for mining Wikipedia
 
-To use this versión add this repository to your POM.xml.
+Add this repository to your POM.xml.
 
 ```xml
 
