@@ -55,5 +55,25 @@
 		<RedirectIdentifier>WEITERLEITUNG</RedirectIdentifier>
 		
 	</Language>
+        
+     <Language code="es" name="Spanish" localName="Castellano">
+
+		<RootCategory>Artículos</RootCategory>
+
+		<DisambiguationCategory>Wikipedia:Desambiguación</DisambiguationCategory>
+
+		<DisambiguationTemplate>desambiguación</DisambiguationTemplate>
+		<DisambiguationTemplate>des</DisambiguationTemplate>
+		<DisambiguationTemplate>desambiguacion</DisambiguationTemplate>
+		<DisambiguationTemplate>disambig</DisambiguationTemplate>
+		<RedirectIdentifier>REDIRECT</RedirectIdentifier>
+		<RedirectIdentifier>des</RedirectIdentifier>
+		<RedirectIdentifier>otros usos</RedirectIdentifier>
+		<RedirectIdentifier>redirige aquí</RedirectIdentifier>
+		<RedirectIdentifier>ico-des</RedirectIdentifier>
+		<RedirectIdentifier>REDIRECCIÓN</RedirectIdentifier>
+		<RedirectIdentifier>REDIRECCION</RedirectIdentifier>
+	</Language>
+
 
 </WikipediaLanguageList>
