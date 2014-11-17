@@ -162,12 +162,12 @@ public class LanguageConfiguration {
 		}
 		
 		if (disambigCategoryRegex != null && disambigTemplateRegex != null) {
-			disambigPattern = Pattern.compile("(" + disambigCategoryRegex + "|" + disambigTemplateRegex + ")", Pattern.CASE_INSENSITIVE) ;
+			disambigPattern = Pattern.compile("(" + disambigCategoryRegex + "|" + disambigTemplateRegex + ")", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE) ;
 		} else {
 			if (disambigCategoryRegex != null)
-				disambigPattern = Pattern.compile(disambigCategoryRegex, Pattern.CASE_INSENSITIVE) ;
+				disambigPattern = Pattern.compile(disambigCategoryRegex, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE) ;
 			else
-				disambigPattern = Pattern.compile(disambigTemplateRegex, Pattern.CASE_INSENSITIVE) ;
+				disambigPattern = Pattern.compile(disambigTemplateRegex, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE) ;
 		}
 		
 		StringBuffer redirectRegex = new StringBuffer("\\#") ;
@@ -179,7 +179,7 @@ public class LanguageConfiguration {
 		redirectRegex.deleteCharAt(redirectRegex.length()-1) ;
 		redirectRegex.append(")[:\\s]*(?:\\[\\[(.*)\\]\\]|(.*))") ;
 		
-		redirectPattern = Pattern.compile(redirectRegex.toString(), Pattern.CASE_INSENSITIVE) ;
+		redirectPattern = Pattern.compile(redirectRegex.toString(), Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE) ;
 		
 	}
 	
