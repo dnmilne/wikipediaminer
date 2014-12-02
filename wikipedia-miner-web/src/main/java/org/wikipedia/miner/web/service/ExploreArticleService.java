@@ -117,7 +117,7 @@ public class ExploreArticleService extends WMService {
 
         grpTitles = new ParameterGroup(GroupName.titles.name(), "To retrieve article by title");
         prmTitles = new StringListParameter("titles", "The (case sensitive) titles of the articles to explore", null);
-        grpTitles.addParameter(prmTitle);
+        grpTitles.addParameter(prmTitles);
         addParameterGroup(grpTitles);
 
         prmDefinition = new BooleanParameter("definition", "<b>true</b> if a snippet definition should be returned, otherwise <b>false</b>", false);
