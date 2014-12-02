@@ -19,7 +19,6 @@ import org.wikipedia.miner.model.Article;
 import org.wikipedia.miner.model.Category;
 import org.wikipedia.miner.model.Wikipedia;
 import org.wikipedia.miner.web.util.ImageRetriever;
-import org.wikipedia.miner.web.util.UtilityMessages.InvalidIdMessage;
 import org.wikipedia.miner.web.util.UtilityMessages.InvalidTitleMessage;
 import org.apache.log4j.Logger;
 import org.dmilne.xjsf.Service;
@@ -32,8 +31,9 @@ import org.dmilne.xjsf.param.ParameterGroup;
 import org.dmilne.xjsf.param.StringParameter;
 
 import com.google.gson.annotations.Expose;
+import java.util.AbstractList;
 import org.dmilne.xjsf.param.IntListParameter;
-import org.wikipedia.miner.model.Redirect;
+import org.wikipedia.miner.web.util.xjsfParameters.StringListParameter;
 
 @SuppressWarnings("serial")
 public class ExploreArticleService extends WMService {
@@ -42,7 +42,7 @@ public class ExploreArticleService extends WMService {
     //TODO: if lang is not en, use languageLinks to translate article title to english.
     private enum GroupName {
 
-        id, title, ids
+        id, title, titles, ids
     };
 
     public enum DefinitionLength {
@@ -60,6 +60,9 @@ public class ExploreArticleService extends WMService {
 
     private ParameterGroup grpTitle;
     private StringParameter prmTitle;
+
+    private ParameterGroup grpTitles;
+    private StringListParameter prmTitles;
 
     private BooleanParameter prmDefinition;
     private EnumParameter<DefinitionLength> prmDefinitionLength;
@@ -84,7 +87,7 @@ public class ExploreArticleService extends WMService {
 
     private BooleanParameter prmLinkRelatedness;
 
-    private static Logger logger = Logger.getLogger(ExploreArticleService.class);
+    private static final Logger logger = Logger.getLogger(ExploreArticleService.class);
 
     public ExploreArticleService() {
 
@@ -111,6 +114,11 @@ public class ExploreArticleService extends WMService {
         prmTitle = new StringParameter("title", "The (case sensitive) title of the article to explore", null);
         grpTitle.addParameter(prmTitle);
         addParameterGroup(grpTitle);
+
+        grpTitles = new ParameterGroup(GroupName.titles.name(), "To retrieve article by title");
+        prmTitles = new StringListParameter("titles", "The (case sensitive) titles of the articles to explore", null);
+        grpTitles.addParameter(prmTitle);
+        addParameterGroup(grpTitles);
 
         prmDefinition = new BooleanParameter("definition", "<b>true</b> if a snippet definition should be returned, otherwise <b>false</b>", false);
         addGlobalParameter(prmDefinition);
@@ -187,6 +195,7 @@ public class ExploreArticleService extends WMService {
         List<Article> articleList = new ArrayList<Article>();
         List<Integer> invalidList = new ArrayList<Integer>();
         List<Integer> nullList = new ArrayList<Integer>();
+        List<String> invalidTitle = new ArrayList<String>();
         switch (GroupName.valueOf(grp.getName())) {
 
             case id:
@@ -240,9 +249,23 @@ public class ExploreArticleService extends WMService {
                     articleList.add(arti);
                 }
                 break;
+            case titles:
+                String[] titles = prmTitles.getValue(request);
+                if (titles == null) {
+                    return new ParameterMissingMessage(request);
+                }
+                for (String title1 : titles) {
+                    arti = wikipedia.getArticleByTitle(title1);
+                    if (arti != null) {
+                        articleList.add(arti);
+                    } else {
+                        invalidTitle.add(title1);
+                    }
+                }
+                break;
         }
 
-        MessageList msge = new MessageList(request, nullList, invalidList);
+        MessageList msge = new MessageList(request, nullList, invalidList, invalidTitle);
         for (Article art : articleList) {
             ArticleMsg msg = new ArticleMsg(art);
 
@@ -382,16 +405,35 @@ public class ExploreArticleService extends WMService {
         @ElementList(required = true, entry = "nullList")
         private List<Integer> nullList = null;
 
-        private MessageList(HttpServletRequest request, List<Integer> nullList, List<Integer> invalidList) {
+        @Expose
+        @ElementList(required = true, entry = "invalidTitles")
+        private List<String> invalidTitles = null;
+
+        private MessageList(HttpServletRequest request, List<Integer> nullList, List<Integer> invalidList, List<String> invalidTitles) {
             super(request);
             this.invalidList = invalidList;
             this.nullList = nullList;
             articleList = new ArrayList<ArticleMsg>();
+            this.invalidTitles = invalidTitles;
 
         }
 
         private void addArticle(ArticleMsg arti) {
             articleList.add(arti);
+        }
+
+        /**
+         * @return the invalidTitles
+         */
+        public List<String> getInvalidTitles() {
+            return invalidTitles;
+        }
+
+        /**
+         * @param invalidTitles the invalidTitles to set
+         */
+        public void setInvalidTitles(List<String> invalidTitles) {
+            this.invalidTitles = invalidTitles;
         }
     }
 
