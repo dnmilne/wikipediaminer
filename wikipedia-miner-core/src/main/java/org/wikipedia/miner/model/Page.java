@@ -141,6 +141,7 @@ public class Page implements Comparable<Page> {
 	 * @param	p	the Page to be compared
 	 * @return	see above.
 	 */
+        @Override
 	public int compareTo(Page p) {
 
 		if (p.id == id)
@@ -163,6 +164,7 @@ public class Page implements Comparable<Page> {
 	 * 
 	 * @return a string representation of the page
 	 */
+        @Override
 	public String toString()  {
 		String s = getId() + ": " + getTitle() ;
 		return s ;

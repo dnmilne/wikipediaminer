@@ -5,9 +5,6 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.TreeSet;
-
-import org.wikipedia.miner.annotation.Disambiguator;
 import org.wikipedia.miner.model.Label;
 import org.wikipedia.miner.model.Wikipedia;
 import org.wikipedia.miner.util.CorrelationCalculator;
@@ -17,9 +14,7 @@ import org.dmilne.weka.wrapper.*;
 
 import weka.classifiers.Classifier;
 import weka.classifiers.functions.GaussianProcesses;
-import weka.classifiers.functions.SMO;
 import weka.classifiers.meta.Bagging;
-import weka.classifiers.meta.FilteredClassifier;
 import weka.core.Instance;
 import weka.core.Utils;
 

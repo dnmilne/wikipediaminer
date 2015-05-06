@@ -19,8 +19,8 @@ public class Label {
 	//properties =============================================================
 
 
-	private String text ;
-	private TextProcessor textProcessor ;
+	private final String text ;
+	private final TextProcessor textProcessor ;
 
 	private long linkDocCount = 0 ;
 	private long linkOccCount = 0 ;
@@ -150,11 +150,11 @@ public class Label {
 	public class Sense extends Article {
 
 		
-		private long sLinkDocCount ;
-		private long sLinkOccCount ;
+		private final long sLinkDocCount ;
+		private final long sLinkOccCount ;
 
-		private boolean fromTitle ;
-		private boolean fromRedirect ;
+		private final boolean fromTitle ;
+		private final boolean fromRedirect ;
 
 		//constructor =============================================================
 		

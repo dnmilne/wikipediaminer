@@ -336,6 +336,7 @@ public class Article extends Page {
 
 		DbLinkLocation key = new DbLinkLocation(id, null) ;
 		int index = Collections.binarySearch(tmpLinks.getLinkLocations(), key, new Comparator<DbLinkLocation>(){
+                        @Override
 			public int compare(DbLinkLocation a, DbLinkLocation b) {
 				return new Integer(a.getLinkId()).compareTo(b.getLinkId()) ;
 			}
@@ -401,14 +402,14 @@ public class Article extends Page {
 	 */
 	public class Label {
 
-		private String text ;
+		private final String text ;
 
-		private long linkDocCount ;
-		private long linkOccCount ;
+		private final long linkDocCount ;
+		private final long linkOccCount ;
 
-		private boolean fromTitle ;
-		private boolean fromRedirect ;
-		private boolean isPrimary ;
+		private final boolean fromTitle ;
+		private final boolean fromRedirect ;
+		private final boolean isPrimary ;
 
 		protected Label(DbLabelForPage l) {
 

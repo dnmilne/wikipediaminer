@@ -54,7 +54,7 @@ public class ArticleComparer {
 	int wikipediaArticleCount ;
 	Double m ;
 	
-	private long articlesCompared = 0 ;
+	private final long articlesCompared = 0 ;
 
 	enum Attributes {
 		inLinkGoogleMeasure, 
@@ -255,7 +255,6 @@ public class ArticleComparer {
 	/**
 	 * 
 	 * 
-	 * @param classifier
 	 * @throws Exception
 	 */
 	public void buildDefaultClassifier() throws Exception {

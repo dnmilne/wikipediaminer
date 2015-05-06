@@ -390,7 +390,15 @@ public class Wikipedia {
 
 	@Override
 	public void finalize() {
-		if (this.env != null)
-			Logger.getLogger(WIterator.class).warn("Unclosed wikipedia. You may be causing a memory leak.") ;
+            try {
+                if (this.env != null)
+                    Logger.getLogger(WIterator.class).warn("Unclosed wikipedia. You may be causing a memory leak.") ;
+            } finally {
+                try {
+                    super.finalize();
+                } catch (Throwable ex) {
+                    Logger.getLogger(WIterator.class).warn("Unclosed wikipedia. You may be causing a memory leak.") ;
+                }
+            }
 	}
 }

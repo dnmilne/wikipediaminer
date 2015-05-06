@@ -41,10 +41,10 @@ public class ConnectionSnippetWeighter {
 	}
 	
 	
-	private Wikipedia wikipedia ;
-	private ArticleComparer cmp ;
+	private final Wikipedia wikipedia ;
+	private final ArticleComparer cmp ;
 	
-	private Decider<Attributes,Double> snippetWeighter ;
+	private final Decider<Attributes,Double> snippetWeighter ;
 	private Dataset<Attributes,Double> trainingDataset ;
 	
 	
@@ -88,7 +88,7 @@ public class ConnectionSnippetWeighter {
 		}
 	}
 	
-	public void train(Vector<ConnectionSnippet> weightedSnippets) throws Exception {
+	public void train(List<ConnectionSnippet> weightedSnippets) throws Exception {
 
 		trainingDataset = snippetWeighter.createNewDataset() ;
 
@@ -104,7 +104,7 @@ public class ConnectionSnippetWeighter {
 		}
 	}
 	
-	public double test(Vector<ConnectionSnippet> weightedSnippets) throws Exception {
+	public double test(List<ConnectionSnippet> weightedSnippets) throws Exception {
 
 		List<Double> manualWeights = new ArrayList<Double>() ;
 		List<Double> autoWeights = new ArrayList<Double>() ;
@@ -183,7 +183,6 @@ public class ConnectionSnippetWeighter {
 	/**
 	 * 
 	 * 
-	 * @param classifier
 	 * @throws Exception
 	 */
 	public void buildDefaultClassifier() throws Exception {

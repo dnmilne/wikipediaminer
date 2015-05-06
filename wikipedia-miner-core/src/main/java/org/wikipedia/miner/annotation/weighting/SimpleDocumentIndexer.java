@@ -20,9 +20,7 @@
 
 package org.wikipedia.miner.annotation.weighting;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 
 import org.wikipedia.miner.annotation.Topic;

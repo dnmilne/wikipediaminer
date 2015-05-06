@@ -11,6 +11,7 @@ import java.util.HashMap;
 import javax.xml.stream.XMLStreamException;
 
 import com.sleepycat.je.*;
+import org.apache.commons.compress.compressors.CompressorException;
 
 import org.apache.log4j.Logger;
 import org.wikipedia.miner.db.WDatabase.DatabaseType;
@@ -334,7 +335,6 @@ public class WEnvironment  {
 		envConf.setAllowCreate(false) ;
 		envConf.setReadOnly(true) ;
 		envConf.setCachePercent(10) ;
-		
 		env = new Environment(conf.getDatabaseDirectory(), envConf) ;
 		
 		initDatabases() ;
@@ -672,7 +672,7 @@ public class WEnvironment  {
 	 * @throws IOException if any of the required files cannot be read
 	 * @throws XMLStreamException if the XML dump of wikipedia cannot be parsed
 	 */
-	public static void buildEnvironment(WikipediaConfiguration conf, File dataDirectory, boolean overwrite) throws IOException, XMLStreamException {
+	public static void buildEnvironment(WikipediaConfiguration conf, File dataDirectory, boolean overwrite) throws IOException, XMLStreamException, CompressorException {
 		
 		//check all files exist and are readable before doing anything
 		
@@ -739,14 +739,14 @@ public class WEnvironment  {
 		
 		env.close();
 		
-		TextProcessor tp = conf.getDefaultTextProcessor() ;
-		if (tp != null) {
-			File tmpDir = new File(conf.getDataDirectory() + File.separator + "tmp" + tp.getName()) ;
-			tmpDir.mkdir() ;
-			tmpDir.deleteOnExit() ;
-			
-			prepareTextProcessor(tp, conf, tmpDir, overwrite, 5) ;
-		}
+//		TextProcessor tp = conf.getDefaultTextProcessor() ;
+//		if (tp != null) {
+//			File tmpDir = new File(conf.getDataDirectory() + File.separator + "tmp" + tp.getName()) ;
+//			tmpDir.mkdir() ;
+//			tmpDir.deleteOnExit() ;
+//			
+//			prepareTextProcessor(tp, conf, tmpDir, overwrite, 5) ;
+//		}
 	}
 	
 	/**

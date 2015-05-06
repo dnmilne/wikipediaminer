@@ -43,7 +43,6 @@ import org.wikipedia.miner.model.Label.Sense;
 import weka.classifiers.*;
 import weka.classifiers.meta.Bagging;
 import weka.core.* ;
-import weka.filters.supervised.instance.Resample ;
 
 /**
  *	A machine-learned disambiguator. Given a term and a sense, it can identify how valid that sense is.
@@ -62,7 +61,7 @@ public class Disambiguator {
 	private NGrammer nGrammer ;
 
 	private double minSenseProbability ; 
-	private int maxLabelLength = 20 ;
+	private final int maxLabelLength = 20 ;
 	private double minLinkProbability ;
 	private int maxContextSize ;
 	

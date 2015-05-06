@@ -20,6 +20,14 @@ import com.sleepycat.bind.tuple.IntegerBinding;
 import com.sleepycat.bind.tuple.StringBinding;
 import com.sleepycat.je.Database;
 import com.sleepycat.je.DatabaseEntry;
+import java.io.BufferedInputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CodingErrorAction;
+import org.apache.commons.compress.compressors.CompressorException;
+import org.apache.commons.compress.compressors.CompressorInputStream;
+import org.apache.commons.compress.compressors.CompressorStreamFactory;
 
 import org.apache.tools.bzip2.* ;
 
@@ -69,9 +77,10 @@ public class MarkupDatabase extends WDatabase<Integer, String> {
 	 * @param tracker an optional progress tracker (may be null)
 	 * @throws IOException if there is a problem reading or deserialising the given data file.
 	 * @throws XMLStreamException if the XML within the data file cannot be parsed.
+     * @throws org.apache.commons.compress.compressors.CompressorException
 	 */
-	public void loadFromXmlFile(File dataFile, boolean overwrite, ProgressTracker tracker) throws IOException, XMLStreamException  {
-
+	public void loadFromXmlFile(File dataFile, boolean overwrite, ProgressTracker tracker) throws IOException, XMLStreamException, CompressorException  {
+//            overwrite=true;
 		if (exists() && !overwrite)
 			return ;
 		
@@ -85,15 +94,24 @@ public class MarkupDatabase extends WDatabase<Integer, String> {
 		StringBuffer characters = new StringBuffer() ;
 		
 		InputStream reader ;
-		
-		if (dataFile.getName().endsWith(".bz2"))
-			reader = new CBZip2InputStream(new FileInputStream(dataFile)) ;
-		else
+		 CharsetDecoder decoder = Charset.forName("UTF-8").newDecoder()
+                .onMalformedInput(CodingErrorAction.REPORT)
+                .onUnmappableCharacter(CodingErrorAction.REPORT);
+                 
+		if (dataFile.getName().endsWith(".bz2")){
+                 
+                    FileInputStream fin=new FileInputStream(dataFile);
+                    BufferedInputStream bis=new BufferedInputStream(fin);
+                    CompressorInputStream input=new CompressorStreamFactory().createCompressorInputStream(bis);
+                    reader = input;
+                }  else{
 			reader = new FileInputStream(dataFile) ;
-
+                }
 		XMLInputFactory xmlStreamFactory = XMLInputFactory.newInstance() ;
 		CountingInputStream countingReader = new CountingInputStream(reader) ;
-		XMLStreamReader xmlStreamReader = xmlStreamFactory.createXMLStreamReader(countingReader, "UTF-8") ;
+               // To work around a bug in XERCES (XERCESJ-1257), we assume the XML is always UTF8, so we simply provide reader.
+		XMLStreamReader xmlStreamReader = xmlStreamFactory.createXMLStreamReader(new InputStreamReader(countingReader,decoder)) ;
+                System.out.println("Parser class: " + xmlStreamReader.getClass().toString());
 
 		int pageTotal = 0 ;
 		long charTotal = 0 ;

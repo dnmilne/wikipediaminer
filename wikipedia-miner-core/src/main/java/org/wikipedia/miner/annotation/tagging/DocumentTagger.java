@@ -89,7 +89,7 @@ public abstract class DocumentTagger {
 		ArrayList<TopicReference> references = resolveCollisions(topics) ;
 
 		String originalText = doc.getOriginalText() ;
-		StringBuffer wikifiedText = new StringBuffer() ;
+		StringBuilder wikifiedText = new StringBuilder() ;
 		int lastIndex = 0 ;
 
 		HashSet<Integer> doneIds = new HashSet<Integer>() ;
@@ -149,7 +149,7 @@ public abstract class DocumentTagger {
 			double outerWeight = topicWeights.get(outerRef.getTopicId());
 
 			//identify references overlapped by this one, and their total weight
-			Vector<TopicReference> innerReferences = new Vector<TopicReference>() ;
+			List<TopicReference> innerReferences = new ArrayList<TopicReference>() ;
 			double maxInnerWeight = 0 ;
 			for (int j=i+1 ; j<references.size(); j++){
 				TopicReference innerRef = references.get(j) ;

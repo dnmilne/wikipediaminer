@@ -183,7 +183,7 @@ public class ComparisonDataSet {
 		
 		@Override
 		public String toString() {
-			StringBuffer sb = new StringBuffer() ;
+			StringBuilder sb = new StringBuilder() ;
 			
 			sb.append(termA) ;
 			sb.append(",") ;

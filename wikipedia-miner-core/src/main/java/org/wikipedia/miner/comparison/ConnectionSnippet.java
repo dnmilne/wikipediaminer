@@ -9,21 +9,21 @@ import org.wikipedia.miner.util.MarkupStripper;
 public class ConnectionSnippet implements Comparable<ConnectionSnippet> {
 
 	private String _markup ;
-	private String _plainText ;
+	private final String _plainText ;
 	
-	private Article _source ;
-	private Article _topic1 ;
-	private Article _topic2 ;
+	private final Article _source ;
+	private final Article _topic1 ;
+	private final Article _topic2 ;
 	
-	private int _sentenceIndex ;
+	private final int _sentenceIndex ;
 	private boolean _followsHeading = false ;
 	private boolean _isListItem = false ;
 	
 	private Double _weight ;
 	
-	private static Pattern _headingPattern = Pattern.compile("\\s*={2,}(.*?)={2,}(.*)") ;
-	private static Pattern _listPattern = Pattern.compile("\\s*[*#]+(.*)") ;
-	private static MarkupStripper _stripper = new MarkupStripper() ;
+	private static final Pattern _headingPattern = Pattern.compile("\\s*={2,}(.*?)={2,}(.*)") ;
+	private static final Pattern _listPattern = Pattern.compile("\\s*[*#]+(.*)") ;
+	private static final MarkupStripper _stripper = new MarkupStripper() ;
 	
 	public ConnectionSnippet(int sentenceIndex, Article source, Article topic1, Article topic2) {
 		_sentenceIndex = sentenceIndex ;

@@ -4,8 +4,8 @@ import org.wikipedia.miner.model.Article;
 
 public class ArticleComparison {
 
-	private Article articleA ;
-	private Article articleB ;
+	private final Article articleA ;
+	private final Article articleB ;
 	
 	private boolean inLinkFeaturesSet= false ;
 	private Double inLinkGoogleMeasure ;

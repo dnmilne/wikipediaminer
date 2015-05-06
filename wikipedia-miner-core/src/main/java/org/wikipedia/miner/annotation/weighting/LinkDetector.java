@@ -50,12 +50,12 @@ import weka.core.*;
  */
 public class LinkDetector extends TopicWeighter{
 	
-	private Wikipedia wikipedia ;
-	private ArticleCleaner cleaner ;
+	private final Wikipedia wikipedia ;
+	private final ArticleCleaner cleaner ;
 	
 	
 	private enum Attributes {occurances,maxDisambigConfidence,avgDisambigConfidence,relatednessToContext,relatednessToOtherTopics,maxLinkProbability,avgLinkProbability,generality,firstOccurance,lastOccurance,spread} ;
-	private Decider<Attributes, Boolean> decider ;
+	private final Decider<Attributes, Boolean> decider ;
 	private Dataset<Attributes, Boolean> dataset ;
 	
 	int linksConsidered = 0 ;
@@ -123,6 +123,7 @@ public class LinkDetector extends TopicWeighter{
 	 * @return an ArrayList of the same topics, where the weight of each topic is the probability that it is a link. 
 	 * @throws Exception if the link detector has not yet been trained
 	 */
+        @Override
 	public HashMap<Integer,Double> getTopicWeights(Collection<Topic> topics) throws Exception {
 	
 		if (!decider.isReady()) 
