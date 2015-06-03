@@ -6,8 +6,7 @@
 
     <groupId>org.wikipedia-miner</groupId>
     <artifactId>wikipedia-miner-web</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-
+    <version>1.2.4</version>
     <packaging>war</packaging>
     <name>wikipedia-miner-web Maven Webapp</name>
     <url>http://maven.apache.org</url>
@@ -22,7 +21,7 @@
         <dependency>
             <groupId>org.wikipedia-miner</groupId>
             <artifactId>wikipedia-miner-core</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>1.2.4</version>
         </dependency>
 
         <dependency>
@@ -38,7 +37,7 @@
         <dependency>
             <groupId>org</groupId>
             <artifactId>xjsf</artifactId>
-            <version>0.0.7-SNAPSHOT</version>
+            <version>1.2.4</version>
         </dependency>
         <dependency>
             <groupId>org.dmilne</groupId>
@@ -70,7 +69,6 @@
                     <path>/</path>
                 </configuration>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -85,8 +83,7 @@
                 <artifactId>maven-war-plugin</artifactId>
                 <version>2.4</version>
                 <configuration>
-                    <attachClasses>true</attachClasses>
-                  
+                    <attachClasses>true</attachClasses>                 
                 </configuration>
             </plugin>
 
