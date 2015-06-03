@@ -7,7 +7,7 @@
     <groupId>org.wikipedia-miner</groupId>
     <artifactId>wikipedia-miner-examples</artifactId>
     <version>1.2.4</version>
-  
+ 
   
     <name>wikipedia-miner-examples</name>
     <url>http://maven.apache.org</url>
