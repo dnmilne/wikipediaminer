@@ -8,7 +8,14 @@
     <!-- 
 	A version of Wikipedia that will be made available via the service hub. 
 	You may specify multiple Wikipedias, in which case one should be specified as the default
+
+        Example for English Wikipedia: 
+        
+        <wikipedia name="en" description="english-wiki" default="true">
+        path/to/conf/file
+        </wikipedia>
     -->
+    
     <wikipedia name="" description="" default="true">
 		path/to/conf/file
     </wikipedia>

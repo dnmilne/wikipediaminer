@@ -1,2 +1,8 @@
 /wikipedia-miner-core/target/
 /wikipedia-miner-extract/target/
+/wikipedia-miner-web/target/
+/wikipedia-miner-web/nb-configuration.xml
+/wikipedia-miner-web/src/main/webapp/WEB-INF/web.xml
+/target/
+/wikipedia-miner-core/nbactions.xml
+/wikipedia-miner-core/nb-configuration.xml
