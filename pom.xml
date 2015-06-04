@@ -45,30 +45,7 @@
                     <target>1.6</target>
                 </configuration>
             </plugin>
-                 <plugin>
-                <groupId>org.jfrog.buildinfo</groupId>
-                <artifactId>artifactory-maven-plugin</artifactId>
-                <version>2.2.2</version>
-                <inherited>false</inherited>
-                <executions>
-                    <execution>
-                        <id>build-info</id>
-                        <goals>
-                            <goal>publish</goal>
-                        </goals>
-                        <configuration>
-                            
-                            <publisher>
-                                <contextUrl>http://sips72.si.ehu.es:8080/artifactory/</contextUrl>
-                                <username>admin</username>
-                                <password>{DESede}6FmOoIJyJ0Y=</password>
-                                <repoKey>ext-release-local</repoKey>
-                                <snapshotRepoKey>ext-snapshots-local</snapshotRepoKey>
-                            </publisher>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+          
         </plugins>
     </build>
 </project>
