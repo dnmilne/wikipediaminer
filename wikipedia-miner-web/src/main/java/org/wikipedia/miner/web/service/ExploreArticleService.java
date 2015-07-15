@@ -31,7 +31,6 @@ import org.dmilne.xjsf.param.ParameterGroup;
 import org.dmilne.xjsf.param.StringParameter;
 
 import com.google.gson.annotations.Expose;
-import java.util.AbstractList;
 import org.dmilne.xjsf.param.IntListParameter;
 import org.wikipedia.miner.web.util.xjsfParameters.StringListParameter;
 
@@ -177,7 +176,8 @@ public class ExploreArticleService extends WMService {
     public Service.Message buildWrappedResponse(HttpServletRequest request) throws Exception {
 
         Wikipedia wikipedia = getWikipedia(request);
-
+ 	String wikiName = prmWikipedia.getValue(request) ;
+        
         ArticleComparer artComparer = null;
         if (prmLinkRelatedness.getValue(request)) {
             artComparer = getWMHub().getArticleComparer(this.getWikipediaName(request));
@@ -314,9 +314,9 @@ public class ExploreArticleService extends WMService {
 
                 try {
 
-                    for (String imgTitle : imageRetriever.getImageTitles(art.getId())) {
+                    for (String imgTitle : imageRetriever.getImageTitles(art.getId(),prmWikipedia.getValue(request))) {
 
-                        String imgUrl = imageRetriever.getImageUrl(imgTitle, width, height);
+                        String imgUrl = imageRetriever.getImageUrl(imgTitle, width, height,prmWikipedia.getValue(request));
 
                         if (imgUrl != null) {
                             msg.addImage(new Image(imgUrl));
