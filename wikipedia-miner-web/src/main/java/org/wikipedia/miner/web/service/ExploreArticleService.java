@@ -84,6 +84,7 @@ public class ExploreArticleService extends WMService {
     private IntParameter prmOutLinkMax;
     private IntParameter prmOutLinkStart;
 
+    private BooleanParameter prmMarkUp;
     private BooleanParameter prmLinkRelatedness;
 
     private static final Logger logger = Logger.getLogger(ExploreArticleService.class);
@@ -168,6 +169,9 @@ public class ExploreArticleService extends WMService {
         prmLinkRelatedness = new BooleanParameter("linkRelatedness", "<b>true</b> if the relatedness of in- and out-links should be measured, otherwise <b>false</b>", false);
         addGlobalParameter(prmLinkRelatedness);
 
+        prmMarkUp = new BooleanParameter("markUp", "<b>true</b> if the article markup should be returned", false);
+        addGlobalParameter(prmMarkUp);
+
         imageRetriever = new ImageRetriever(getWMHub().getRetriever());
 
     }
@@ -176,8 +180,7 @@ public class ExploreArticleService extends WMService {
     public Service.Message buildWrappedResponse(HttpServletRequest request) throws Exception {
 
         Wikipedia wikipedia = getWikipedia(request);
- 	String wikiName = prmWikipedia.getValue(request) ;
-        
+
         ArticleComparer artComparer = null;
         if (prmLinkRelatedness.getValue(request)) {
             artComparer = getWMHub().getArticleComparer(this.getWikipediaName(request));
@@ -314,9 +317,9 @@ public class ExploreArticleService extends WMService {
 
                 try {
 
-                    for (String imgTitle : imageRetriever.getImageTitles(art.getId(),prmWikipedia.getValue(request))) {
+                    for (String imgTitle : imageRetriever.getImageTitles(art.getId(), prmWikipedia.getValue(request))) {
 
-                        String imgUrl = imageRetriever.getImageUrl(imgTitle, width, height,prmWikipedia.getValue(request));
+                        String imgUrl = imageRetriever.getImageUrl(imgTitle, width, height, prmWikipedia.getValue(request));
 
                         if (imgUrl != null) {
                             msg.addImage(new Image(imgUrl));
@@ -331,15 +334,16 @@ public class ExploreArticleService extends WMService {
 
             if (prmParentCategories.getValue(request)) {
                 Category[] parents = art.getParentCategories();
-
-                logger.info("retrieving parents from " + parents.length + " total");
-
+                logger.debug("retrieving parents from " + parents.length + " total");
                 msg.setTotalParentCategories(parents.length);
                 for (Category parent : parents) {
                     msg.addParentCategory(new Page(parent));
                 }
             }
-
+            if (prmMarkUp.getValue(request)) {
+                String markup = art.getMarkup();
+                msg.setMarkup(markup);
+            }
             if (prmOutLinks.getValue(request)) {
 
                 int start = prmOutLinkStart.getValue(request);
@@ -351,7 +355,7 @@ public class ExploreArticleService extends WMService {
                 }
 
                 Article[] linksOut = art.getLinksOut();
-                logger.info("retrieving out links [" + start + "," + max + "] from " + linksOut.length + " total");
+                logger.debug("retrieving out links [" + start + "," + max + "] from " + linksOut.length + " total");
 
                 msg.setTotalOutLinks(linksOut.length);
                 for (int i = start; i < max && i < linksOut.length; i++) {
@@ -375,7 +379,7 @@ public class ExploreArticleService extends WMService {
                 }
 
                 Article[] linksIn = art.getLinksIn();
-                logger.info("retrieving in links [" + start + "," + max + "] from " + linksIn.length + " total");
+                logger.debug("retrieving in links [" + start + "," + max + "] from " + linksIn.length + " total");
 
                 msg.setTotalInLinks(linksIn.length);
                 for (int i = start; i < max && i < linksIn.length; i++) {
@@ -475,6 +479,9 @@ public class ExploreArticleService extends WMService {
         @Expose
         @Attribute(required = false)
         private Integer totalOutLinks;
+        @Expose
+        @Element(required = false, data = true)
+        private String markup;
 
         private ArticleMsg(Article art) {
             this.id = art.getId();
@@ -621,6 +628,14 @@ public class ExploreArticleService extends WMService {
 
         public Integer getTotalOutLinks() {
             return totalOutLinks;
+        }
+
+        public void setMarkup(String markup) {
+            this.markup = markup;
+        }
+
+        public String getMarkup() {
+            return markup;
         }
     }
 

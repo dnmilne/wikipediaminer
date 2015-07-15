@@ -146,7 +146,6 @@ public class ImageRetriever {
     public static void main(String args[]) throws ParserConfigurationException, IOException, ClassNotFoundException, InstantiationException, IllegalAccessException, SAXException {
 
         File conf = new File("../configs/hub.xml");
-
         WebContentRetriever wcr = new WebContentRetriever(new HubConfiguration(conf));
         ImageRetriever ir = new ImageRetriever(wcr);
 
