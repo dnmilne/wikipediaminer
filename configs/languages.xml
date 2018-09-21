@@ -5,9 +5,11 @@
 
 	<Language code="en" name="English" localName="English">
 
-		<RootCategory>Fundamental categories</RootCategory>
-
-		<DisambiguationCategory>Disambiguation</DisambiguationCategory>
+                <!-- <RootCategory>Fundamental categories</RootCategory> -->
+                <RootCategory>Main topic classifications</RootCategory>
+                
+                <!-- <DisambiguationCategory>Disambiguation</DisambiguationCategory> -->
+                <DisambiguationCategory>Disambiguation pages</DisambiguationCategory>
 
 		<DisambiguationTemplate>disambiguation</DisambiguationTemplate>
 		<DisambiguationTemplate>disambig</DisambiguationTemplate>
